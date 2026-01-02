@@ -422,7 +422,7 @@ export default function BranchPage() {
                   <div className="flex gap-3">
                     <button
                       onClick={handleSave}
-                      className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-2xl py-4 px-6 text-lg font-bold hover:from-blue-600 hover:to-blue-700 active:scale-[0.98] transition-all shadow-lg flex items-center justify-center gap-3"
+                      className="flex-1 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-2xl py-4 px-6 text-lg font-bold hover:from-red-600 hover:to-red-700 active:scale-[0.98] transition-all shadow-lg flex items-center justify-center gap-3"
                     >
                       <svg
                         className="w-6 h-6"

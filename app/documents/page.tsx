@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, useRef } from "react";
-import html2canvas from "html2canvas";
+import domtoimage from 'dom-to-image-more';
 
 type Situation = 'alive' | 'deceased' | null;
 type AliveDetailType = 'adult' | 'minor' | 'guardian_adult' | null;
@@ -489,150 +489,30 @@ export default function DocumentsPage() {
     if (!captureRef.current) return;
 
     try {
-      const canvas = await html2canvas(captureRef.current, {
-        backgroundColor: '#f3f4f6',
-        scale: 2,
-        logging: true,
-        useCORS: true,
-        allowTaint: true,
-        onclone: (clonedDoc) => {
-          // 1. 모든 스타일시트에서 lab/oklch 컬러 제거
-          try {
-            Array.from(clonedDoc.styleSheets).forEach((sheet) => {
-              try {
-                const rules = Array.from(sheet.cssRules || sheet.rules || []);
-                rules.forEach((rule: any) => {
-                  if (rule.style) {
-                    const style = rule.style;
-                    for (let i = 0; i < style.length; i++) {
-                      const prop = style[i];
-                      const value = style.getPropertyValue(prop);
-                      if (value && (value.includes('lab(') || value.includes('oklch(') || value.includes('lch(') || value.includes('oklab('))) {
-                        // 기본 컬러로 교체
-                        const fallbackColors: { [key: string]: string } = {
-                          'color': '#000000',
-                          'background-color': 'transparent',
-                          'border-color': '#000000',
-                          'fill': 'currentColor',
-                          'stroke': 'currentColor'
-                        };
-                        style.setProperty(prop, fallbackColors[prop] || 'transparent', 'important');
-                      }
-                    }
-                  }
-                });
-              } catch (e) {
-                // CORS나 접근 권한 문제는 무시
-                console.warn('Cannot access stylesheet:', e);
-              }
-            });
-          } catch (e) {
-            console.warn('Stylesheet processing error:', e);
-          }
-
-          // 2. 모든 요소의 인라인 스타일 강제 변환
-          const allElements = clonedDoc.querySelectorAll('*');
-          allElements.forEach((element) => {
-            try {
-              const computedStyle = window.getComputedStyle(element);
-              const htmlElement = element as HTMLElement;
-
-              // 주요 컬러 속성들
-              const colorProps = {
-                'color': '#000000',
-                'backgroundColor': 'transparent',
-                'borderTopColor': '#d1d5db',
-                'borderRightColor': '#d1d5db',
-                'borderBottomColor': '#d1d5db',
-                'borderLeftColor': '#d1d5db',
-                'fill': 'currentColor',
-                'stroke': 'currentColor'
-              };
-
-              Object.entries(colorProps).forEach(([prop, fallback]) => {
-                const value = computedStyle.getPropertyValue(prop);
-                if (value && (value.includes('lab(') || value.includes('oklch(') || value.includes('lch(') || value.includes('oklab('))) {
-                  // Tailwind 클래스 기반 fallback
-                  if (element.className) {
-                    const classes = element.className.toString();
-                    // 파란색 계열
-                    if (classes.includes('blue')) {
-                      htmlElement.style.setProperty(prop, prop === 'color' ? '#3b82f6' : (prop === 'backgroundColor' ? '#eff6ff' : '#3b82f6'), 'important');
-                    }
-                    // 회색 계열
-                    else if (classes.includes('gray')) {
-                      const grayMap: { [key: string]: string } = {
-                        'color': '#6b7280',
-                        'backgroundColor': '#f3f4f6',
-                        'default': '#9ca3af'
-                      };
-                      htmlElement.style.setProperty(prop, grayMap[prop] || grayMap['default'], 'important');
-                    }
-                    // 녹색 계열
-                    else if (classes.includes('green') || classes.includes('emerald')) {
-                      htmlElement.style.setProperty(prop, prop === 'color' ? '#10b981' : (prop === 'backgroundColor' ? '#d1fae5' : '#10b981'), 'important');
-                    }
-                    // 빨간색 계열
-                    else if (classes.includes('red') || classes.includes('rose')) {
-                      htmlElement.style.setProperty(prop, prop === 'color' ? '#ef4444' : (prop === 'backgroundColor' ? '#fee2e2' : '#ef4444'), 'important');
-                    }
-                    // 보라색 계열
-                    else if (classes.includes('purple')) {
-                      htmlElement.style.setProperty(prop, prop === 'color' ? '#a855f7' : (prop === 'backgroundColor' ? '#f3e8ff' : '#a855f7'), 'important');
-                    }
-                    // 호박색 계열
-                    else if (classes.includes('amber')) {
-                      htmlElement.style.setProperty(prop, prop === 'color' ? '#f59e0b' : (prop === 'backgroundColor' ? '#fef3c7' : '#f59e0b'), 'important');
-                    }
-                    else {
-                      htmlElement.style.setProperty(prop, fallback, 'important');
-                    }
-                  } else {
-                    htmlElement.style.setProperty(prop, fallback, 'important');
-                  }
-                }
-              });
-
-              // 3. SVG 특별 처리
-              if (element.tagName.toLowerCase() === 'svg' || element.tagName.toLowerCase() === 'path') {
-                htmlElement.style.color = '';
-                const fill = computedStyle.getPropertyValue('fill');
-                const stroke = computedStyle.getPropertyValue('stroke');
-
-                if (fill && (fill.includes('lab(') || fill.includes('oklch('))) {
-                  htmlElement.setAttribute('fill', 'currentColor');
-                }
-                if (stroke && (stroke.includes('lab(') || stroke.includes('oklch('))) {
-                  htmlElement.setAttribute('stroke', 'currentColor');
-                }
-              }
-            } catch (e) {
-              // 개별 요소 처리 오류는 무시하고 계속
-              console.warn('Element processing error:', e);
-            }
-          });
-        },
+      // dom-to-image-more 사용
+      const blob = await domtoimage.toBlob(captureRef.current, {
+        quality: 1.0,
+        bgcolor: '#f3f4f6',
+        filter: (node: HTMLElement) => {
+          // SVG와 버튼 제외
+          if (!node.tagName) return true;
+          const tagName = node.tagName.toLowerCase();
+          return tagName !== 'svg' && tagName !== 'button';
+        }
       });
 
-      // Canvas를 Blob으로 변환하여 다운로드
-      canvas.toBlob((blob) => {
-        if (!blob) {
-          alert('이미지 생성에 실패했습니다.');
-          return;
-        }
+      // Blob을 다운로드
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'NHIS_제출서류_안내.png';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
 
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = 'NHIS_제출서류_안내.png';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-
-        // 저장 성공 후 피드백 모달 표시
-        setShowFeedbackModal(true);
-      }, 'image/png', 1.0);
+      // 피드백 모달 표시
+      setShowFeedbackModal(true);
     } catch (error) {
       console.error('캡처 실패:', error);
       alert('이미지 저장에 실패했습니다. 다시 시도해주세요.');
@@ -644,142 +524,39 @@ export default function DocumentsPage() {
     if (!captureRef.current) return;
 
     try {
-      const canvas = await html2canvas(captureRef.current, {
-        backgroundColor: '#f3f4f6',
-        scale: 2,
-        logging: true,
-        useCORS: true,
-        allowTaint: true,
-        onclone: (clonedDoc) => {
-          // handleSave와 동일한 색상 변환 로직 적용
-          try {
-            Array.from(clonedDoc.styleSheets).forEach((sheet) => {
-              try {
-                const rules = Array.from(sheet.cssRules || sheet.rules || []);
-                rules.forEach((rule: any) => {
-                  if (rule.style) {
-                    const style = rule.style;
-                    for (let i = 0; i < style.length; i++) {
-                      const prop = style[i];
-                      const value = style.getPropertyValue(prop);
-                      if (value && (value.includes('lab(') || value.includes('oklch(') || value.includes('lch(') || value.includes('oklab('))) {
-                        const fallbackColors: { [key: string]: string } = {
-                          'color': '#000000',
-                          'background-color': 'transparent',
-                          'border-color': '#000000',
-                          'fill': 'currentColor',
-                          'stroke': 'currentColor'
-                        };
-                        style.setProperty(prop, fallbackColors[prop] || 'transparent', 'important');
-                      }
-                    }
-                  }
-                });
-              } catch (e) {
-                console.warn('Cannot access stylesheet:', e);
-              }
-            });
-          } catch (e) {
-            console.warn('Stylesheet processing error:', e);
-          }
-
-          const allElements = clonedDoc.querySelectorAll('*');
-          allElements.forEach((element) => {
-            try {
-              const computedStyle = window.getComputedStyle(element);
-              const htmlElement = element as HTMLElement;
-              const colorProps = {
-                'color': '#000000',
-                'backgroundColor': 'transparent',
-                'borderTopColor': '#d1d5db',
-                'borderRightColor': '#d1d5db',
-                'borderBottomColor': '#d1d5db',
-                'borderLeftColor': '#d1d5db',
-                'fill': 'currentColor',
-                'stroke': 'currentColor'
-              };
-
-              Object.entries(colorProps).forEach(([prop, fallback]) => {
-                const value = computedStyle.getPropertyValue(prop);
-                if (value && (value.includes('lab(') || value.includes('oklch(') || value.includes('lch(') || value.includes('oklab('))) {
-                  if (element.className) {
-                    const classes = element.className.toString();
-                    if (classes.includes('blue')) {
-                      htmlElement.style.setProperty(prop, prop === 'color' ? '#3b82f6' : (prop === 'backgroundColor' ? '#eff6ff' : '#3b82f6'), 'important');
-                    } else if (classes.includes('gray')) {
-                      const grayMap: { [key: string]: string } = {
-                        'color': '#6b7280',
-                        'backgroundColor': '#f3f4f6',
-                        'default': '#9ca3af'
-                      };
-                      htmlElement.style.setProperty(prop, grayMap[prop] || grayMap['default'], 'important');
-                    } else if (classes.includes('green') || classes.includes('emerald')) {
-                      htmlElement.style.setProperty(prop, prop === 'color' ? '#10b981' : (prop === 'backgroundColor' ? '#d1fae5' : '#10b981'), 'important');
-                    } else if (classes.includes('red') || classes.includes('rose')) {
-                      htmlElement.style.setProperty(prop, prop === 'color' ? '#ef4444' : (prop === 'backgroundColor' ? '#fee2e2' : '#ef4444'), 'important');
-                    } else if (classes.includes('purple')) {
-                      htmlElement.style.setProperty(prop, prop === 'color' ? '#a855f7' : (prop === 'backgroundColor' ? '#f3e8ff' : '#a855f7'), 'important');
-                    } else if (classes.includes('amber')) {
-                      htmlElement.style.setProperty(prop, prop === 'color' ? '#f59e0b' : (prop === 'backgroundColor' ? '#fef3c7' : '#f59e0b'), 'important');
-                    } else {
-                      htmlElement.style.setProperty(prop, fallback, 'important');
-                    }
-                  } else {
-                    htmlElement.style.setProperty(prop, fallback, 'important');
-                  }
-                }
-              });
-
-              if (element.tagName.toLowerCase() === 'svg' || element.tagName.toLowerCase() === 'path') {
-                htmlElement.style.color = '';
-                const fill = computedStyle.getPropertyValue('fill');
-                const stroke = computedStyle.getPropertyValue('stroke');
-                if (fill && (fill.includes('lab(') || fill.includes('oklch('))) {
-                  htmlElement.setAttribute('fill', 'currentColor');
-                }
-                if (stroke && (stroke.includes('lab(') || stroke.includes('oklch('))) {
-                  htmlElement.setAttribute('stroke', 'currentColor');
-                }
-              }
-            } catch (e) {
-              console.warn('Element processing error:', e);
-            }
-          });
-        },
+      const blob = await domtoimage.toBlob(captureRef.current, {
+        quality: 1.0,
+        bgcolor: '#f3f4f6',
+        filter: (node: HTMLElement) => {
+          if (!node.tagName) return true;
+          const tagName = node.tagName.toLowerCase();
+          return tagName !== 'svg' && tagName !== 'button';
+        }
       });
 
-      // Canvas를 Blob으로 변환
-      canvas.toBlob(async (blob) => {
-        if (!blob) {
-          alert('이미지 생성에 실패했습니다.');
-          return;
-        }
+      const file = new File([blob], 'NHIS_제출서류_안내.png', {
+        type: 'image/png',
+      });
 
-        const file = new File([blob], 'NHIS_제출서류_안내.png', {
-          type: 'image/png',
-        });
-
-        // Web Share API 지원 확인
-        if (navigator.share && navigator.canShare({ files: [file] })) {
-          try {
-            await navigator.share({
-              files: [file],
-              title: '건강보험 환급금 제출서류 안내',
-              text: '건강보험 환급금 신청에 필요한 서류 안내입니다.',
-            });
-          } catch (error) {
-            if ((error as Error).name !== 'AbortError') {
-              console.error('공유 실패:', error);
-              alert('공유에 실패했습니다. 다시 시도해주세요.');
-            }
+      if (navigator.share && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: '건강보험 환급금 제출서류 안내',
+            text: '건강보험 환급금 신청에 필요한 서류 안내입니다.',
+          });
+        } catch (error) {
+          if ((error as Error).name !== 'AbortError') {
+            console.error('공유 실패:', error);
+            alert('공유에 실패했습니다.');
           }
-        } else {
-          alert('이 브라우저는 공유 기능을 지원하지 않습니다. 저장하기 버튼을 이용해주세요.');
         }
-      }, 'image/png', 1.0);
+      } else {
+        alert('이 브라우저는 공유 기능을 지원하지 않습니다. 저장하기를 이용해주세요.');
+      }
     } catch (error) {
       console.error('캡처 실패:', error);
-      alert('이미지 생성에 실패했습니다. 다시 시도해주세요.');
+      alert('이미지 생성에 실패했습니다.');
     }
   };
 
@@ -1176,7 +953,7 @@ export default function DocumentsPage() {
                 {/* 전화로 신청하기 */}
                 <a
                   href="tel:1577-1000"
-                  className="w-full bg-blue-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                 >
                   전화로 신청하기
                 </a>
@@ -1185,14 +962,14 @@ export default function DocumentsPage() {
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={handleSave}
-                    className="bg-blue-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                   >
                     저장하기
                   </button>
 
                   <button
                     onClick={handleShare}
-                    className="bg-blue-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                   >
                     공유하기
                   </button>
@@ -1292,7 +1069,7 @@ export default function DocumentsPage() {
               <div className="space-y-3 pb-4 mt-2">
                 <a
                   href="tel:1577-1000"
-                  className="w-full bg-blue-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                 >
                   전화로 신청하기
                 </a>
@@ -1300,14 +1077,14 @@ export default function DocumentsPage() {
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={handleSave}
-                    className="bg-blue-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                   >
                     저장하기
                   </button>
 
                   <button
                     onClick={handleShare}
-                    className="bg-blue-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                   >
                     공유하기
                   </button>
@@ -1450,7 +1227,7 @@ export default function DocumentsPage() {
               <div className="space-y-3 pb-4 px-4">
                 <Link
                   href="/branch"
-                  className="w-full bg-blue-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                 >
                   지사 팩스번호 찾기
                 </Link>
@@ -1458,14 +1235,14 @@ export default function DocumentsPage() {
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={handleSave}
-                    className="bg-blue-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                   >
                     저장하기
                   </button>
 
                   <button
                     onClick={handleShare}
-                    className="bg-blue-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                   >
                     공유하기
                   </button>
@@ -1559,7 +1336,7 @@ export default function DocumentsPage() {
               <div className="space-y-3 pb-4 px-4">
                 <Link
                   href="/branch"
-                  className="w-full bg-blue-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                 >
                   지사 팩스번호 찾기
                 </Link>
@@ -1567,14 +1344,14 @@ export default function DocumentsPage() {
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={handleSave}
-                    className="bg-blue-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                   >
                     저장하기
                   </button>
 
                   <button
                     onClick={handleShare}
-                    className="bg-blue-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                   >
                     공유하기
                   </button>
@@ -1918,14 +1695,14 @@ export default function DocumentsPage() {
                 {(deceasedRelationship === 'parent' || deceasedRelationship === 'grandchild') ? (
                   <Link
                     href="/branch"
-                    className="w-full bg-blue-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                   >
                     지사 팩스번호 찾기
                   </Link>
                 ) : (
                   <a
                     href="tel:1577-1000"
-                    className="w-full bg-blue-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                   >
                     전화로 신청하기
                   </a>
@@ -1934,14 +1711,14 @@ export default function DocumentsPage() {
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={handleSave}
-                    className="bg-blue-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                   >
                     저장하기
                   </button>
 
                   <button
                     onClick={handleShare}
-                    className="bg-blue-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                   >
                     공유하기
                   </button>
@@ -2202,7 +1979,7 @@ export default function DocumentsPage() {
               <div className="space-y-3 pb-4 px-4">
                 <Link
                   href="/branch"
-                  className="w-full bg-blue-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                 >
                   지사 팩스번호 찾기
                 </Link>
@@ -2210,14 +1987,14 @@ export default function DocumentsPage() {
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={handleSave}
-                    className="bg-blue-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                   >
                     저장하기
                   </button>
 
                   <button
                     onClick={handleShare}
-                    className="bg-blue-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                   >
                     공유하기
                   </button>
@@ -2491,7 +2268,7 @@ export default function DocumentsPage() {
               <div className="space-y-3 pb-4 px-4">
                 <Link
                   href="/branch"
-                  className="w-full bg-blue-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                 >
                   지사 팩스번호 찾기
                 </Link>
@@ -2499,14 +2276,14 @@ export default function DocumentsPage() {
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={handleSave}
-                    className="bg-blue-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                   >
                     저장하기
                   </button>
 
                   <button
                     onClick={handleShare}
-                    className="bg-blue-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                   >
                     공유하기
                   </button>
@@ -2802,7 +2579,7 @@ export default function DocumentsPage() {
               <div className="space-y-3 pb-4 px-4">
                 <Link
                   href="/branch"
-                  className="w-full bg-blue-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                 >
                   지사 팩스번호 찾기
                 </Link>
@@ -2810,14 +2587,14 @@ export default function DocumentsPage() {
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={handleSave}
-                    className="bg-blue-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                   >
                     저장하기
                   </button>
 
                   <button
                     onClick={handleShare}
-                    className="bg-blue-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                   >
                     공유하기
                   </button>
@@ -3098,7 +2875,7 @@ export default function DocumentsPage() {
               <div className="space-y-3 pb-4 px-4">
                 <Link
                   href="/branch"
-                  className="w-full bg-blue-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                 >
                   지사 팩스번호 찾기
                 </Link>
@@ -3106,14 +2883,14 @@ export default function DocumentsPage() {
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={handleSave}
-                    className="bg-blue-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                   >
                     저장하기
                   </button>
 
                   <button
                     onClick={handleShare}
-                    className="bg-blue-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                   >
                     공유하기
                   </button>
@@ -3209,14 +2986,14 @@ export default function DocumentsPage() {
               <div className="space-y-3 pb-4">
                 <Link
                   href="/branch"
-                  className="w-full bg-blue-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                 >
                   가까운 지사 찾기
                 </Link>
 
                 <a
                   href="tel:1577-1000"
-                  className="w-full bg-blue-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                 >
                   고객센터 전화 (1577-1000)
                 </a>
@@ -3292,14 +3069,14 @@ export default function DocumentsPage() {
               <div className="space-y-3 pb-4">
                 <Link
                   href="/branch"
-                  className="w-full bg-blue-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                 >
                   가까운 지사 찾기
                 </Link>
 
                 <a
                   href="tel:1577-1000"
-                  className="w-full bg-blue-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                 >
                   고객센터 전화 (1577-1000)
                 </a>
@@ -3449,7 +3226,7 @@ export default function DocumentsPage() {
               <div className="space-y-3 pb-4 px-4">
                 <Link
                   href="/branch"
-                  className="w-full bg-blue-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                 >
                   지사 팩스번호 찾기
                 </Link>
@@ -3457,14 +3234,14 @@ export default function DocumentsPage() {
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={handleSave}
-                    className="bg-blue-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                   >
                     저장하기
                   </button>
 
                   <button
                     onClick={handleShare}
-                    className="bg-blue-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                   >
                     공유하기
                   </button>
@@ -3540,7 +3317,7 @@ export default function DocumentsPage() {
               <div className="space-y-3 pb-4 px-4">
                 <Link
                   href="/branch"
-                  className="w-full bg-blue-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                 >
                   지사 팩스번호 찾기
                 </Link>
@@ -3548,14 +3325,14 @@ export default function DocumentsPage() {
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={handleSave}
-                    className="bg-blue-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                   >
                     저장하기
                   </button>
 
                   <button
                     onClick={handleShare}
-                    className="bg-blue-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                   >
                     공유하기
                   </button>
@@ -3637,7 +3414,7 @@ export default function DocumentsPage() {
               <div className="space-y-3 pb-4 px-4">
                 <Link
                   href="/branch"
-                  className="w-full bg-blue-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                 >
                   지사 팩스번호 찾기
                 </Link>
@@ -3645,14 +3422,14 @@ export default function DocumentsPage() {
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={handleSave}
-                    className="bg-blue-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                   >
                     저장하기
                   </button>
 
                   <button
                     onClick={handleShare}
-                    className="bg-blue-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                   >
                     공유하기
                   </button>
@@ -3723,14 +3500,14 @@ export default function DocumentsPage() {
               <div className="space-y-3 pb-4">
                 <Link
                   href="/branch"
-                  className="w-full bg-blue-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                 >
                   가까운 지사 찾기
                 </Link>
 
                 <a
                   href="tel:1577-1000"
-                  className="w-full bg-blue-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                 >
                   고객센터 전화 (1577-1000)
                 </a>
@@ -3798,14 +3575,14 @@ export default function DocumentsPage() {
               <div className="space-y-3 pb-4">
                 <Link
                   href="/branch"
-                  className="w-full bg-blue-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                 >
                   가까운 지사 찾기
                 </Link>
 
                 <a
                   href="tel:1577-1000"
-                  className="w-full bg-blue-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                 >
                   고객센터 전화 (1577-1000)
                 </a>
@@ -4007,7 +3784,7 @@ export default function DocumentsPage() {
               <div className="space-y-3 pb-4 px-4">
                 <Link
                   href="/branch"
-                  className="w-full bg-blue-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                 >
                   지사 팩스번호 찾기
                 </Link>
@@ -4015,14 +3792,14 @@ export default function DocumentsPage() {
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={handleSave}
-                    className="bg-blue-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                   >
                     저장하기
                   </button>
 
                   <button
                     onClick={handleShare}
-                    className="bg-blue-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                   >
                     공유하기
                   </button>
@@ -4258,7 +4035,7 @@ export default function DocumentsPage() {
               <div className="space-y-3 pb-4 px-4">
                 <Link
                   href="/branch"
-                  className="w-full bg-blue-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                 >
                   지사 팩스번호 찾기
                 </Link>
@@ -4266,14 +4043,14 @@ export default function DocumentsPage() {
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={handleSave}
-                    className="bg-blue-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                   >
                     저장하기
                   </button>
 
                   <button
                     onClick={handleShare}
-                    className="bg-blue-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
                   >
                     공유하기
                   </button>
