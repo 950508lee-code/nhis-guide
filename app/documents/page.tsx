@@ -505,6 +505,15 @@ export default function DocumentsPage() {
               tagName === 'line' || tagName === 'polygon' || tagName === 'polyline' ||
               tagName === 'ellipse' || tagName === 'g') return false;
 
+          // border 클래스를 가진 요소 제외 (구분선 등)
+          const className = node.className || '';
+          if (typeof className === 'string' &&
+              (className.includes('border-t') || className.includes('border-b') ||
+               className.includes('border-l') || className.includes('border-r') ||
+               className.includes('border '))) {
+            return false;
+          }
+
           return true;
         }
       });
@@ -546,6 +555,15 @@ export default function DocumentsPage() {
           if (tagName === 'path' || tagName === 'circle' || tagName === 'rect' ||
               tagName === 'line' || tagName === 'polygon' || tagName === 'polyline' ||
               tagName === 'ellipse' || tagName === 'g') return false;
+
+          // border 클래스를 가진 요소 제외 (구분선 등)
+          const className = node.className || '';
+          if (typeof className === 'string' &&
+              (className.includes('border-t') || className.includes('border-b') ||
+               className.includes('border-l') || className.includes('border-r') ||
+               className.includes('border '))) {
+            return false;
+          }
 
           return true;
         }
