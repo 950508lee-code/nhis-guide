@@ -494,10 +494,18 @@ export default function DocumentsPage() {
         quality: 1.0,
         bgcolor: '#f3f4f6',
         filter: (node: HTMLElement) => {
-          // SVG와 버튼 제외
+          // 텍스트 노드는 포함
           if (!node.tagName) return true;
+
           const tagName = node.tagName.toLowerCase();
-          return tagName !== 'svg' && tagName !== 'button';
+
+          // SVG와 버튼, 아이콘 관련 요소 모두 제외
+          if (tagName === 'svg' || tagName === 'button') return false;
+          if (tagName === 'path' || tagName === 'circle' || tagName === 'rect' ||
+              tagName === 'line' || tagName === 'polygon' || tagName === 'polyline' ||
+              tagName === 'ellipse' || tagName === 'g') return false;
+
+          return true;
         }
       });
 
@@ -528,9 +536,18 @@ export default function DocumentsPage() {
         quality: 1.0,
         bgcolor: '#f3f4f6',
         filter: (node: HTMLElement) => {
+          // 텍스트 노드는 포함
           if (!node.tagName) return true;
+
           const tagName = node.tagName.toLowerCase();
-          return tagName !== 'svg' && tagName !== 'button';
+
+          // SVG와 버튼, 아이콘 관련 요소 모두 제외
+          if (tagName === 'svg' || tagName === 'button') return false;
+          if (tagName === 'path' || tagName === 'circle' || tagName === 'rect' ||
+              tagName === 'line' || tagName === 'polygon' || tagName === 'polyline' ||
+              tagName === 'ellipse' || tagName === 'g') return false;
+
+          return true;
         }
       });
 
