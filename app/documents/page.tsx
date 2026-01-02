@@ -1989,14 +1989,14 @@ export default function DocumentsPage() {
                       <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
-                      <span className="text-xl text-gray-800">자녀 (신청인 포함)</span>
+                      <span className="text-xl text-gray-800 flex-1">자녀 (신청인 포함)</span>
                     </div>
                     {hasSpouse && (
                       <div className="flex items-start gap-3">
                         <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
-                        <span className="text-xl text-gray-800">배우자 (진료받은 분의 배우자)</span>
+                        <span className="text-xl text-gray-800 flex-1">배우자 (진료받은 분의 배우자)</span>
                       </div>
                     )}
                     {hasDaeseup && (
@@ -2004,7 +2004,7 @@ export default function DocumentsPage() {
                         <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
-                        <span className="text-xl text-gray-800">손자녀 (사망한 자녀의 자녀 - 대습상속)</span>
+                        <span className="text-xl text-gray-800 flex-1">손자녀 (사망한 자녀의 자녀 - 대습상속)</span>
                       </div>
                     )}
                   </div>
@@ -2270,14 +2270,14 @@ export default function DocumentsPage() {
                       <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
-                      <span className="text-xl text-gray-800">배우자 (신청인)</span>
+                      <span className="text-xl text-gray-800 flex-1">배우자 (신청인)</span>
                     </div>
                     {hasChildren && (
                       <div className="flex items-start gap-3">
                         <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
-                        <span className="text-xl text-gray-800">자녀</span>
+                        <span className="text-xl text-gray-800 flex-1">자녀</span>
                       </div>
                     )}
                     {!hasChildren && hasParents && (
@@ -2285,7 +2285,7 @@ export default function DocumentsPage() {
                         <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
-                        <span className="text-xl text-gray-800">부모</span>
+                        <span className="text-xl text-gray-800 flex-1">부모</span>
                       </div>
                     )}
                     {hasDaeseup && (
@@ -2293,7 +2293,7 @@ export default function DocumentsPage() {
                         <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
-                        <span className="text-xl text-gray-800">손자녀 (사망한 자녀의 자녀 - 대습상속)</span>
+                        <span className="text-xl text-gray-800 flex-1">손자녀 (사망한 자녀의 자녀 - 대습상속)</span>
                       </div>
                     )}
                   </div>
@@ -2573,14 +2573,14 @@ export default function DocumentsPage() {
                       <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
-                      <span className="text-xl text-gray-800">손자녀 (신청인 - 대습상속)</span>
+                      <span className="text-xl text-gray-800 flex-1">손자녀 (신청인 - 대습상속)</span>
                     </div>
                     {otherChildrenStatus !== 'none' && (
                       <div className="flex items-start gap-3">
                         <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
-                        <span className="text-xl text-gray-800">다른 자녀 (살아계신 분)</span>
+                        <span className="text-xl text-gray-800 flex-1">다른 자녀 (살아계신 분)</span>
                       </div>
                     )}
                     {hasGrandparentSpouse && (
@@ -2588,7 +2588,7 @@ export default function DocumentsPage() {
                         <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
-                        <span className="text-xl text-gray-800">배우자 (할머니/할아버지)</span>
+                        <span className="text-xl text-gray-800 flex-1">배우자 (할머니/할아버지)</span>
                       </div>
                     )}
                     {hasOtherDaeseup && (
@@ -2597,13 +2597,13 @@ export default function DocumentsPage() {
                           <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                           </svg>
-                          <span className="text-xl text-gray-800">돌아가신 다른 자녀의 배우자 (대습상속)</span>
+                          <span className="text-xl text-gray-800 flex-1">돌아가신 다른 자녀의 배우자 (대습상속)</span>
                         </div>
                         <div className="flex items-start gap-3">
                           <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                           </svg>
-                          <span className="text-xl text-gray-800">돌아가신 다른 자녀의 자녀 (대습상속)</span>
+                          <span className="text-xl text-gray-800 flex-1">돌아가신 다른 자녀의 자녀 (대습상속)</span>
                         </div>
                       </>
                     )}
@@ -2876,7 +2876,7 @@ export default function DocumentsPage() {
                         <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
-                        <span className="text-xl text-gray-800">형제자매 (신청인 단독)</span>
+                        <span className="text-xl text-gray-800 flex-1">형제자매 (신청인 단독)</span>
                       </div>
                     )}
                     {siblingsStatusType !== 'only_self' && (
@@ -2884,7 +2884,7 @@ export default function DocumentsPage() {
                         <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
-                        <span className="text-xl text-gray-800">형제자매 (살아계신 분들)</span>
+                        <span className="text-xl text-gray-800 flex-1">형제자매 (살아계신 분들)</span>
                       </div>
                     )}
                     {hasSiblingDaeseup && (
@@ -2893,13 +2893,13 @@ export default function DocumentsPage() {
                           <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                           </svg>
-                          <span className="text-xl text-gray-800">돌아가신 형제의 배우자 (대습상속)</span>
+                          <span className="text-xl text-gray-800 flex-1">돌아가신 형제의 배우자 (대습상속)</span>
                         </div>
                         <div className="flex items-start gap-3">
                           <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                           </svg>
-                          <span className="text-xl text-gray-800">돌아가신 형제의 자녀 (대습상속)</span>
+                          <span className="text-xl text-gray-800 flex-1">돌아가신 형제의 자녀 (대습상속)</span>
                         </div>
                       </>
                     )}
@@ -3802,14 +3802,14 @@ export default function DocumentsPage() {
                       <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
-                      <span className="text-xl text-gray-800">부모</span>
+                      <span className="text-xl text-gray-800 flex-1">부모</span>
                     </div>
                     {hasSpouse && (
                       <div className="flex items-start gap-3">
                         <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
-                        <span className="text-xl text-gray-800">배우자</span>
+                        <span className="text-xl text-gray-800 flex-1">배우자</span>
                       </div>
                     )}
                   </div>
@@ -4053,14 +4053,14 @@ export default function DocumentsPage() {
                       <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
-                      <span className="text-xl text-gray-800">조부모</span>
+                      <span className="text-xl text-gray-800 flex-1">조부모</span>
                     </div>
                     {hasSpouse && (
                       <div className="flex items-start gap-3">
                         <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
-                        <span className="text-xl text-gray-800">배우자</span>
+                        <span className="text-xl text-gray-800 flex-1">배우자</span>
                       </div>
                     )}
                   </div>
