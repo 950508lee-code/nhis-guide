@@ -2,60 +2,110 @@ import Link from "next/link";
 import Image from "next/image";
 
 export default function Home() {
+
   return (
-    <div className="h-screen bg-[#f9fafb] relative overflow-hidden">
-      {/* Header with Logo */}
-      <header className="absolute top-0 right-0 px-6 pt-4 pb-2 z-10">
-        <Image
-          src="/logo.svg"
-          alt="국민건강보험공단"
-          width={128}
-          height={40}
-          className="object-contain"
-        />
+    <div className="min-h-screen bg-gray-100 flex flex-col">
+      {/* Header */}
+      <header className="px-6 pt-6 pb-4">
+        <div className="flex items-center gap-2 mb-8">
+          <Image
+            src="/logo.svg"
+            alt="국민건강보험공단"
+            width={110}
+            height={34}
+            className="object-contain"
+          />
+        </div>
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">안녕하세요,</h1>
+          <p className="text-xl text-gray-600">어떤 업무를 도와드릴까요?</p>
+        </div>
       </header>
 
       {/* Main Content */}
-      <main className="h-full flex flex-col px-5 pb-4 gap-3 justify-center items-center w-full">
-        {/* 상한제 제출 서류 안내 버튼 */}
+      <main className="flex-1 px-5 pb-6 pt-4 flex flex-col gap-4">
+        {/* 상한제 제출 서류 안내 카드 */}
         <Link
           href="/documents"
-          className="w-full h-[168px] bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-sm active:scale-[0.98] transition-transform overflow-hidden"
+          className="bg-white rounded-[20px] shadow-[0_2px_16px_rgba(0,0,0,0.06)] active:scale-[0.98] transition-all hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] p-6"
         >
-          <div className="h-full flex flex-row items-center px-6 gap-4">
-            <div className="w-12 h-12 bg-white/35 rounded-full flex items-center justify-center backdrop-blur-sm flex-shrink-0 shadow-md">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          <div className="flex items-center gap-4">
+            {/* 아이콘 */}
+            <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center flex-shrink-0">
+              <svg className="w-7 h-7 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             </div>
-            <div>
-              <h2 className="text-[38px] font-bold text-white leading-[1.2]">
-                상한제
-                <br />
-                제출 서류 안내
+            {/* 텍스트 */}
+            <div className="flex-1">
+              <h2 className="text-2xl font-bold text-gray-900 mb-1">
+                상한제 제출 서류 안내
               </h2>
+              <p className="text-base text-gray-500">
+                필요한 서류를 빠르게 확인하세요
+              </p>
             </div>
+            {/* 화살표 */}
+            <svg className="w-6 h-6 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
           </div>
         </Link>
 
-        {/* 지사 팩스번호 찾기 버튼 */}
+        {/* 자주하는 질문 카드 */}
         <Link
-          href="/branch"
-          className="w-full h-[168px] bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl shadow-sm active:scale-[0.98] transition-transform overflow-hidden"
+          href="/faq"
+          className="bg-white rounded-[20px] shadow-[0_2px_16px_rgba(0,0,0,0.06)] active:scale-[0.98] transition-all hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] p-6"
         >
-          <div className="h-full flex flex-row items-center px-6 gap-4">
-            <div className="w-12 h-12 bg-white/35 rounded-full flex items-center justify-center backdrop-blur-sm flex-shrink-0 shadow-md">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+          <div className="flex items-center gap-4">
+            {/* 아이콘 */}
+            <div className="w-14 h-14 bg-purple-50 rounded-2xl flex items-center justify-center flex-shrink-0">
+              <svg className="w-7 h-7 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <div>
-              <h2 className="text-[38px] font-bold text-white leading-[1.2]">
-                지사
-                <br />
-                팩스번호 찾기
+            {/* 텍스트 */}
+            <div className="flex-1">
+              <h2 className="text-2xl font-bold text-gray-900 mb-1">
+                자주하는 질문
               </h2>
+              <p className="text-base text-gray-500">
+                궁금한 점이 더 있으신가요?
+              </p>
             </div>
+            {/* 화살표 */}
+            <svg className="w-6 h-6 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+        </Link>
+
+        {/* 지사 팩스번호 찾기 카드 */}
+        <Link
+          href="/branch"
+          className="bg-white rounded-[20px] shadow-[0_2px_16px_rgba(0,0,0,0.06)] active:scale-[0.98] transition-all hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] p-6"
+        >
+          <div className="flex items-center gap-4">
+            {/* 아이콘 */}
+            <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center flex-shrink-0">
+              <svg className="w-7 h-7 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </div>
+            {/* 텍스트 */}
+            <div className="flex-1">
+              <h2 className="text-2xl font-bold text-gray-900 mb-1">
+                지사 팩스번호 찾기
+              </h2>
+              <p className="text-base text-gray-500">
+                지사 정보를 찾아보세요
+              </p>
+            </div>
+            {/* 화살표 */}
+            <svg className="w-6 h-6 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
           </div>
         </Link>
       </main>

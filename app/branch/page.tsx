@@ -10,6 +10,7 @@ export default function BranchPage() {
   const [selectedBranch, setSelectedBranch] = useState<Branch | null>(null);
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const captureRef = useRef<HTMLDivElement>(null);
 
   // 전체 지사 목록 가져오기
@@ -134,7 +135,7 @@ export default function BranchPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f9fafb] flex flex-col">
+    <div className="min-h-screen bg-gray-100 flex flex-col">
       {/* Header */}
       <header className="px-6 pt-4 pb-2 flex items-center justify-between">
         {selectedRegion ? (
@@ -325,7 +326,7 @@ export default function BranchPage() {
         {/* 지사 상세 정보 모달 */}
         {selectedBranch && (
           <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50">
-            <div className="w-full h-full bg-[#f9fafb] flex flex-col animate-in slide-in-from-bottom duration-300">
+            <div className="w-full h-full bg-gray-100 flex flex-col animate-in slide-in-from-bottom duration-300">
               {/* 모달 헤더 */}
               <header className="px-6 pt-4 pb-2 flex items-center justify-between">
                 <button
@@ -399,6 +400,24 @@ export default function BranchPage() {
                     </div>
                   </div>
 
+                  {/* 도움이 되었어요 버튼 */}
+                  <div className="mb-3">
+                    <button
+                      onClick={() => setShowFeedbackModal(true)}
+                      className="w-full px-6 py-4 rounded-xl border-2 border-gray-200 bg-white text-gray-600 hover:border-blue-300 hover:text-blue-600 transition-all active:scale-[0.98] flex items-center justify-center gap-3"
+                    >
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"
+                        />
+                      </svg>
+                      <span className="text-xl font-semibold">도움이 되었어요</span>
+                    </button>
+                  </div>
+
                   {/* 버튼들 */}
                   <div className="flex gap-3">
                     <button
@@ -442,6 +461,71 @@ export default function BranchPage() {
                   </div>
                 </div>
               </main>
+            </div>
+          </div>
+        )}
+
+        {/* 피드백 모달 */}
+        {showFeedbackModal && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+            onClick={() => setShowFeedbackModal(false)}
+          >
+            <div
+              className="bg-white rounded-3xl p-8 max-w-sm w-[90%] shadow-2xl animate-in slide-in-from-bottom duration-300"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="text-center space-y-6">
+                {/* 체크 아이콘 */}
+                <div className="flex justify-center">
+                  <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
+                    <svg className="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                </div>
+
+                {/* 메시지 */}
+                <div className="space-y-3">
+                  <h2 className="text-3xl font-bold text-gray-900">감사합니다!</h2>
+                  <p className="text-xl text-gray-700 leading-relaxed">
+                    소중한 의견<br />감사드립니다
+                  </p>
+                </div>
+
+                {/* 구분선 */}
+                <div className="border-t border-gray-200 my-6"></div>
+
+                {/* 피드백 질문 */}
+                <div className="space-y-4">
+                  <p className="text-xl text-gray-700 font-semibold">이 안내가<br />도움이 되셨나요?</p>
+
+                  {/* 이모지 버튼들 */}
+                  <div className="flex justify-center gap-6 pt-2">
+                    <button
+                      onClick={() => setShowFeedbackModal(false)}
+                      className="flex flex-col items-center gap-2 p-4 rounded-2xl hover:bg-gray-100 active:scale-95 transition-all"
+                    >
+                      <span className="text-5xl">😊</span>
+                      <span className="text-sm text-gray-600">좋아요</span>
+                    </button>
+                    <button
+                      onClick={() => setShowFeedbackModal(false)}
+                      className="flex flex-col items-center gap-2 p-4 rounded-2xl hover:bg-gray-100 active:scale-95 transition-all"
+                    >
+                      <span className="text-5xl">😐</span>
+                      <span className="text-sm text-gray-600">보통</span>
+                    </button>
+                    <button
+                      onClick={() => setShowFeedbackModal(false)}
+                      className="flex flex-col items-center gap-2 p-4 rounded-2xl hover:bg-gray-100 active:scale-95 transition-all"
+                    >
+                      <span className="text-5xl">😢</span>
+                      <span className="text-sm text-gray-600">아쉬워요</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         )}
