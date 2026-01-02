@@ -498,26 +498,32 @@ export default function DocumentsPage() {
         const svgs = element.querySelectorAll('svg, button');
         svgs.forEach(el => el.remove());
 
-        // border 클래스 가진 요소 제거
-        const borderElements = element.querySelectorAll('[class*="border"]');
-        borderElements.forEach(el => el.remove());
-
-        // 모든 요소의 배경, 테두리 스타일 제거
+        // 모든 요소의 배경, 그림자만 제거 (레이아웃과 구분선 유지)
         const allElements = element.querySelectorAll('*');
         allElements.forEach((el) => {
           const htmlEl = el as HTMLElement;
-          htmlEl.style.backgroundColor = 'transparent';
-          htmlEl.style.border = 'none';
+          const className = htmlEl.className || '';
+
+          // 구분선이 아닌 요소만 배경 투명화
+          if (typeof className === 'string' &&
+              !className.includes('border-t') &&
+              !className.includes('border-b')) {
+            htmlEl.style.backgroundColor = 'transparent';
+          }
+
           htmlEl.style.boxShadow = 'none';
-          htmlEl.style.borderRadius = '0';
+          // borderRadius, padding, margin, display, flex 등은 유지하여 레이아웃 보존
+          // border는 구분선을 위해 유지
         });
       };
 
       removeStyles(clone);
 
-      // 임시로 body에 추가
+      // 원본과 같은 크기로 임시 추가
       clone.style.position = 'absolute';
       clone.style.left = '-9999px';
+      clone.style.top = '0';
+      clone.style.width = captureRef.current.offsetWidth + 'px';
       document.body.appendChild(clone);
 
       // dom-to-image-more 사용
@@ -561,18 +567,22 @@ export default function DocumentsPage() {
         const svgs = element.querySelectorAll('svg, button');
         svgs.forEach(el => el.remove());
 
-        // border 클래스 가진 요소 제거
-        const borderElements = element.querySelectorAll('[class*="border"]');
-        borderElements.forEach(el => el.remove());
-
-        // 모든 요소의 배경, 테두리 스타일 제거
+        // 모든 요소의 배경, 그림자만 제거 (레이아웃과 구분선 유지)
         const allElements = element.querySelectorAll('*');
         allElements.forEach((el) => {
           const htmlEl = el as HTMLElement;
-          htmlEl.style.backgroundColor = 'transparent';
-          htmlEl.style.border = 'none';
+          const className = htmlEl.className || '';
+
+          // 구분선이 아닌 요소만 배경 투명화
+          if (typeof className === 'string' &&
+              !className.includes('border-t') &&
+              !className.includes('border-b')) {
+            htmlEl.style.backgroundColor = 'transparent';
+          }
+
           htmlEl.style.boxShadow = 'none';
-          htmlEl.style.borderRadius = '0';
+          // borderRadius, padding, margin, display, flex 등은 유지하여 레이아웃 보존
+          // border는 구분선을 위해 유지
         });
       };
 
