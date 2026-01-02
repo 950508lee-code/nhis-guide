@@ -498,22 +498,15 @@ export default function DocumentsPage() {
         const svgs = element.querySelectorAll('svg, button');
         svgs.forEach(el => el.remove());
 
-        // 모든 요소의 배경, 그림자만 제거 (레이아웃과 구분선 유지)
+        // 모든 요소의 배경, 그림자, 구분선 제거 (레이아웃 유지)
         const allElements = element.querySelectorAll('*');
         allElements.forEach((el) => {
           const htmlEl = el as HTMLElement;
-          const className = htmlEl.className || '';
 
-          // 구분선이 아닌 요소만 배경 투명화
-          if (typeof className === 'string' &&
-              !className.includes('border-t') &&
-              !className.includes('border-b')) {
-            htmlEl.style.backgroundColor = 'transparent';
-          }
-
+          htmlEl.style.backgroundColor = 'transparent';
           htmlEl.style.boxShadow = 'none';
+          htmlEl.style.border = 'none';
           // borderRadius, padding, margin, display, flex 등은 유지하여 레이아웃 보존
-          // border는 구분선을 위해 유지
         });
       };
 
@@ -567,22 +560,15 @@ export default function DocumentsPage() {
         const svgs = element.querySelectorAll('svg, button');
         svgs.forEach(el => el.remove());
 
-        // 모든 요소의 배경, 그림자만 제거 (레이아웃과 구분선 유지)
+        // 모든 요소의 배경, 그림자, 구분선 제거 (레이아웃 유지)
         const allElements = element.querySelectorAll('*');
         allElements.forEach((el) => {
           const htmlEl = el as HTMLElement;
-          const className = htmlEl.className || '';
 
-          // 구분선이 아닌 요소만 배경 투명화
-          if (typeof className === 'string' &&
-              !className.includes('border-t') &&
-              !className.includes('border-b')) {
-            htmlEl.style.backgroundColor = 'transparent';
-          }
-
+          htmlEl.style.backgroundColor = 'transparent';
           htmlEl.style.boxShadow = 'none';
+          htmlEl.style.border = 'none';
           // borderRadius, padding, margin, display, flex 등은 유지하여 레이아웃 보존
-          // border는 구분선을 위해 유지
         });
       };
 
@@ -991,7 +977,7 @@ export default function DocumentsPage() {
                       <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
-                      <span className="text-xl text-gray-800">유선, 팩스, 우편, 내방</span>
+                      <span className="text-xl text-gray-800 flex-1">유선, 팩스, 우편, 내방</span>
                     </div>
                   </div>
 
@@ -1099,7 +1085,7 @@ export default function DocumentsPage() {
                       <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
-                      <span className="text-xl text-gray-800">유선, 팩스, 우편, 내방<br /><span className="text-base text-gray-500">(유선은 전산상 가족관계 확인 가능 시)</span></span>
+                      <span className="text-xl text-gray-800 flex-1">유선, 팩스, 우편, 내방<br /><span className="text-base text-gray-500">(유선은 전산상 가족관계 확인 가능 시)</span></span>
                     </div>
                   </div>
 
@@ -1175,7 +1161,7 @@ export default function DocumentsPage() {
                       <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
-                      <span className="text-xl text-gray-800">팩스, 우편, 내방</span>
+                      <span className="text-xl text-gray-800 flex-1">팩스, 우편, 내방</span>
                     </div>
                   </div>
 
@@ -1333,7 +1319,7 @@ export default function DocumentsPage() {
                       <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
-                      <span className="text-xl text-gray-800">우편, 내방</span>
+                      <span className="text-xl text-gray-800 flex-1">우편, 내방</span>
                     </div>
                   </div>
 
@@ -1706,9 +1692,9 @@ export default function DocumentsPage() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
                       {(deceasedRelationship === 'parent' || deceasedRelationship === 'grandchild') ? (
-                        <span className="text-xl text-gray-800">팩스, 우편, 내방</span>
+                        <span className="text-xl text-gray-800 flex-1">팩스, 우편, 내방</span>
                       ) : (
-                        <span className="text-xl text-gray-800">팩스, 우편, 방문, 유선<br /><span className="text-base text-gray-500">(유선은 전산상 가족관계 확인 시)</span></span>
+                        <span className="text-xl text-gray-800 flex-1">팩스, 우편, 방문, 유선<br /><span className="text-base text-gray-500">(유선은 전산상 가족관계 확인 시)</span></span>
                       )}
                     </div>
                   </div>
@@ -1934,7 +1920,7 @@ export default function DocumentsPage() {
                       <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
-                      <span className="text-xl text-gray-800">팩스, 우편, 내방</span>
+                      <span className="text-xl text-gray-800 flex-1">팩스, 우편, 내방</span>
                     </div>
                   </div>
 
@@ -2215,7 +2201,7 @@ export default function DocumentsPage() {
                       <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
-                      <span className="text-xl text-gray-800">팩스, 우편, 내방</span>
+                      <span className="text-xl text-gray-800 flex-1">팩스, 우편, 내방</span>
                     </div>
                   </div>
 
@@ -2509,7 +2495,7 @@ export default function DocumentsPage() {
                       <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
-                      <span className="text-xl text-gray-800">팩스, 우편, 내방</span>
+                      <span className="text-xl text-gray-800 flex-1">팩스, 우편, 내방</span>
                     </div>
                   </div>
 
@@ -2809,7 +2795,7 @@ export default function DocumentsPage() {
                       <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
-                      <span className="text-xl text-gray-800">팩스, 우편, 내방</span>
+                      <span className="text-xl text-gray-800 flex-1">팩스, 우편, 내방</span>
                     </div>
                   </div>
                 </div>
@@ -3232,13 +3218,13 @@ export default function DocumentsPage() {
                       <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
-                      <span className="text-xl text-gray-800">팩스, 우편, 내방</span>
+                      <span className="text-xl text-gray-800 flex-1">팩스, 우편, 내방</span>
                     </div>
                     <div className="flex items-start gap-3">
                       <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
-                      <span className="text-xl text-gray-800">유선<br /><span className="text-base text-gray-500">(※ 조건: 부, 모, 자녀 주민등록 주소 동일)</span></span>
+                      <span className="text-xl text-gray-800 flex-1">유선<br /><span className="text-base text-gray-500">(※ 조건: 부, 모, 자녀 주민등록 주소 동일)</span></span>
                     </div>
                   </div>
                 </div>
@@ -3332,7 +3318,7 @@ export default function DocumentsPage() {
                       <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
-                      <span className="text-xl text-gray-800">팩스, 우편, 내방</span>
+                      <span className="text-xl text-gray-800 flex-1">팩스, 우편, 내방</span>
                     </div>
                   </div>
                 </div>
@@ -3423,7 +3409,7 @@ export default function DocumentsPage() {
                       <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
-                      <span className="text-xl text-gray-800">팩스, 우편, 내방</span>
+                      <span className="text-xl text-gray-800 flex-1">팩스, 우편, 내방</span>
                     </div>
                   </div>
                 </div>
@@ -3758,7 +3744,7 @@ export default function DocumentsPage() {
                       <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
-                      <span className="text-xl text-gray-800">팩스, 우편, 내방</span>
+                      <span className="text-xl text-gray-800 flex-1">팩스, 우편, 내방</span>
                     </div>
                   </div>
 
@@ -4000,7 +3986,7 @@ export default function DocumentsPage() {
                       <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
-                      <span className="text-xl text-gray-800">팩스, 우편, 내방</span>
+                      <span className="text-xl text-gray-800 flex-1">팩스, 우편, 내방</span>
                     </div>
                   </div>
 
