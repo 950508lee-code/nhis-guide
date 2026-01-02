@@ -489,34 +489,45 @@ export default function DocumentsPage() {
     if (!captureRef.current) return;
 
     try {
+      // 임시로 스타일 제거한 복사본 만들기
+      const clone = captureRef.current.cloneNode(true) as HTMLElement;
+
+      // 모든 요소의 스타일 제거 (텍스트만 남기기)
+      const removeStyles = (element: HTMLElement) => {
+        // SVG, 버튼 제거
+        const svgs = element.querySelectorAll('svg, button');
+        svgs.forEach(el => el.remove());
+
+        // border 클래스 가진 요소 제거
+        const borderElements = element.querySelectorAll('[class*="border"]');
+        borderElements.forEach(el => el.remove());
+
+        // 모든 요소의 배경, 테두리 스타일 제거
+        const allElements = element.querySelectorAll('*');
+        allElements.forEach((el) => {
+          const htmlEl = el as HTMLElement;
+          htmlEl.style.backgroundColor = 'transparent';
+          htmlEl.style.border = 'none';
+          htmlEl.style.boxShadow = 'none';
+          htmlEl.style.borderRadius = '0';
+        });
+      };
+
+      removeStyles(clone);
+
+      // 임시로 body에 추가
+      clone.style.position = 'absolute';
+      clone.style.left = '-9999px';
+      document.body.appendChild(clone);
+
       // dom-to-image-more 사용
-      const blob = await domtoimage.toBlob(captureRef.current, {
+      const blob = await domtoimage.toBlob(clone, {
         quality: 1.0,
         bgcolor: '#f3f4f6',
-        filter: (node: HTMLElement) => {
-          // 텍스트 노드는 포함
-          if (!node.tagName) return true;
-
-          const tagName = node.tagName.toLowerCase();
-
-          // SVG와 버튼, 아이콘 관련 요소 모두 제외
-          if (tagName === 'svg' || tagName === 'button') return false;
-          if (tagName === 'path' || tagName === 'circle' || tagName === 'rect' ||
-              tagName === 'line' || tagName === 'polygon' || tagName === 'polyline' ||
-              tagName === 'ellipse' || tagName === 'g') return false;
-
-          // border 클래스를 가진 요소 제외 (구분선 등)
-          const className = node.className || '';
-          if (typeof className === 'string' &&
-              (className.includes('border-t') || className.includes('border-b') ||
-               className.includes('border-l') || className.includes('border-r') ||
-               className.includes('border '))) {
-            return false;
-          }
-
-          return true;
-        }
       });
+
+      // 임시 요소 제거
+      document.body.removeChild(clone);
 
       // Blob을 다운로드
       const url = URL.createObjectURL(blob);
@@ -541,33 +552,45 @@ export default function DocumentsPage() {
     if (!captureRef.current) return;
 
     try {
-      const blob = await domtoimage.toBlob(captureRef.current, {
+      // 임시로 스타일 제거한 복사본 만들기
+      const clone = captureRef.current.cloneNode(true) as HTMLElement;
+
+      // 모든 요소의 스타일 제거 (텍스트만 남기기)
+      const removeStyles = (element: HTMLElement) => {
+        // SVG, 버튼 제거
+        const svgs = element.querySelectorAll('svg, button');
+        svgs.forEach(el => el.remove());
+
+        // border 클래스 가진 요소 제거
+        const borderElements = element.querySelectorAll('[class*="border"]');
+        borderElements.forEach(el => el.remove());
+
+        // 모든 요소의 배경, 테두리 스타일 제거
+        const allElements = element.querySelectorAll('*');
+        allElements.forEach((el) => {
+          const htmlEl = el as HTMLElement;
+          htmlEl.style.backgroundColor = 'transparent';
+          htmlEl.style.border = 'none';
+          htmlEl.style.boxShadow = 'none';
+          htmlEl.style.borderRadius = '0';
+        });
+      };
+
+      removeStyles(clone);
+
+      // 임시로 body에 추가
+      clone.style.position = 'absolute';
+      clone.style.left = '-9999px';
+      document.body.appendChild(clone);
+
+      // dom-to-image-more 사용
+      const blob = await domtoimage.toBlob(clone, {
         quality: 1.0,
         bgcolor: '#f3f4f6',
-        filter: (node: HTMLElement) => {
-          // 텍스트 노드는 포함
-          if (!node.tagName) return true;
-
-          const tagName = node.tagName.toLowerCase();
-
-          // SVG와 버튼, 아이콘 관련 요소 모두 제외
-          if (tagName === 'svg' || tagName === 'button') return false;
-          if (tagName === 'path' || tagName === 'circle' || tagName === 'rect' ||
-              tagName === 'line' || tagName === 'polygon' || tagName === 'polyline' ||
-              tagName === 'ellipse' || tagName === 'g') return false;
-
-          // border 클래스를 가진 요소 제외 (구분선 등)
-          const className = node.className || '';
-          if (typeof className === 'string' &&
-              (className.includes('border-t') || className.includes('border-b') ||
-               className.includes('border-l') || className.includes('border-r') ||
-               className.includes('border '))) {
-            return false;
-          }
-
-          return true;
-        }
       });
+
+      // 임시 요소 제거
+      document.body.removeChild(clone);
 
       const file = new File([blob], 'NHIS_제출서류_안내.png', {
         type: 'image/png',
