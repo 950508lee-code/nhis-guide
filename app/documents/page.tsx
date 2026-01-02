@@ -914,9 +914,9 @@ export default function DocumentsPage() {
           <>
             {/* Result */}
             <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              <div ref={captureRef} className="space-y-4" style={{ backgroundColor: '#f3f4f6' }}>
+              <div ref={captureRef} className="space-y-4" style={{ backgroundColor: '#f3f4f6', padding: '16px' }}>
                 {/* 신청방법 & 제출서류 통합 카드 */}
-                <div className="bg-white rounded-[20px] p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+                <div className="bg-white rounded-[20px] p-6">
                   <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">어떻게 신청하나요?</h2>
                   <div className="space-y-3">
                     <div className="flex items-start gap-3">
@@ -1022,9 +1022,9 @@ export default function DocumentsPage() {
         {step === 6 && situation === 'alive' && aliveDetailType === 'adult' && accountHolder === 'family' && refundAmount === 'under300k' && (
           <>
             <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              <div ref={captureRef} className="space-y-4" style={{ backgroundColor: '#f3f4f6' }}>
+              <div ref={captureRef} className="space-y-4" style={{ backgroundColor: '#f3f4f6', padding: '16px' }}>
                 {/* 신청방법 & 제출서류 통합 카드 */}
-                <div className="bg-white rounded-[20px] p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+                <div className="bg-white rounded-[20px] p-6">
                   <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">어떻게 신청하나요?</h2>
                   <div className="space-y-3">
                     <div className="flex items-start gap-3">
@@ -1098,9 +1098,9 @@ export default function DocumentsPage() {
           <>
             {/* Result */}
             <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              <div ref={captureRef} className="space-y-4" style={{ backgroundColor: '#f3f4f6' }}>
+              <div ref={captureRef} className="space-y-4" style={{ backgroundColor: '#f3f4f6', padding: '16px' }}>
                 {/* 신청방법 & 제출서류 통합 카드 */}
-                <div className="bg-white rounded-[20px] p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+                <div className="bg-white rounded-[20px] p-6">
                   <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">어떻게 신청하나요?</h2>
                   <div className="space-y-3">
                     <div className="flex items-start gap-3">
@@ -1256,9 +1256,9 @@ export default function DocumentsPage() {
           <>
             {/* Result */}
             <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              <div ref={captureRef} className="space-y-4" style={{ backgroundColor: '#f3f4f6' }}>
+              <div ref={captureRef} className="space-y-4" style={{ backgroundColor: '#f3f4f6', padding: '16px' }}>
                 {/* 신청방법 & 제출서류 통합 카드 */}
-                <div className="bg-white rounded-[20px] p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+                <div className="bg-white rounded-[20px] p-6">
                   <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">어떻게 신청하나요?</h2>
                   <div className="space-y-3">
                     <div className="flex items-start gap-3">
@@ -1628,9 +1628,9 @@ export default function DocumentsPage() {
         {step === 18 && situation === 'deceased' && refundAmount === 'under300k' && (
           <>
             <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              <div ref={captureRef} className="space-y-4" style={{ backgroundColor: '#f3f4f6' }}>
+              <div ref={captureRef} className="space-y-4" style={{ backgroundColor: '#f3f4f6', padding: '16px' }}>
                 {/* 신청방법 & 제출서류 통합 카드 */}
-                <div className="bg-white rounded-[20px] p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+                <div className="bg-white rounded-[20px] p-6">
                   <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">어떻게 신청하나요?</h2>
                   <div className="space-y-3">
                     <div className="flex items-start gap-3">
@@ -1857,9 +1857,9 @@ export default function DocumentsPage() {
         {step === 23 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'child' && (
           <>
             <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              <div ref={captureRef} className="space-y-4" style={{ backgroundColor: '#f3f4f6' }}>
+              <div ref={captureRef} className="space-y-4" style={{ backgroundColor: '#f3f4f6', padding: '16px' }}>
                 {/* 신청방법 & 제출서류 통합 카드 */}
-                <div className="bg-white rounded-[20px] p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+                <div className="bg-white rounded-[20px] p-6">
                   <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">어떻게 신청하나요?</h2>
                   <div className="space-y-3">
                     <div className="flex items-start gap-3">
@@ -2138,9 +2138,9 @@ export default function DocumentsPage() {
         {step === 28 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'spouse' && (
           <>
             <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              <div ref={captureRef} className="space-y-4" style={{ backgroundColor: '#f3f4f6' }}>
+              <div ref={captureRef} className="space-y-4" style={{ backgroundColor: '#f3f4f6', padding: '16px' }}>
                 {/* 신청방법 & 제출서류 통합 카드 */}
-                <div className="bg-white rounded-[20px] p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+                <div className="bg-white rounded-[20px] p-6">
                   <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">어떻게 신청하나요?</h2>
                   <div className="space-y-3">
                     <div className="flex items-start gap-3">
@@ -2432,9 +2432,9 @@ export default function DocumentsPage() {
         {step === 33 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'grandchild' && (
           <>
             <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              <div ref={captureRef} className="space-y-4" style={{ backgroundColor: '#f3f4f6' }}>
+              <div ref={captureRef} className="space-y-4" style={{ backgroundColor: '#f3f4f6', padding: '16px' }}>
                 {/* 신청방법 & 제출서류 통합 카드 */}
-                <div className="bg-white rounded-[20px] p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+                <div className="bg-white rounded-[20px] p-6">
                   <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">어떻게 신청하나요?</h2>
                   <div className="space-y-3">
                     <div className="flex items-start gap-3">
@@ -2732,9 +2732,9 @@ export default function DocumentsPage() {
         {step === 38 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'sibling' && (
           <>
             <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              <div ref={captureRef} className="space-y-4" style={{ backgroundColor: '#f3f4f6' }}>
+              <div ref={captureRef} className="space-y-4" style={{ backgroundColor: '#f3f4f6', padding: '16px' }}>
                 {/* 신청방법 */}
-                <div className="bg-white rounded-[20px] p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+                <div className="bg-white rounded-[20px] p-6">
                   <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">어떻게 신청하나요?</h2>
                   <div className="space-y-3">
                     <div className="flex items-start gap-3">
@@ -2747,7 +2747,7 @@ export default function DocumentsPage() {
                 </div>
 
                 {/* 제출서류 */}
-                <div className="bg-white rounded-[20px] p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+                <div className="bg-white rounded-[20px] p-6">
                   <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">어떤 서류를 제출해야하나요?</h2>
                   <div className="space-y-3">
                     <div className="flex items-start gap-3">
@@ -3155,9 +3155,9 @@ export default function DocumentsPage() {
         {step === 46 && situation === 'alive' && aliveDetailType === 'minor' && (
           <>
             <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              <div ref={captureRef} className="space-y-4" style={{ backgroundColor: '#f3f4f6' }}>
+              <div ref={captureRef} className="space-y-4" style={{ backgroundColor: '#f3f4f6', padding: '16px' }}>
                 {/* 신청방법 카드 */}
-                <div className="bg-white rounded-[20px] p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+                <div className="bg-white rounded-[20px] p-6">
                   <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">어떻게 신청하나요?</h2>
                   <div className="space-y-3">
                     <div className="flex items-start gap-3">
@@ -3176,7 +3176,7 @@ export default function DocumentsPage() {
                 </div>
 
                 {/* 제출서류 카드 */}
-                <div className="bg-white rounded-[20px] p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+                <div className="bg-white rounded-[20px] p-6">
                   <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">어떤 서류를 제출해야하나요?</h2>
                   <div className="space-y-3">
                     <div className="flex items-start gap-3">
@@ -3255,9 +3255,9 @@ export default function DocumentsPage() {
         {step === 47 && situation === 'alive' && aliveDetailType === 'minor' && (
           <>
             <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              <div ref={captureRef} className="space-y-4" style={{ backgroundColor: '#f3f4f6' }}>
+              <div ref={captureRef} className="space-y-4" style={{ backgroundColor: '#f3f4f6', padding: '16px' }}>
                 {/* 신청방법 카드 */}
-                <div className="bg-white rounded-[20px] p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+                <div className="bg-white rounded-[20px] p-6">
                   <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">어떻게 신청하나요?</h2>
                   <div className="space-y-3">
                     <div className="flex items-start gap-3">
@@ -3270,7 +3270,7 @@ export default function DocumentsPage() {
                 </div>
 
                 {/* 제출서류 카드 */}
-                <div className="bg-white rounded-[20px] p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+                <div className="bg-white rounded-[20px] p-6">
                   <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">어떤 서류를 제출해야하나요?</h2>
                   <div className="space-y-3">
                     <div className="flex items-start gap-3">
@@ -3346,9 +3346,9 @@ export default function DocumentsPage() {
         {step === 48 && situation === 'alive' && aliveDetailType === 'guardian_adult' && (
           <>
             <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              <div ref={captureRef} className="space-y-4" style={{ backgroundColor: '#f3f4f6' }}>
+              <div ref={captureRef} className="space-y-4" style={{ backgroundColor: '#f3f4f6', padding: '16px' }}>
                 {/* 신청방법 */}
-                <div className="bg-white rounded-[20px] p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+                <div className="bg-white rounded-[20px] p-6">
                   <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">어떻게 신청하나요?</h2>
                   <div className="space-y-3">
                     <div className="flex items-start gap-3">
@@ -3361,7 +3361,7 @@ export default function DocumentsPage() {
                 </div>
 
                 {/* 제출서류 */}
-                <div className="bg-white rounded-[20px] p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+                <div className="bg-white rounded-[20px] p-6">
                   <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">어떤 서류를 제출해야하나요?</h2>
                   <div className="space-y-3">
                     <div className="flex items-start gap-3">
@@ -3681,9 +3681,9 @@ export default function DocumentsPage() {
         {step === 64 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'parent' && (
           <>
             <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              <div ref={captureRef} className="space-y-4" style={{ backgroundColor: '#f3f4f6' }}>
+              <div ref={captureRef} className="space-y-4" style={{ backgroundColor: '#f3f4f6', padding: '16px' }}>
                 {/* 신청방법 & 제출서류 통합 카드 */}
-                <div className="bg-white rounded-[20px] p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+                <div className="bg-white rounded-[20px] p-6">
                   <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">어떻게 신청하나요?</h2>
                   <div className="space-y-3">
                     <div className="flex items-start gap-3">
@@ -3923,9 +3923,9 @@ export default function DocumentsPage() {
         {step === 69 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'grandparent' && (
           <>
             <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              <div ref={captureRef} className="space-y-4" style={{ backgroundColor: '#f3f4f6' }}>
+              <div ref={captureRef} className="space-y-4" style={{ backgroundColor: '#f3f4f6', padding: '16px' }}>
                 {/* 신청방법 & 제출서류 통합 카드 */}
-                <div className="bg-white rounded-[20px] p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+                <div className="bg-white rounded-[20px] p-6">
                   <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">어떻게 신청하나요?</h2>
                   <div className="space-y-3">
                     <div className="flex items-start gap-3">
