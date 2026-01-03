@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useState, useRef } from "react";
-import domtoimage from 'dom-to-image-more';
 
 type Situation = 'alive' | 'deceased' | null;
 type AliveDetailType = 'adult' | 'minor' | 'guardian_adult' | null;
@@ -489,6 +488,9 @@ export default function DocumentsPage() {
     if (!captureRef.current) return;
 
     try {
+      // 동적으로 dom-to-image-more 라이브러리 로드
+      const domtoimage = (await import('dom-to-image-more')).default;
+
       // 임시로 스타일 제거한 복사본 만들기
       const clone = captureRef.current.cloneNode(true) as HTMLElement;
 
@@ -551,6 +553,9 @@ export default function DocumentsPage() {
     if (!captureRef.current) return;
 
     try {
+      // 동적으로 dom-to-image-more 라이브러리 로드
+      const domtoimage = (await import('dom-to-image-more')).default;
+
       // 임시로 스타일 제거한 복사본 만들기
       const clone = captureRef.current.cloneNode(true) as HTMLElement;
 
