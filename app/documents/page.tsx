@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState, useRef } from "react";
 import html2canvas from 'html2canvas';
+import { recordSatisfaction } from "@/lib/statistics";
 
 type Situation = 'alive' | 'deceased' | null;
 type AliveDetailType = 'adult' | 'minor' | 'guardian_adult' | null;
@@ -4142,21 +4143,30 @@ export default function DocumentsPage() {
                 {/* 이모지 버튼들 */}
                 <div className="flex justify-center gap-6 pt-2">
                   <button
-                    onClick={() => setShowFeedbackModal(false)}
+                    onClick={() => {
+                      recordSatisfaction('good');
+                      setShowFeedbackModal(false);
+                    }}
                     className="flex flex-col items-center gap-2 p-4 rounded-2xl hover:bg-gray-100 active:scale-95 transition-all"
                   >
                     <span className="text-5xl">😊</span>
                     <span className="text-sm text-gray-600">좋아요</span>
                   </button>
                   <button
-                    onClick={() => setShowFeedbackModal(false)}
+                    onClick={() => {
+                      recordSatisfaction('neutral');
+                      setShowFeedbackModal(false);
+                    }}
                     className="flex flex-col items-center gap-2 p-4 rounded-2xl hover:bg-gray-100 active:scale-95 transition-all"
                   >
                     <span className="text-5xl">😐</span>
                     <span className="text-sm text-gray-600">보통</span>
                   </button>
                   <button
-                    onClick={() => setShowFeedbackModal(false)}
+                    onClick={() => {
+                      recordSatisfaction('bad');
+                      setShowFeedbackModal(false);
+                    }}
                     className="flex flex-col items-center gap-2 p-4 rounded-2xl hover:bg-gray-100 active:scale-95 transition-all"
                   >
                     <span className="text-5xl">😢</span>
