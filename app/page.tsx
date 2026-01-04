@@ -2,12 +2,22 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Settings, X, BarChart3, Zap } from "lucide-react";
+import { incrementUserCount } from "@/lib/statistics";
 
 export default function Home() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // 페이지 방문 시 이용자 수 증가 (세션당 1회)
+  useEffect(() => {
+    const sessionKey = "nhis_session_counted";
+    if (!sessionStorage.getItem(sessionKey)) {
+      incrementUserCount();
+      sessionStorage.setItem(sessionKey, "true");
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
