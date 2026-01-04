@@ -121,15 +121,16 @@ export function getAllBranchSearches(): { name: string; count: number }[] {
     .sort((a, b) => b.count - a.count);
 }
 
-// 월별 이용자 수 가져오기 (최근 6개월)
-export function getMonthlyUsers(months: number = 6): MonthlyData[] {
+// 월별 이용자 수 가져오기 (1월부터 현재 월까지)
+export function getMonthlyUsers(): MonthlyData[] {
   const stats = getStatistics();
   const result: MonthlyData[] = [];
   const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth(); // 0-indexed
 
-  for (let i = months - 1; i >= 0; i--) {
-    const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+  for (let i = 0; i <= currentMonth; i++) {
+    const monthKey = `${currentYear}-${String(i + 1).padStart(2, '0')}`;
     result.push({
       month: monthKey,
       count: stats.monthlyUsers[monthKey] || 0,

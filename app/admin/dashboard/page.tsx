@@ -32,7 +32,7 @@ export default function AdminDashboard() {
       setStats(getStatistics());
       setTopBranches(getTopBranches(5));
       setAllBranches(getAllBranchSearches());
-      setMonthlyData(getMonthlyUsers(6));
+      setMonthlyData(getMonthlyUsers());
     };
     loadStats();
 
