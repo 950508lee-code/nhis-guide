@@ -488,49 +488,22 @@ export default function DocumentsPage() {
     if (!captureRef.current) return;
 
     try {
-      // 동적으로 dom-to-image-more 라이브러리 로드
       const domtoimage = (await import('dom-to-image-more')).default;
 
-      // 임시로 스타일 제거한 복사본 만들기
-      const clone = captureRef.current.cloneNode(true) as HTMLElement;
-
-      // 모든 요소의 스타일 제거 (텍스트만 남기기)
-      const removeStyles = (element: HTMLElement) => {
-        // SVG, 버튼 제거
-        const svgs = element.querySelectorAll('svg, button');
-        svgs.forEach(el => el.remove());
-
-        // 모든 요소의 배경, 그림자, 구분선 제거 (레이아웃 유지)
-        const allElements = element.querySelectorAll('*');
-        allElements.forEach((el) => {
-          const htmlEl = el as HTMLElement;
-
-          htmlEl.style.backgroundColor = 'transparent';
-          htmlEl.style.boxShadow = 'none';
-          htmlEl.style.border = 'none';
-          // borderRadius, padding, margin, display, flex 등은 유지하여 레이아웃 보존
-        });
-      };
-
-      removeStyles(clone);
-
-      // 원본과 같은 크기로 임시 추가
-      clone.style.position = 'absolute';
-      clone.style.left = '-9999px';
-      clone.style.top = '0';
-      clone.style.width = captureRef.current.offsetWidth + 'px';
-      document.body.appendChild(clone);
-
-      // dom-to-image-more 사용
-      const blob = await domtoimage.toBlob(clone, {
+      // 바로 캡처 (branch처럼 화면 그대로)
+      const blob = await domtoimage.toBlob(captureRef.current, {
         quality: 1.0,
         bgcolor: '#f3f4f6',
+        // 고해상도 (branch의 scale: 3 효과)
+        width: captureRef.current.offsetWidth * 3,
+        height: captureRef.current.offsetHeight * 3,
+        style: {
+          transform: 'scale(3)',
+          transformOrigin: 'top left'
+        }
       });
 
-      // 임시 요소 제거
-      document.body.removeChild(clone);
-
-      // Blob을 다운로드
+      // 다운로드
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -544,7 +517,7 @@ export default function DocumentsPage() {
       setShowFeedbackModal(true);
     } catch (error) {
       console.error('캡처 실패:', error);
-      alert('이미지 저장에 실패했습니다. 다시 시도해주세요.');
+      alert('이미지 저장에 실패했습니다.');
     }
   };
 
@@ -553,45 +526,20 @@ export default function DocumentsPage() {
     if (!captureRef.current) return;
 
     try {
-      // 동적으로 dom-to-image-more 라이브러리 로드
       const domtoimage = (await import('dom-to-image-more')).default;
 
-      // 임시로 스타일 제거한 복사본 만들기
-      const clone = captureRef.current.cloneNode(true) as HTMLElement;
-
-      // 모든 요소의 스타일 제거 (텍스트만 남기기)
-      const removeStyles = (element: HTMLElement) => {
-        // SVG, 버튼 제거
-        const svgs = element.querySelectorAll('svg, button');
-        svgs.forEach(el => el.remove());
-
-        // 모든 요소의 배경, 그림자, 구분선 제거 (레이아웃 유지)
-        const allElements = element.querySelectorAll('*');
-        allElements.forEach((el) => {
-          const htmlEl = el as HTMLElement;
-
-          htmlEl.style.backgroundColor = 'transparent';
-          htmlEl.style.boxShadow = 'none';
-          htmlEl.style.border = 'none';
-          // borderRadius, padding, margin, display, flex 등은 유지하여 레이아웃 보존
-        });
-      };
-
-      removeStyles(clone);
-
-      // 임시로 body에 추가
-      clone.style.position = 'absolute';
-      clone.style.left = '-9999px';
-      document.body.appendChild(clone);
-
-      // dom-to-image-more 사용
-      const blob = await domtoimage.toBlob(clone, {
+      // 바로 캡처 (branch처럼 화면 그대로)
+      const blob = await domtoimage.toBlob(captureRef.current, {
         quality: 1.0,
         bgcolor: '#f3f4f6',
+        // 고해상도 (branch의 scale: 3 효과)
+        width: captureRef.current.offsetWidth * 3,
+        height: captureRef.current.offsetHeight * 3,
+        style: {
+          transform: 'scale(3)',
+          transformOrigin: 'top left'
+        }
       });
-
-      // 임시 요소 제거
-      document.body.removeChild(clone);
 
       const file = new File([blob], 'NHIS_제출서류_안내.png', {
         type: 'image/png',
