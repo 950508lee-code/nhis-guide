@@ -25,3 +25,9 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* 캡처 시 SVG와 버튼 숨기기 */
+.capturing svg,
+.capturing button {
+  display: none !important;
+}

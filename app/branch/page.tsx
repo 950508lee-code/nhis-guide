@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useState, useMemo, useRef } from "react";
 import { regions, getBranchesByRegion, Branch } from "@/lib/branches";
 import html2canvas from "html2canvas";
+import { recordBranchSearch, recordSatisfaction, type SatisfactionType } from "@/lib/statistics";
 
 export default function BranchPage() {
   const [selectedBranch, setSelectedBranch] = useState<Branch | null>(null);
@@ -228,7 +229,10 @@ export default function BranchPage() {
                     filteredBranches.map((branch) => (
                       <button
                         key={branch.id}
-                        onClick={() => setSelectedBranch(branch)}
+                        onClick={() => {
+                          setSelectedBranch(branch);
+                          recordBranchSearch(branch.name);
+                        }}
                         className="w-full bg-white rounded-2xl shadow-sm border border-gray-100 p-5 hover:shadow-md hover:border-emerald-200 active:scale-[0.98] transition-all text-left"
                       >
                         <div className="flex items-center justify-between gap-3">
@@ -296,7 +300,10 @@ export default function BranchPage() {
               {branches.map((branch) => (
                 <button
                   key={branch.id}
-                  onClick={() => setSelectedBranch(branch)}
+                  onClick={() => {
+                    setSelectedBranch(branch);
+                    recordBranchSearch(branch.name);
+                  }}
                   className="w-full bg-white rounded-2xl shadow-sm border border-gray-100 p-5 hover:shadow-md hover:border-emerald-200 active:scale-[0.98] transition-all text-left"
                 >
                   <div className="flex items-center justify-between gap-3">
@@ -503,21 +510,30 @@ export default function BranchPage() {
                   {/* 이모지 버튼들 */}
                   <div className="flex justify-center gap-6 pt-2">
                     <button
-                      onClick={() => setShowFeedbackModal(false)}
+                      onClick={() => {
+                        recordSatisfaction('good');
+                        setShowFeedbackModal(false);
+                      }}
                       className="flex flex-col items-center gap-2 p-4 rounded-2xl hover:bg-gray-100 active:scale-95 transition-all"
                     >
                       <span className="text-5xl">😊</span>
                       <span className="text-sm text-gray-600">좋아요</span>
                     </button>
                     <button
-                      onClick={() => setShowFeedbackModal(false)}
+                      onClick={() => {
+                        recordSatisfaction('neutral');
+                        setShowFeedbackModal(false);
+                      }}
                       className="flex flex-col items-center gap-2 p-4 rounded-2xl hover:bg-gray-100 active:scale-95 transition-all"
                     >
                       <span className="text-5xl">😐</span>
                       <span className="text-sm text-gray-600">보통</span>
                     </button>
                     <button
-                      onClick={() => setShowFeedbackModal(false)}
+                      onClick={() => {
+                        recordSatisfaction('bad');
+                        setShowFeedbackModal(false);
+                      }}
                       className="flex flex-col items-center gap-2 p-4 rounded-2xl hover:bg-gray-100 active:scale-95 transition-all"
                     >
                       <span className="text-5xl">😢</span>

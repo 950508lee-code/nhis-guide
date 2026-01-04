@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, useRef } from "react";
+import html2canvas from 'html2canvas';
 
 type Situation = 'alive' | 'deceased' | null;
 type AliveDetailType = 'adult' | 'minor' | 'guardian_adult' | null;
@@ -488,33 +489,29 @@ export default function DocumentsPage() {
     if (!captureRef.current) return;
 
     try {
-      const domtoimage = (await import('dom-to-image-more')).default;
-
-      // 바로 캡처 (branch처럼 화면 그대로)
-      const blob = await domtoimage.toBlob(captureRef.current, {
-        quality: 1.0,
-        bgcolor: '#f3f4f6',
-        // 고해상도 (branch의 scale: 3 효과)
-        width: captureRef.current.offsetWidth * 3,
-        height: captureRef.current.offsetHeight * 3,
-        style: {
-          transform: 'scale(3)',
-          transformOrigin: 'top left'
-        }
+      const canvas = await html2canvas(captureRef.current, {
+        backgroundColor: '#ffffff',
+        scale: 3,
+        logging: false,
       });
 
-      // 다운로드
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'NHIS_제출서류_안내.png';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          alert('이미지 생성에 실패했습니다.');
+          return;
+        }
 
-      // 피드백 모달 표시
-      setShowFeedbackModal(true);
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'NHIS_제출서류_안내.png';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+
+        setShowFeedbackModal(true);
+      }, 'image/png', 1.0);
     } catch (error) {
       console.error('캡처 실패:', error);
       alert('이미지 저장에 실패했습니다.');
@@ -526,41 +523,39 @@ export default function DocumentsPage() {
     if (!captureRef.current) return;
 
     try {
-      const domtoimage = (await import('dom-to-image-more')).default;
+      const canvas = await html2canvas(captureRef.current, {
+        backgroundColor: '#ffffff',
+        scale: 3,
+        logging: false,
+      });
 
-      // 바로 캡처 (branch처럼 화면 그대로)
-      const blob = await domtoimage.toBlob(captureRef.current, {
-        quality: 1.0,
-        bgcolor: '#f3f4f6',
-        // 고해상도 (branch의 scale: 3 효과)
-        width: captureRef.current.offsetWidth * 3,
-        height: captureRef.current.offsetHeight * 3,
-        style: {
-          transform: 'scale(3)',
-          transformOrigin: 'top left'
+      canvas.toBlob(async (blob) => {
+        if (!blob) {
+          alert('이미지 생성에 실패했습니다.');
+          return;
         }
-      });
 
-      const file = new File([blob], 'NHIS_제출서류_안내.png', {
-        type: 'image/png',
-      });
+        const file = new File([blob], 'NHIS_제출서류_안내.png', {
+          type: 'image/png',
+        });
 
-      if (navigator.share && navigator.canShare({ files: [file] })) {
-        try {
-          await navigator.share({
-            files: [file],
-            title: '건강보험 환급금 제출서류 안내',
-            text: '건강보험 환급금 신청에 필요한 서류 안내입니다.',
-          });
-        } catch (error) {
-          if ((error as Error).name !== 'AbortError') {
-            console.error('공유 실패:', error);
-            alert('공유에 실패했습니다.');
+        if (navigator.share && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({
+              files: [file],
+              title: '건강보험 환급금 제출서류 안내',
+              text: '건강보험 환급금 신청에 필요한 서류 안내입니다.',
+            });
+          } catch (error) {
+            if ((error as Error).name !== 'AbortError') {
+              console.error('공유 실패:', error);
+              alert('공유에 실패했습니다.');
+            }
           }
+        } else {
+          alert('이 브라우저는 공유 기능을 지원하지 않습니다. 저장하기를 이용해주세요.');
         }
-      } else {
-        alert('이 브라우저는 공유 기능을 지원하지 않습니다. 저장하기를 이용해주세요.');
-      }
+      }, 'image/png', 1.0);
     } catch (error) {
       console.error('캡처 실패:', error);
       alert('이미지 생성에 실패했습니다.');
@@ -575,7 +570,7 @@ export default function DocumentsPage() {
           {step === 1 ? (
             <Link
               href="/"
-              className="text-gray-600 hover:text-gray-900 transition-colors"
+              className="text-gray-600 hover:text-black transition-colors"
             >
               <svg
                 className="w-6 h-6"
@@ -595,7 +590,7 @@ export default function DocumentsPage() {
             <>
               <button
                 onClick={handleBack}
-                className="text-gray-600 hover:text-gray-900 transition-colors"
+                className="text-gray-600 hover:text-black transition-colors"
               >
                 <svg
                   className="w-6 h-6"
@@ -613,7 +608,7 @@ export default function DocumentsPage() {
               </button>
               <Link
                 href="/"
-                className="text-gray-600 hover:text-gray-900 transition-colors"
+                className="text-gray-600 hover:text-black transition-colors"
               >
                 <svg
                   className="w-6 h-6"
@@ -660,7 +655,7 @@ export default function DocumentsPage() {
           <>
             {/* Question */}
             <div className="mb-10">
-              <h1 className="text-[32px] font-bold text-[#1A1A1A] leading-tight">
+              <h1 className="text-[32px] font-bold text-black leading-tight">
                 진료받으신 분은
                 <br />
                 현재 어떤 상황인가요?
@@ -685,7 +680,7 @@ export default function DocumentsPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
                   </div>
-                  <span className="text-2xl font-semibold text-[#1A1A1A]">생존</span>
+                  <span className="text-2xl font-semibold text-black">생존</span>
                 </div>
               </button>
 
@@ -705,7 +700,7 @@ export default function DocumentsPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
-                  <span className="text-2xl font-semibold text-[#1A1A1A]">사망</span>
+                  <span className="text-2xl font-semibold text-black">사망</span>
                 </div>
               </button>
             </div>
@@ -716,7 +711,7 @@ export default function DocumentsPage() {
         {step === 2 && situation === 'alive' && (
           <>
             <div className="mb-10">
-              <h1 className="text-[32px] font-bold text-[#1A1A1A] leading-tight">
+              <h1 className="text-[32px] font-bold text-black leading-tight">
                 진료받으신 분의 상황은
                 <br />
                 다음 중 어떤 상황인가요?
@@ -734,7 +729,7 @@ export default function DocumentsPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
                   </div>
-                  <span className="text-2xl font-semibold text-[#1A1A1A]">성인</span>
+                  <span className="text-2xl font-semibold text-black">성인</span>
                 </div>
               </button>
 
@@ -749,8 +744,8 @@ export default function DocumentsPage() {
                     </svg>
                   </div>
                   <div className="flex-1 text-left">
-                    <div className="text-2xl font-semibold text-[#1A1A1A]">미성년자</div>
-                    <div className="text-base text-gray-500 mt-0.5">(만 19세 미만)</div>
+                    <div className="text-2xl font-semibold text-black">미성년자</div>
+                    <div className="text-base text-gray-800 mt-0.5">(만 19세 미만)</div>
                   </div>
                 </div>
               </button>
@@ -766,8 +761,8 @@ export default function DocumentsPage() {
                     </svg>
                   </div>
                   <div className="flex-1 text-left">
-                    <div className="text-2xl font-semibold text-[#1A1A1A]">성년이며</div>
-                    <div className="text-2xl font-semibold text-[#1A1A1A]">후견인 있음</div>
+                    <div className="text-2xl font-semibold text-black">성년이며</div>
+                    <div className="text-2xl font-semibold text-black">후견인 있음</div>
                   </div>
                 </div>
               </button>
@@ -780,7 +775,7 @@ export default function DocumentsPage() {
           <>
             {/* Question */}
             <div className="mb-10">
-              <h1 className="text-[32px] font-bold text-[#1A1A1A] leading-tight">
+              <h1 className="text-[32px] font-bold text-black leading-tight">
                 누구 통장으로 받으시나요?
               </h1>
             </div>
@@ -804,8 +799,8 @@ export default function DocumentsPage() {
                     </svg>
                   </div>
                   <div className="flex-1">
-                    <div className="text-2xl font-semibold text-[#1A1A1A] mb-0.5">본인</div>
-                    <div className="text-base text-gray-500">진료받은 분 본인</div>
+                    <div className="text-2xl font-semibold text-black mb-0.5">본인</div>
+                    <div className="text-base text-gray-800">진료받은 분 본인</div>
                   </div>
                 </div>
               </button>
@@ -827,8 +822,8 @@ export default function DocumentsPage() {
                     </svg>
                   </div>
                   <div className="flex-1">
-                    <div className="text-2xl font-semibold text-[#1A1A1A] mb-0.5">가족</div>
-                    <div className="text-base text-gray-500">배우자/부모/자녀/손자녀</div>
+                    <div className="text-2xl font-semibold text-black mb-0.5">가족</div>
+                    <div className="text-base text-gray-800">배우자/부모/자녀/손자녀</div>
                   </div>
                 </div>
               </button>
@@ -850,8 +845,8 @@ export default function DocumentsPage() {
                     </svg>
                   </div>
                   <div className="flex-1">
-                    <div className="text-2xl font-semibold text-[#1A1A1A] mb-0.5">타인</div>
-                    <div className="text-base text-gray-500">위 가족 외 모든 분</div>
+                    <div className="text-2xl font-semibold text-black mb-0.5">타인</div>
+                    <div className="text-base text-gray-800">위 가족 외 모든 분</div>
                   </div>
                 </div>
               </button>
@@ -864,7 +859,7 @@ export default function DocumentsPage() {
           <>
             {/* Question */}
             <div className="mb-10">
-              <h1 className="text-[32px] font-bold text-[#1A1A1A] leading-tight">
+              <h1 className="text-[32px] font-bold text-black leading-tight">
                 환급금 지급예정금액이
                 <br />
                 얼마인가요?
@@ -889,7 +884,7 @@ export default function DocumentsPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
-                  <span className="text-2xl font-semibold text-[#1A1A1A]">30만원 이하</span>
+                  <span className="text-2xl font-semibold text-black">30만원 이하</span>
                 </div>
               </button>
 
@@ -909,7 +904,7 @@ export default function DocumentsPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
-                  <span className="text-2xl font-semibold text-[#1A1A1A]">30만원 초과</span>
+                  <span className="text-2xl font-semibold text-black">30만원 초과</span>
                 </div>
               </button>
             </div>
@@ -921,43 +916,65 @@ export default function DocumentsPage() {
           <>
             {/* Result */}
             <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              <div ref={captureRef} className="space-y-4" style={{ backgroundColor: '#f3f4f6' }}>
-                {/* 신청방법 & 제출서류 통합 카드 */}
-                <div className="bg-white rounded-[20px] p-6">
-                  <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">어떻게 신청하나요?</h2>
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span className="text-xl text-gray-800 flex-1">유선, 팩스, 우편, 내방</span>
-                    </div>
+              <div ref={captureRef} style={{ backgroundColor: '#ffffff' }}>
+                <div style={{
+                  backgroundColor: '#ffffff',
+                  borderRadius: '20px',
+                  padding: '24px'
+                }}>
+                  <h2 style={{
+                    fontSize: '24px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '20px'
+                  }}>어떻게 신청하나요?</h2>
+
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
+                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>유선, 팩스, 우편, 내방</span>
                   </div>
 
                   {/* 구분선 */}
-                  <div className="border-t border-gray-200 my-6"></div>
+                  <div style={{
+                    borderTop: '1px solid #000000',
+                    marginTop: '24px',
+                    marginBottom: '24px'
+                  }}></div>
 
-                  <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">어떤 서류를 제출해야하나요?</h2>
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      <span className="text-xl text-gray-800 flex-1">환급금 지급신청서</span>
-                      <button
-                        onClick={() => setSampleImage('/환급금 지급신청서.png')}
-                        className="bg-blue-50 text-blue-600 hover:bg-blue-100 active:scale-95 transition-all text-sm whitespace-nowrap px-3 py-1.5 rounded-lg border border-blue-200"
-                      >
-                        작성예시
-                      </button>
-                    </div>
+                  <h2 style={{
+                    fontSize: '24px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '20px'
+                  }}>어떤 서류를 제출해야하나요?</h2>
+
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>환급금 지급신청서</span>
                   </div>
                 </div>
               </div>
 
+              {/* 도움이 되었어요 버튼 */}
+              <div className="px-4 pb-3">
+                <button
+                  onClick={() => setShowFeedbackModal(true)}
+                  className="w-full px-6 py-4 rounded-xl border-2 border-gray-200 bg-white text-gray-600 hover:border-blue-300 hover:text-blue-600 transition-all active:scale-[0.98] flex items-center justify-center gap-3"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"
+                    />
+                  </svg>
+                  <span className="text-xl font-semibold">도움이 되었어요</span>
+                </button>
+              </div>
+
               {/* Action Buttons */}
               <div className="space-y-3 pb-4 mt-2">
-                {/* 전화로 신청하기 */}
                 <a
                   href="tel:1577-1000"
                   className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
@@ -965,7 +982,6 @@ export default function DocumentsPage() {
                   전화로 신청하기
                 </a>
 
-                {/* 저장하기 & 공유하기 */}
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={handleSave}
@@ -991,7 +1007,7 @@ export default function DocumentsPage() {
           <>
             {/* Question */}
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-gray-900 leading-tight">
+              <h1 className="text-4xl font-bold text-black leading-tight">
                 진료받은 분이
                 <br />
                 의사표현이 가능한가요?
@@ -1008,7 +1024,7 @@ export default function DocumentsPage() {
                     : 'bg-white border-gray-200 hover:border-emerald-300'
                 }`}
               >
-                <span className="text-2xl font-bold text-gray-900">가능</span>
+                <span className="text-2xl font-bold text-black">가능</span>
               </button>
 
               <button
@@ -1019,7 +1035,7 @@ export default function DocumentsPage() {
                     : 'bg-white border-gray-200 hover:border-emerald-300'
                 }`}
               >
-                <span className="text-2xl font-bold text-gray-900">불가능(치매, 의식불명 등)</span>
+                <span className="text-2xl font-bold text-black">불가능(치매, 의식불명 등)</span>
               </button>
             </div>
           </>
@@ -1029,47 +1045,69 @@ export default function DocumentsPage() {
         {step === 6 && situation === 'alive' && aliveDetailType === 'adult' && accountHolder === 'family' && refundAmount === 'under300k' && (
           <>
             <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              <div ref={captureRef} className="space-y-4" style={{ backgroundColor: '#f3f4f6' }}>
+              <div ref={captureRef} style={{ backgroundColor: '#ffffff' }}>
                 {/* 신청방법 & 제출서류 통합 카드 */}
-                <div className="bg-white rounded-[20px] p-6">
-                  <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">어떻게 신청하나요?</h2>
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span className="text-xl text-gray-800 flex-1">유선, 팩스, 우편, 내방<br /><span className="text-base text-gray-500">(유선은 전산상 가족관계 확인 가능 시)</span></span>
-                    </div>
+                <div style={{
+                  backgroundColor: '#ffffff',
+                  borderRadius: '20px',
+                  padding: '24px'
+                }}>
+                  <h2 style={{
+                    fontSize: '24px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '20px'
+                  }}>어떻게 신청하나요?</h2>
+
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
+                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>유선, 팩스, 우편, 내방<br /><span style={{ fontSize: '16px', color: '#1F2937' }}>(유선은 전산상 가족관계 확인 가능 시)</span></span>
                   </div>
 
                   {/* 구분선 */}
-                  <div className="border-t border-gray-200 my-6"></div>
+                  <div style={{
+                    borderTop: '1px solid #000000',
+                    marginTop: '24px',
+                    marginBottom: '24px'
+                  }}></div>
 
-                  <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">어떤 서류를 제출해야하나요?</h2>
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      <span className="text-xl text-gray-800 flex-1">환급금 지급신청서</span>
-                      <button
-                        onClick={() => setSampleImage('/환급금 지급신청서.png')}
-                        className="bg-blue-50 text-blue-600 hover:bg-blue-100 active:scale-95 transition-all text-sm whitespace-nowrap px-3 py-1.5 rounded-lg border border-blue-200"
-                      >
-                        작성예시
-                      </button>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      <div className="flex-1">
-                        <span className="text-xl text-gray-800">가족관계증명서(상세)</span>
-                        <div className="text-base text-gray-500 mt-1">- 최근 3개월 이내 발급본</div>
-                      </div>
+                  <h2 style={{
+                    fontSize: '24px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '20px'
+                  }}>어떤 서류를 제출해야하나요?</h2>
+
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>환급금 지급신청서</span>
+                  </div>
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <div style={{ flex: 1 }}>
+                      <span style={{ fontSize: '20px', color: '#1F2937' }}>가족관계증명서(상세)</span>
+                      <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 최근 3개월 이내 발급본</div>
                     </div>
                   </div>
                 </div>
+              </div>
+
+              {/* 도움이 되었어요 버튼 */}
+              <div className="px-4 pb-3">
+                <button
+                  onClick={() => setShowFeedbackModal(true)}
+                  className="w-full px-6 py-4 rounded-xl border-2 border-gray-200 bg-white text-gray-600 hover:border-blue-300 hover:text-blue-600 transition-all active:scale-[0.98] flex items-center justify-center gap-3"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"
+                    />
+                  </svg>
+                  <span className="text-xl font-semibold">도움이 되었어요</span>
+                </button>
               </div>
 
               {/* Action Buttons */}
@@ -1105,110 +1143,88 @@ export default function DocumentsPage() {
           <>
             {/* Result */}
             <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              <div ref={captureRef} className="space-y-4" style={{ backgroundColor: '#f3f4f6' }}>
+              <div ref={captureRef} style={{ backgroundColor: '#ffffff' }}>
                 {/* 신청방법 & 제출서류 통합 카드 */}
-                <div className="bg-white rounded-[20px] p-6">
-                  <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">어떻게 신청하나요?</h2>
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span className="text-xl text-gray-800 flex-1">팩스, 우편, 내방</span>
-                    </div>
+                <div style={{
+                  backgroundColor: '#ffffff',
+                  borderRadius: '20px',
+                  padding: '24px'
+                }}>
+                  <h2 style={{
+                    fontSize: '24px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '20px'
+                  }}>어떻게 신청하나요?</h2>
+
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
+                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>팩스, 우편, 내방</span>
                   </div>
 
                   {/* 구분선 */}
-                  <div className="border-t border-gray-200 my-6"></div>
+                  <div style={{
+                    borderTop: '1px solid #000000',
+                    marginTop: '24px',
+                    marginBottom: '24px'
+                  }}></div>
 
-                  <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">어떤 서류를 제출해야하나요?</h2>
-                  <div className="space-y-3">
-                    {canExpress === 'yes' ? (
-                      <>
-                        <div className="flex items-start gap-3">
-                          <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                          </svg>
-                          <span className="text-xl text-gray-800 flex-1">환급금 지급신청서</span>
-                          <button
-                            onClick={() => setSampleImage('/환급금 지급신청서.png')}
-                            className="bg-blue-50 text-blue-600 hover:bg-blue-100 active:scale-95 transition-all text-sm whitespace-nowrap px-3 py-1.5 rounded-lg border border-blue-200"
-                          >
-                            작성예시
-                          </button>
+                  <h2 style={{
+                    fontSize: '24px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '20px'
+                  }}>어떤 서류를 제출해야하나요?</h2>
+
+                  {canExpress === 'yes' ? (
+                    <>
+                      <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                        <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                        <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>환급금 지급신청서</span>
+                      </div>
+                      <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                        <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                        <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>상한제 위임장</span>
+                      </div>
+                      <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                        <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                        <div style={{ flex: 1 }}>
+                          <span style={{ fontSize: '20px', color: '#1F2937' }}>가족관계증명서(상세)</span>
+                          <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 최근 3개월 이내 발급본</div>
                         </div>
-                        <div className="flex items-start gap-3">
-                          <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                          </svg>
-                          <span className="text-xl text-gray-800 flex-1">상한제 위임장</span>
-                          <button
-                            onClick={() => setSampleImage('/상한제 위임장.png')}
-                            className="bg-blue-50 text-blue-600 hover:bg-blue-100 active:scale-95 transition-all text-sm whitespace-nowrap px-3 py-1.5 rounded-lg border border-blue-200"
-                          >
-                            작성예시
-                          </button>
+                      </div>
+                      <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                        <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                        <span style={{ fontSize: '20px', color: '#1F2937' }}>예금주 신분증 사본</span>
+                      </div>
+                      <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                        <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                        <span style={{ fontSize: '20px', color: '#1F2937' }}>진료받은 분 신분증 사본</span>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                        <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                        <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>환급금 지급신청서</span>
+                      </div>
+                      <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                        <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                        <span style={{ fontSize: '20px', color: '#1F2937' }}>진단서(소견서)</span>
+                      </div>
+                      <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                        <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                        <div style={{ flex: 1 }}>
+                          <span style={{ fontSize: '20px', color: '#1F2937' }}>가족관계증명서(상세)</span>
+                          <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 최근 3개월 이내 발급본</div>
                         </div>
-                        <div className="flex items-start gap-3">
-                          <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                          </svg>
-                          <div className="flex-1">
-                            <span className="text-xl text-gray-800">가족관계증명서(상세)</span>
-                            <div className="text-base text-gray-500 mt-1">- 최근 3개월 이내 발급본</div>
-                          </div>
-                        </div>
-                        <div className="flex items-start gap-3">
-                          <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                          </svg>
-                          <span className="text-xl text-gray-800">예금주 신분증 사본</span>
-                        </div>
-                        <div className="flex items-start gap-3">
-                          <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                          </svg>
-                          <span className="text-xl text-gray-800">진료받은 분 신분증 사본</span>
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <div className="flex items-start gap-3">
-                          <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                          </svg>
-                          <span className="text-xl text-gray-800 flex-1">환급금 지급신청서</span>
-                          <button
-                            onClick={() => setSampleImage('/환급금 지급신청서.png')}
-                            className="bg-blue-50 text-blue-600 hover:bg-blue-100 active:scale-95 transition-all text-sm whitespace-nowrap px-3 py-1.5 rounded-lg border border-blue-200"
-                          >
-                            작성예시
-                          </button>
-                        </div>
-                        <div className="flex items-start gap-3">
-                          <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                          </svg>
-                          <span className="text-xl text-gray-800">진단서(소견서)</span>
-                        </div>
-                        <div className="flex items-start gap-3">
-                          <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                          </svg>
-                          <div className="flex-1">
-                            <span className="text-xl text-gray-800">가족관계증명서(상세)</span>
-                            <div className="text-base text-gray-500 mt-1">- 최근 3개월 이내 발급본</div>
-                          </div>
-                        </div>
-                        <div className="flex items-start gap-3">
-                          <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                          </svg>
-                          <span className="text-xl text-gray-800">예금주 신분증 사본</span>
-                        </div>
-                      </>
-                    )}
-                  </div>
+                      </div>
+                      <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                        <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                        <span style={{ fontSize: '20px', color: '#1F2937' }}>예금주 신분증 사본</span>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -1263,60 +1279,54 @@ export default function DocumentsPage() {
           <>
             {/* Result */}
             <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              <div ref={captureRef} className="space-y-4" style={{ backgroundColor: '#f3f4f6' }}>
+              <div ref={captureRef} style={{ backgroundColor: '#ffffff' }}>
                 {/* 신청방법 & 제출서류 통합 카드 */}
-                <div className="bg-white rounded-[20px] p-6">
-                  <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">어떻게 신청하나요?</h2>
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span className="text-xl text-gray-800 flex-1">우편, 내방</span>
-                    </div>
+                <div style={{
+                  backgroundColor: '#ffffff',
+                  borderRadius: '20px',
+                  padding: '24px'
+                }}>
+                  <h2 style={{
+                    fontSize: '24px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '20px'
+                  }}>어떻게 신청하나요?</h2>
+
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
+                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>우편, 내방</span>
                   </div>
 
                   {/* 구분선 */}
-                  <div className="border-t border-gray-200 my-6"></div>
+                  <div style={{
+                    borderTop: '1px solid #000000',
+                    marginTop: '24px',
+                    marginBottom: '24px'
+                  }}></div>
 
-                  <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">어떤 서류를 제출해야하나요?</h2>
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      <span className="text-xl text-gray-800 flex-1">환급금 지급신청서</span>
-                      <button
-                        onClick={() => setSampleImage('/환급금 지급신청서.png')}
-                        className="bg-blue-50 text-blue-600 hover:bg-blue-100 active:scale-95 transition-all text-sm whitespace-nowrap px-3 py-1.5 rounded-lg border border-blue-200"
-                      >
-                        작성예시
-                      </button>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      <span className="text-xl text-gray-800 flex-1">상한제 위임장 원본</span>
-                      <button
-                        onClick={() => setSampleImage('/상한제 위임장.png')}
-                        className="bg-blue-50 text-blue-600 hover:bg-blue-100 active:scale-95 transition-all text-sm whitespace-nowrap px-3 py-1.5 rounded-lg border border-blue-200"
-                      >
-                        작성예시
-                      </button>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      <span className="text-xl text-gray-800">진료받은 분 신분증 사본</span>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      <span className="text-xl text-gray-800">예금주 신분증 사본</span>
-                    </div>
+                  <h2 style={{
+                    fontSize: '24px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '20px'
+                  }}>어떤 서류를 제출해야하나요?</h2>
+
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>환급금 지급신청서</span>
+                  </div>
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>상한제 위임장 원본</span>
+                  </div>
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <span style={{ fontSize: '20px', color: '#1F2937' }}>진료받은 분 신분증 사본</span>
+                  </div>
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <span style={{ fontSize: '20px', color: '#1F2937' }}>예금주 신분증 사본</span>
                   </div>
                 </div>
               </div>
@@ -1371,7 +1381,7 @@ export default function DocumentsPage() {
         {step === 9 && situation === 'deceased' && (
           <>
             <div className="mb-10">
-              <h1 className="text-[32px] font-bold text-[#1A1A1A] leading-tight">
+              <h1 className="text-[32px] font-bold text-black leading-tight">
                 환급금 지급예정금액이<br />얼마인가요?
               </h1>
             </div>
@@ -1391,7 +1401,7 @@ export default function DocumentsPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
-                  <span className="text-2xl font-semibold text-[#1A1A1A]">100만원 이하</span>
+                  <span className="text-2xl font-semibold text-black">100만원 이하</span>
                 </div>
               </button>
 
@@ -1409,7 +1419,7 @@ export default function DocumentsPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
-                  <span className="text-2xl font-semibold text-[#1A1A1A]">100만원 초과</span>
+                  <span className="text-2xl font-semibold text-black">100만원 초과</span>
                 </div>
               </button>
             </div>
@@ -1419,19 +1429,19 @@ export default function DocumentsPage() {
         {step === 10 && situation === 'deceased' && (
           <>
             <div className="mb-10">
-              <h1 className="text-[32px] font-bold text-[#1A1A1A] leading-tight">
+              <h1 className="text-[32px] font-bold text-black leading-tight">
                 지급받으실 분은<br />사망하신 분과 어떤 관계인가요?
               </h1>
             </div>
 
             <div className="flex flex-col gap-4">
-              <div className="text-2xl text-[#1A1A1A]">
+              <div className="text-2xl text-black">
                 사망하신 분의
               </div>
               <select
                 value={deceasedRelationship || ''}
                 onChange={(e) => handleDeceasedRelationshipSelect(e.target.value as DeceasedRelationship)}
-                className="w-full min-h-[68px] rounded-[16px] border-2 border-gray-200 px-6 text-2xl font-semibold text-[#1A1A1A] bg-white focus:outline-none focus:border-blue-500 transition-colors"
+                className="w-full min-h-[68px] rounded-[16px] border-2 border-gray-200 px-6 text-2xl font-semibold text-black bg-white focus:outline-none focus:border-blue-500 transition-colors"
               >
                 <option value="" disabled>선택해주세요</option>
                 {refundAmount === 'under300k' ? (
@@ -1455,7 +1465,7 @@ export default function DocumentsPage() {
                   </>
                 )}
               </select>
-              <div className="text-2xl text-[#1A1A1A]">
+              <div className="text-2xl text-black">
                 입니다.
               </div>
             </div>
@@ -1466,7 +1476,7 @@ export default function DocumentsPage() {
         {step === 11 && situation === 'deceased' && (
           <>
             <div className="mb-10">
-              <h1 className="text-[32px] font-bold text-[#1A1A1A] leading-tight">
+              <h1 className="text-[32px] font-bold text-black leading-tight">
                 {deceasedRelationship === 'parent'
                   ? <>진료받은 분께서<br />배우자가 있으셨나요?</>
                   : refundAmount === 'under300k' && deceasedRelationship === 'grandchild'
@@ -1481,14 +1491,14 @@ export default function DocumentsPage() {
                 onClick={() => handleSpouseCheck(true)}
                 className="min-h-[68px] rounded-[16px] border-2 bg-white border-gray-200 hover:border-gray-300 transition-all active:scale-[0.98]"
               >
-                <span className="text-2xl font-semibold text-[#1A1A1A]">예</span>
+                <span className="text-2xl font-semibold text-black">예</span>
               </button>
 
               <button
                 onClick={() => handleSpouseCheck(false)}
                 className="min-h-[68px] rounded-[16px] border-2 bg-white border-gray-200 hover:border-gray-300 transition-all active:scale-[0.98]"
               >
-                <span className="text-2xl font-semibold text-[#1A1A1A]">아니오</span>
+                <span className="text-2xl font-semibold text-black">아니오</span>
               </button>
             </div>
           </>
@@ -1498,7 +1508,7 @@ export default function DocumentsPage() {
         {step === 12 && situation === 'deceased' && (
           <>
             <div className="mb-10">
-              <h1 className="text-[32px] font-bold text-[#1A1A1A] leading-tight">
+              <h1 className="text-[32px] font-bold text-black leading-tight">
                 {refundAmount === 'under300k' && (deceasedRelationship === 'parent' || deceasedRelationship === 'grandchild')
                   ? <>사망하신 분께서<br />자녀가 계신가요?</>
                   : <>자녀나 손자녀가<br />있나요?</>
@@ -1511,14 +1521,14 @@ export default function DocumentsPage() {
                 onClick={() => handleChildrenCheck(true)}
                 className="min-h-[68px] rounded-[16px] border-2 bg-white border-gray-200 hover:border-gray-300 transition-all active:scale-[0.98]"
               >
-                <span className="text-2xl font-semibold text-[#1A1A1A]">예</span>
+                <span className="text-2xl font-semibold text-black">예</span>
               </button>
 
               <button
                 onClick={() => handleChildrenCheck(false)}
                 className="min-h-[68px] rounded-[16px] border-2 bg-white border-gray-200 hover:border-gray-300 transition-all active:scale-[0.98]"
               >
-                <span className="text-2xl font-semibold text-[#1A1A1A]">아니오</span>
+                <span className="text-2xl font-semibold text-black">아니오</span>
               </button>
             </div>
           </>
@@ -1528,7 +1538,7 @@ export default function DocumentsPage() {
         {step === 13 && situation === 'deceased' && (
           <>
             <div className="mb-10">
-              <h1 className="text-[32px] font-bold text-[#1A1A1A] leading-tight">
+              <h1 className="text-[32px] font-bold text-black leading-tight">
                 부모님이나 조부모님이<br />계신가요?
               </h1>
             </div>
@@ -1538,14 +1548,14 @@ export default function DocumentsPage() {
                 onClick={() => handleParentsCheck(true)}
                 className="min-h-[68px] rounded-[16px] border-2 bg-white border-gray-200 hover:border-gray-300 transition-all active:scale-[0.98]"
               >
-                <span className="text-2xl font-semibold text-[#1A1A1A]">예</span>
+                <span className="text-2xl font-semibold text-black">예</span>
               </button>
 
               <button
                 onClick={() => handleParentsCheck(false)}
                 className="min-h-[68px] rounded-[16px] border-2 bg-white border-gray-200 hover:border-gray-300 transition-all active:scale-[0.98]"
               >
-                <span className="text-2xl font-semibold text-[#1A1A1A]">아니오</span>
+                <span className="text-2xl font-semibold text-black">아니오</span>
               </button>
             </div>
           </>
@@ -1575,7 +1585,7 @@ export default function DocumentsPage() {
         {step === 15 && situation === 'deceased' && (
           <>
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-gray-900 leading-tight">
+              <h1 className="text-4xl font-bold text-black leading-tight">
                 형제자매가
                 <br />
                 있나요?
@@ -1587,14 +1597,14 @@ export default function DocumentsPage() {
                 onClick={() => handleSiblingsCheck(true)}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <span className="text-2xl font-bold text-gray-900">예</span>
+                <span className="text-2xl font-bold text-black">예</span>
               </button>
 
               <button
                 onClick={() => handleSiblingsCheck(false)}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <span className="text-2xl font-bold text-gray-900">아니오</span>
+                <span className="text-2xl font-bold text-black">아니오</span>
               </button>
             </div>
           </>
@@ -1604,7 +1614,7 @@ export default function DocumentsPage() {
         {step === 17 && situation === 'deceased' && (
           <>
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-gray-900 leading-tight">
+              <h1 className="text-4xl font-bold text-black leading-tight">
                 4촌 이내 친척이
                 <br />
                 있나요?
@@ -1618,14 +1628,14 @@ export default function DocumentsPage() {
                 onClick={() => handleFourthDegreeCheck(true)}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <span className="text-2xl font-bold text-gray-900">예</span>
+                <span className="text-2xl font-bold text-black">예</span>
               </button>
 
               <button
                 onClick={() => handleFourthDegreeCheck(false)}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <span className="text-2xl font-bold text-gray-900">아니오</span>
+                <span className="text-2xl font-bold text-black">아니오</span>
               </button>
             </div>
           </>
@@ -1635,66 +1645,80 @@ export default function DocumentsPage() {
         {step === 18 && situation === 'deceased' && refundAmount === 'under300k' && (
           <>
             <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              <div ref={captureRef} className="space-y-4" style={{ backgroundColor: '#f3f4f6' }}>
+              <div ref={captureRef} style={{ backgroundColor: '#ffffff' }}>
                 {/* 신청방법 & 제출서류 통합 카드 */}
-                <div className="bg-white rounded-[20px] p-6">
-                  <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">어떻게 신청하나요?</h2>
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      {(deceasedRelationship === 'parent' || deceasedRelationship === 'grandchild') ? (
-                        <span className="text-xl text-gray-800 flex-1">팩스, 우편, 내방</span>
-                      ) : (
-                        <span className="text-xl text-gray-800 flex-1">팩스, 우편, 방문, 유선<br /><span className="text-base text-gray-500">(유선은 전산상 가족관계 확인 시)</span></span>
-                      )}
-                    </div>
+                <div style={{
+                  backgroundColor: '#ffffff',
+                  borderRadius: '20px',
+                  padding: '24px'
+                }}>
+                  <h2 style={{
+                    fontSize: '24px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '20px'
+                  }}>어떻게 신청하나요?</h2>
+
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
+                    {(deceasedRelationship === 'parent' || deceasedRelationship === 'grandchild') ? (
+                      <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>팩스, 우편, 내방</span>
+                    ) : (
+                      <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>팩스, 우편, 방문, 유선<br /><span style={{ fontSize: '16px', color: '#1F2937' }}>(유선은 전산상 가족관계 확인 시)</span></span>
+                    )}
                   </div>
 
                   {/* 구분선 */}
-                  <div className="border-t border-gray-200 my-6"></div>
+                  <div style={{
+                    borderTop: '1px solid #000000',
+                    marginTop: '24px',
+                    marginBottom: '24px'
+                  }}></div>
 
-                  <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">어떤 서류를 제출해야하나요?</h2>
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      <span className="text-xl text-gray-800 flex-1">환급금 지급신청서</span>
-                      <button
-                        onClick={() => setSampleImage('/환급금 지급신청서.png')}
-                        className="bg-blue-50 text-blue-600 hover:bg-blue-100 active:scale-95 transition-all text-sm whitespace-nowrap px-3 py-1.5 rounded-lg border border-blue-200"
-                      >
-                        작성예시
-                      </button>
+                  <h2 style={{
+                    fontSize: '24px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '20px'
+                  }}>어떤 서류를 제출해야하나요?</h2>
+
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>환급금 지급신청서</span>
+                  </div>
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <div style={{ flex: 1 }}>
+                      <span style={{ fontSize: '20px', color: '#1F2937' }}>가족관계증명서(상세)</span>
+                      <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 최근 3개월 이내 발급 분</div>
                     </div>
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      <div className="flex-1">
-                        <span className="text-xl text-gray-800">가족관계증명서(상세)</span>
-                        <div className="text-base text-gray-500 mt-1">- 최근 3개월 이내 발급 분</div>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      <div className="flex-1">
-                        <span className="text-xl text-gray-800">상속대표선정동의서</span>
-                        <div className="text-base text-gray-500 mt-1">- 생략 가능</div>
-                      </div>
-                      <button
-                        onClick={() => setSampleImage('/상속대표선정동의서.png')}
-                        className="bg-blue-50 text-blue-600 hover:bg-blue-100 active:scale-95 transition-all text-sm whitespace-nowrap px-3 py-1.5 rounded-lg border border-blue-200"
-                      >
-                        작성예시
-                      </button>
+                  </div>
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <div style={{ flex: 1 }}>
+                      <span style={{ fontSize: '20px', color: '#1F2937' }}>상속대표선정동의서</span>
+                      <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 생략 가능</div>
                     </div>
                   </div>
                 </div>
+              </div>
+
+              {/* 도움이 되었어요 버튼 */}
+              <div className="px-4 pb-3">
+                <button
+                  onClick={() => setShowFeedbackModal(true)}
+                  className="w-full px-6 py-4 rounded-xl border-2 border-gray-200 bg-white text-gray-600 hover:border-blue-300 hover:text-blue-600 transition-all active:scale-[0.98] flex items-center justify-center gap-3"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"
+                    />
+                  </svg>
+                  <span className="text-xl font-semibold">도움이 되었어요</span>
+                </button>
               </div>
 
               {/* Action Buttons */}
@@ -1765,7 +1789,7 @@ export default function DocumentsPage() {
         {step === 20 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'child' && (
           <>
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-gray-900 leading-tight">
+              <h1 className="text-4xl font-bold text-black leading-tight">
                 진료받은 분의 배우자가
                 <br />
                 현재 생존해 계신가요?
@@ -1777,14 +1801,14 @@ export default function DocumentsPage() {
                 onClick={() => handleChildCaseSpouseCheck(true)}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <span className="text-2xl font-bold text-gray-900">예</span>
+                <span className="text-2xl font-bold text-black">예</span>
               </button>
 
               <button
                 onClick={() => handleChildCaseSpouseCheck(false)}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <span className="text-2xl font-bold text-gray-900">아니오</span>
+                <span className="text-2xl font-bold text-black">아니오</span>
               </button>
             </div>
           </>
@@ -1794,7 +1818,7 @@ export default function DocumentsPage() {
         {step === 21 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'child' && (
           <>
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-gray-900 leading-tight">
+              <h1 className="text-4xl font-bold text-black leading-tight">
                 진료받은 분께서
                 <br />
                 자녀가 있으신가요?
@@ -1806,24 +1830,24 @@ export default function DocumentsPage() {
                 onClick={() => handleSiblingStatusSelect('only_child')}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <div className="text-2xl font-bold text-gray-900">자녀가 1명(외동)</div>
-                <div className="text-2xl font-bold text-gray-900">뿐입니다</div>
+                <div className="text-2xl font-bold text-black">자녀가 1명(외동)</div>
+                <div className="text-2xl font-bold text-black">뿐입니다</div>
               </button>
 
               <button
                 onClick={() => handleSiblingStatusSelect('all_alive')}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <div className="text-2xl font-bold text-gray-900">자녀가 여러 명이며,</div>
-                <div className="text-2xl font-bold text-gray-900">모두 살아있습니다</div>
+                <div className="text-2xl font-bold text-black">자녀가 여러 명이며,</div>
+                <div className="text-2xl font-bold text-black">모두 살아있습니다</div>
               </button>
 
               <button
                 onClick={() => handleSiblingStatusSelect('some_deceased')}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <div className="text-2xl font-bold text-gray-900">자녀 중 진료받은 분보다</div>
-                <div className="text-2xl font-bold text-gray-900">먼저 사망한 분이 있습니다</div>
+                <div className="text-2xl font-bold text-black">자녀 중 진료받은 분보다</div>
+                <div className="text-2xl font-bold text-black">먼저 사망한 분이 있습니다</div>
               </button>
             </div>
           </>
@@ -1833,7 +1857,7 @@ export default function DocumentsPage() {
         {step === 22 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'child' && siblingStatus === 'some_deceased' && (
           <>
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-gray-900 leading-tight">
+              <h1 className="text-4xl font-bold text-black leading-tight">
                 사망한 형제자매분 중
                 <br />
                 배우자나 자녀(손자녀)가
@@ -1847,14 +1871,14 @@ export default function DocumentsPage() {
                 onClick={() => handleDaeseupCheck(true)}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <span className="text-2xl font-bold text-gray-900">예</span>
+                <span className="text-2xl font-bold text-black">예</span>
               </button>
 
               <button
                 onClick={() => handleDaeseupCheck(false)}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <span className="text-2xl font-bold text-gray-900">아니오</span>
+                <span className="text-2xl font-bold text-black">아니오</span>
               </button>
             </div>
           </>
@@ -1864,103 +1888,99 @@ export default function DocumentsPage() {
         {step === 23 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'child' && (
           <>
             <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              <div ref={captureRef} className="space-y-4" style={{ backgroundColor: '#f3f4f6' }}>
+              <div ref={captureRef} style={{ backgroundColor: '#ffffff' }}>
                 {/* 신청방법 & 제출서류 통합 카드 */}
-                <div className="bg-white rounded-[20px] p-6">
-                  <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">어떻게 신청하나요?</h2>
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span className="text-xl text-gray-800 flex-1">팩스, 우편, 내방</span>
-                    </div>
+                <div style={{
+                  backgroundColor: '#ffffff',
+                  borderRadius: '20px',
+                  padding: '24px'
+                }}>
+                  <h2 style={{
+                    fontSize: '24px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '20px'
+                  }}>어떻게 신청하나요?</h2>
+
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
+                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>팩스, 우편, 내방</span>
                   </div>
 
                   {/* 구분선 */}
-                  <div className="border-t border-gray-200 my-6"></div>
+                  <div style={{
+                    borderTop: '1px solid #000000',
+                    marginTop: '24px',
+                    marginBottom: '24px'
+                  }}></div>
 
-                  <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">어떤 서류를 제출해야하나요?</h2>
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      <span className="text-xl text-gray-800 flex-1">환급금 지급신청서</span>
-                      <button
-                        onClick={() => setSampleImage('/환급금 지급신청서.png')}
-                        className="bg-blue-50 text-blue-600 hover:bg-blue-100 active:scale-95 transition-all text-sm whitespace-nowrap px-3 py-1.5 rounded-lg border border-blue-200"
-                      >
-                        작성예시
-                      </button>
-                    </div>
-                    {(hasSpouse || siblingStatus !== 'only_child') && (
-                      <div className="flex items-start gap-3">
-                        <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <div className="flex-1">
-                          <span className="text-xl text-gray-800">상속대표선정동의서</span>
-                          <div className="text-base text-gray-500 mt-1">- 상속인 전원 서명 필요</div>
-                        </div>
-                        <button
-                          onClick={() => setSampleImage('/상속대표선정동의서.png')}
-                          className="bg-blue-50 text-blue-600 hover:bg-blue-100 active:scale-95 transition-all text-sm whitespace-nowrap px-3 py-1.5 rounded-lg border border-blue-200"
-                        >
-                          작성예시
-                        </button>
-                      </div>
-                    )}
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      <div className="flex-1">
-                        <span className="text-xl text-gray-800">진료받은 분 기준 가족관계증명서(상세)</span>
-                        <div className="text-base text-gray-500 mt-1">- 최근 3개월 이내 발급 분</div>
-                      </div>
-                    </div>
-                    {hasDaeseup && (
-                      <div className="flex items-start gap-3">
-                        <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <div className="flex-1">
-                          <span className="text-xl text-gray-800">사망한 자녀 기준 가족관계증명서(상세)</span>
-                          <div className="text-base text-gray-500 mt-1">- 최근 3개월 이내 발급 분</div>
-                        </div>
-                      </div>
-                    )}
+                  <h2 style={{
+                    fontSize: '24px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '20px'
+                  }}>어떤 서류를 제출해야하나요?</h2>
+
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>환급금 지급신청서</span>
                   </div>
+                  {(hasSpouse || siblingStatus !== 'only_child') && (
+                    <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                      <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                      <div style={{ flex: 1 }}>
+                        <span style={{ fontSize: '20px', color: '#1F2937' }}>상속대표선정동의서</span>
+                        <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 상속인 전원 서명 필요</div>
+                      </div>
+                    </div>
+                  )}
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <div style={{ flex: 1 }}>
+                      <span style={{ fontSize: '20px', color: '#1F2937' }}>진료받은 분 기준 가족관계증명서(상세)</span>
+                      <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 최근 3개월 이내 발급 분</div>
+                    </div>
+                  </div>
+                  {hasDaeseup && (
+                    <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                      <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                      <div style={{ flex: 1 }}>
+                        <span style={{ fontSize: '20px', color: '#1F2937' }}>사망한 자녀 기준 가족관계증명서(상세)</span>
+                        <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 최근 3개월 이내 발급 분</div>
+                      </div>
+                    </div>
+                  )}
 
                   {/* 구분선 */}
-                  <div className="border-t border-gray-200 my-6"></div>
+                  <div style={{
+                    borderTop: '1px solid #000000',
+                    marginTop: '24px',
+                    marginBottom: '24px'
+                  }}></div>
 
-                  <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">누가 상속인인가요? (진료받은 분 기준)</h2>
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span className="text-xl text-gray-800 flex-1">자녀 (신청인 포함)</span>
-                    </div>
-                    {hasSpouse && (
-                      <div className="flex items-start gap-3">
-                        <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        <span className="text-xl text-gray-800 flex-1">배우자 (진료받은 분의 배우자)</span>
-                      </div>
-                    )}
-                    {hasDaeseup && (
-                      <div className="flex items-start gap-3">
-                        <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        <span className="text-xl text-gray-800 flex-1">손자녀 (사망한 자녀의 자녀 - 대습상속)</span>
-                      </div>
-                    )}
+                  <h2 style={{
+                    fontSize: '24px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '20px'
+                  }}>누가 상속인인가요? (진료받은 분 기준)</h2>
+
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
+                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>자녀 (신청인 포함)</span>
                   </div>
+                  {hasSpouse && (
+                    <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                      <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
+                      <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>배우자 (진료받은 분의 배우자)</span>
+                    </div>
+                  )}
+                  {hasDaeseup && (
+                    <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                      <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
+                      <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>손자녀 (사망한 자녀의 자녀 - 대습상속)</span>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -2017,7 +2037,7 @@ export default function DocumentsPage() {
         {step === 24 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'spouse' && (
           <>
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-gray-900 leading-tight">
+              <h1 className="text-4xl font-bold text-black leading-tight">
                 진료받은 분의 자녀나
                 <br />
                 손자녀가 있나요?
@@ -2029,14 +2049,14 @@ export default function DocumentsPage() {
                 onClick={() => handleSpouseCaseChildrenCheck(true)}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <span className="text-2xl font-bold text-gray-900">예</span>
+                <span className="text-2xl font-bold text-black">예</span>
               </button>
 
               <button
                 onClick={() => handleSpouseCaseChildrenCheck(false)}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <span className="text-2xl font-bold text-gray-900">아니오</span>
+                <span className="text-2xl font-bold text-black">아니오</span>
               </button>
             </div>
           </>
@@ -2046,7 +2066,7 @@ export default function DocumentsPage() {
         {step === 25 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'spouse' && (
           <>
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-gray-900 leading-tight">
+              <h1 className="text-4xl font-bold text-black leading-tight">
                 진료받은 분께서
                 <br />
                 자녀가 있으신가요?
@@ -2058,24 +2078,24 @@ export default function DocumentsPage() {
                 onClick={() => handleChildStatusSelect('one_child')}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <div className="text-2xl font-bold text-gray-900">자녀 1명(외동)</div>
-                <div className="text-2xl font-bold text-gray-900">뿐입니다</div>
+                <div className="text-2xl font-bold text-black">자녀 1명(외동)</div>
+                <div className="text-2xl font-bold text-black">뿐입니다</div>
               </button>
 
               <button
                 onClick={() => handleChildStatusSelect('multiple_alive')}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <div className="text-2xl font-bold text-gray-900">자녀가 여러 명이며</div>
-                <div className="text-2xl font-bold text-gray-900">모두 생존</div>
+                <div className="text-2xl font-bold text-black">자녀가 여러 명이며</div>
+                <div className="text-2xl font-bold text-black">모두 생존</div>
               </button>
 
               <button
                 onClick={() => handleChildStatusSelect('some_deceased')}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <div className="text-2xl font-bold text-gray-900">먼저 사망한</div>
-                <div className="text-2xl font-bold text-gray-900">자녀가 있습니다</div>
+                <div className="text-2xl font-bold text-black">먼저 사망한</div>
+                <div className="text-2xl font-bold text-black">자녀가 있습니다</div>
               </button>
             </div>
           </>
@@ -2085,7 +2105,7 @@ export default function DocumentsPage() {
         {step === 26 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'spouse' && childStatus === 'some_deceased' && (
           <>
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-gray-900 leading-tight">
+              <h1 className="text-4xl font-bold text-black leading-tight">
                 사망한 자녀분 중
                 <br />
                 배우자나 자녀(손자녀)가
@@ -2099,14 +2119,14 @@ export default function DocumentsPage() {
                 onClick={() => handleSpouseCaseDaeseupCheck(true)}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <span className="text-2xl font-bold text-gray-900">예</span>
+                <span className="text-2xl font-bold text-black">예</span>
               </button>
 
               <button
                 onClick={() => handleSpouseCaseDaeseupCheck(false)}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <span className="text-2xl font-bold text-gray-900">아니오</span>
+                <span className="text-2xl font-bold text-black">아니오</span>
               </button>
             </div>
           </>
@@ -2116,7 +2136,7 @@ export default function DocumentsPage() {
         {step === 27 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'spouse' && !hasChildren && (
           <>
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-gray-900 leading-tight">
+              <h1 className="text-4xl font-bold text-black leading-tight">
                 진료받은 분의 부모님이
                 <br />
                 계신가요?
@@ -2128,14 +2148,14 @@ export default function DocumentsPage() {
                 onClick={() => handleSpouseCaseParentsCheck(true)}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <span className="text-2xl font-bold text-gray-900">예</span>
+                <span className="text-2xl font-bold text-black">예</span>
               </button>
 
               <button
                 onClick={() => handleSpouseCaseParentsCheck(false)}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <span className="text-2xl font-bold text-gray-900">아니오</span>
+                <span className="text-2xl font-bold text-black">아니오</span>
               </button>
             </div>
           </>
@@ -2145,111 +2165,105 @@ export default function DocumentsPage() {
         {step === 28 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'spouse' && (
           <>
             <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              <div ref={captureRef} className="space-y-4" style={{ backgroundColor: '#f3f4f6' }}>
+              <div ref={captureRef} style={{ backgroundColor: '#ffffff' }}>
                 {/* 신청방법 & 제출서류 통합 카드 */}
-                <div className="bg-white rounded-[20px] p-6">
-                  <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">어떻게 신청하나요?</h2>
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span className="text-xl text-gray-800 flex-1">팩스, 우편, 내방</span>
-                    </div>
+                <div style={{
+                  backgroundColor: '#ffffff',
+                  borderRadius: '20px',
+                  padding: '24px'
+                }}>
+                  <h2 style={{
+                    fontSize: '24px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '20px'
+                  }}>어떻게 신청하나요?</h2>
+
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
+                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>팩스, 우편, 내방</span>
                   </div>
 
                   {/* 구분선 */}
-                  <div className="border-t border-gray-200 my-6"></div>
+                  <div style={{
+                    borderTop: '1px solid #000000',
+                    marginTop: '24px',
+                    marginBottom: '24px'
+                  }}></div>
 
-                  <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">어떤 서류를 제출해야하나요?</h2>
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      <span className="text-xl text-gray-800 flex-1">환급금 지급신청서</span>
-                      <button
-                        onClick={() => setSampleImage('/환급금 지급신청서.png')}
-                        className="bg-blue-50 text-blue-600 hover:bg-blue-100 active:scale-95 transition-all text-sm whitespace-nowrap px-3 py-1.5 rounded-lg border border-blue-200"
-                      >
-                        작성예시
-                      </button>
-                    </div>
-                    {hasChildren && (
-                      <div className="flex items-start gap-3">
-                        <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <div className="flex-1">
-                          <span className="text-xl text-gray-800">상속대표선정동의서</span>
-                          <div className="text-base text-gray-500 mt-1">- 상속인 전원 서명 필요</div>
-                        </div>
-                        <button
-                          onClick={() => setSampleImage('/상속대표선정동의서.png')}
-                          className="bg-blue-50 text-blue-600 hover:bg-blue-100 active:scale-95 transition-all text-sm whitespace-nowrap px-3 py-1.5 rounded-lg border border-blue-200"
-                        >
-                          작성예시
-                        </button>
-                      </div>
-                    )}
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      <div className="flex-1">
-                        <span className="text-xl text-gray-800">진료받은 분 기준 가족관계증명서(상세)</span>
-                        <div className="text-base text-gray-500 mt-1">- 최근 3개월 이내 발급 분</div>
-                      </div>
-                    </div>
-                    {hasDaeseup && (
-                      <div className="flex items-start gap-3">
-                        <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <div className="flex-1">
-                          <span className="text-xl text-gray-800">사망한 자녀 기준 가족관계증명서(상세)</span>
-                          <div className="text-base text-gray-500 mt-1">- 최근 3개월 이내 발급 분</div>
-                        </div>
-                      </div>
-                    )}
+                  <h2 style={{
+                    fontSize: '24px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '20px'
+                  }}>어떤 서류를 제출해야하나요?</h2>
+
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>환급금 지급신청서</span>
                   </div>
+                  {hasChildren && (
+                    <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                      <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                      <div style={{ flex: 1 }}>
+                        <span style={{ fontSize: '20px', color: '#1F2937' }}>상속대표선정동의서</span>
+                        <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 상속인 전원 서명 필요</div>
+                      </div>
+                    </div>
+                  )}
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <div style={{ flex: 1 }}>
+                      <span style={{ fontSize: '20px', color: '#1F2937' }}>진료받은 분 기준 가족관계증명서(상세)</span>
+                      <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 최근 3개월 이내 발급 분</div>
+                    </div>
+                  </div>
+                  {hasDaeseup && (
+                    <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                      <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                      <div style={{ flex: 1 }}>
+                        <span style={{ fontSize: '20px', color: '#1F2937' }}>사망한 자녀 기준 가족관계증명서(상세)</span>
+                        <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 최근 3개월 이내 발급 분</div>
+                      </div>
+                    </div>
+                  )}
 
                   {/* 구분선 */}
-                  <div className="border-t border-gray-200 my-6"></div>
+                  <div style={{
+                    borderTop: '1px solid #000000',
+                    marginTop: '24px',
+                    marginBottom: '24px'
+                  }}></div>
 
-                  <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">누가 상속인인가요? (진료받은 분 기준)</h2>
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span className="text-xl text-gray-800 flex-1">배우자 (신청인)</span>
-                    </div>
-                    {hasChildren && (
-                      <div className="flex items-start gap-3">
-                        <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        <span className="text-xl text-gray-800 flex-1">자녀</span>
-                      </div>
-                    )}
-                    {!hasChildren && hasParents && (
-                      <div className="flex items-start gap-3">
-                        <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        <span className="text-xl text-gray-800 flex-1">부모</span>
-                      </div>
-                    )}
-                    {hasDaeseup && (
-                      <div className="flex items-start gap-3">
-                        <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        <span className="text-xl text-gray-800 flex-1">손자녀 (사망한 자녀의 자녀 - 대습상속)</span>
-                      </div>
-                    )}
+                  <h2 style={{
+                    fontSize: '24px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '20px'
+                  }}>누가 상속인인가요? (진료받은 분 기준)</h2>
+
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
+                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>배우자 (신청인)</span>
                   </div>
+                  {hasChildren && (
+                    <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                      <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
+                      <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>자녀</span>
+                    </div>
+                  )}
+                  {!hasChildren && hasParents && (
+                    <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                      <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
+                      <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>부모</span>
+                    </div>
+                  )}
+                  {hasDaeseup && (
+                    <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                      <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
+                      <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>손자녀 (사망한 자녀의 자녀 - 대습상속)</span>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -2306,7 +2320,7 @@ export default function DocumentsPage() {
         {step === 29 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'grandchild' && (
           <>
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-gray-900 leading-tight">
+              <h1 className="text-4xl font-bold text-black leading-tight">
                 신청인의 부모님
                 <br />
                 (진료받은 분의 자녀)이
@@ -2320,14 +2334,14 @@ export default function DocumentsPage() {
                 onClick={() => handleGrandchildCaseParentCheck(true)}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <span className="text-2xl font-bold text-gray-900">예</span>
+                <span className="text-2xl font-bold text-black">예</span>
               </button>
 
               <button
                 onClick={() => handleGrandchildCaseParentCheck(false)}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <span className="text-2xl font-bold text-gray-900">아니오</span>
+                <span className="text-2xl font-bold text-black">아니오</span>
               </button>
             </div>
           </>
@@ -2337,7 +2351,7 @@ export default function DocumentsPage() {
         {step === 30 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'grandchild' && !hasParentAlive && (
           <>
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-gray-900 leading-tight">
+              <h1 className="text-4xl font-bold text-black leading-tight">
                 진료받은 분의 배우자
                 <br />
                 (할머니/할아버지)가
@@ -2351,14 +2365,14 @@ export default function DocumentsPage() {
                 onClick={() => handleGrandparentSpouseCheck(true)}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <span className="text-2xl font-bold text-gray-900">예</span>
+                <span className="text-2xl font-bold text-black">예</span>
               </button>
 
               <button
                 onClick={() => handleGrandparentSpouseCheck(false)}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <span className="text-2xl font-bold text-gray-900">아니오</span>
+                <span className="text-2xl font-bold text-black">아니오</span>
               </button>
             </div>
           </>
@@ -2368,7 +2382,7 @@ export default function DocumentsPage() {
         {step === 31 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'grandchild' && (
           <>
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-gray-900 leading-tight">
+              <h1 className="text-4xl font-bold text-black leading-tight">
                 진료받은 분의 다른 자녀분들은
                 <br />
                 어떤 상황인가요?
@@ -2381,7 +2395,7 @@ export default function DocumentsPage() {
                 onClick={() => handleOtherChildrenStatusSelect('none')}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <div className="text-2xl font-bold text-gray-900">다른 자녀는 없습니다</div>
+                <div className="text-2xl font-bold text-black">다른 자녀는 없습니다</div>
                 <div className="text-2xl text-gray-600">(부모님이 외동)</div>
               </button>
 
@@ -2389,16 +2403,16 @@ export default function DocumentsPage() {
                 onClick={() => handleOtherChildrenStatusSelect('all_alive')}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <div className="text-2xl font-bold text-gray-900">다른 자녀들이</div>
-                <div className="text-2xl font-bold text-gray-900">모두 살아있습니다</div>
+                <div className="text-2xl font-bold text-black">다른 자녀들이</div>
+                <div className="text-2xl font-bold text-black">모두 살아있습니다</div>
               </button>
 
               <button
                 onClick={() => handleOtherChildrenStatusSelect('some_deceased')}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <div className="text-2xl font-bold text-gray-900">먼저 돌아가신</div>
-                <div className="text-2xl font-bold text-gray-900">다른 자녀가 있습니다</div>
+                <div className="text-2xl font-bold text-black">먼저 돌아가신</div>
+                <div className="text-2xl font-bold text-black">다른 자녀가 있습니다</div>
               </button>
             </div>
           </>
@@ -2408,7 +2422,7 @@ export default function DocumentsPage() {
         {step === 32 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'grandchild' && otherChildrenStatus === 'some_deceased' && (
           <>
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-gray-900 leading-tight">
+              <h1 className="text-4xl font-bold text-black leading-tight">
                 그 돌아가신 자녀분의
                 <br />
                 배우자나 자녀가
@@ -2422,14 +2436,14 @@ export default function DocumentsPage() {
                 onClick={() => handleOtherDaeseupCheck(true)}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <span className="text-2xl font-bold text-gray-900">예</span>
+                <span className="text-2xl font-bold text-black">예</span>
               </button>
 
               <button
                 onClick={() => handleOtherDaeseupCheck(false)}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <span className="text-2xl font-bold text-gray-900">아니오</span>
+                <span className="text-2xl font-bold text-black">아니오</span>
               </button>
             </div>
           </>
@@ -2439,128 +2453,118 @@ export default function DocumentsPage() {
         {step === 33 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'grandchild' && (
           <>
             <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              <div ref={captureRef} className="space-y-4" style={{ backgroundColor: '#f3f4f6' }}>
+              <div ref={captureRef} style={{ backgroundColor: '#ffffff' }}>
                 {/* 신청방법 & 제출서류 통합 카드 */}
-                <div className="bg-white rounded-[20px] p-6">
-                  <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">어떻게 신청하나요?</h2>
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span className="text-xl text-gray-800 flex-1">팩스, 우편, 내방</span>
-                    </div>
+                <div style={{
+                  backgroundColor: '#ffffff',
+                  borderRadius: '20px',
+                  padding: '24px'
+                }}>
+                  <h2 style={{
+                    fontSize: '24px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '20px'
+                  }}>어떻게 신청하나요?</h2>
+
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
+                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>팩스, 우편, 내방</span>
                   </div>
 
                   {/* 구분선 */}
-                  <div className="border-t border-gray-200 my-6"></div>
+                  <div style={{
+                    borderTop: '1px solid #000000',
+                    marginTop: '24px',
+                    marginBottom: '24px'
+                  }}></div>
 
-                  <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">어떤 서류를 제출해야하나요?</h2>
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      <span className="text-xl text-gray-800 flex-1">환급금 지급신청서</span>
-                      <button
-                        onClick={() => setSampleImage('/환급금 지급신청서.png')}
-                        className="bg-blue-50 text-blue-600 hover:bg-blue-100 active:scale-95 transition-all text-sm whitespace-nowrap px-3 py-1.5 rounded-lg border border-blue-200"
-                      >
-                        작성예시
-                      </button>
-                    </div>
-                    {(otherChildrenStatus !== 'none' || hasGrandparentSpouse || hasOtherDaeseup) && (
-                      <div className="flex items-start gap-3">
-                        <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <div className="flex-1">
-                          <span className="text-xl text-gray-800">상속대표선정동의서</span>
-                          <div className="text-base text-gray-500 mt-1">- 상속인 전원 서명 필요</div>
-                        </div>
-                        <button
-                          onClick={() => setSampleImage('/상속대표선정동의서.png')}
-                          className="bg-blue-50 text-blue-600 hover:bg-blue-100 active:scale-95 transition-all text-sm whitespace-nowrap px-3 py-1.5 rounded-lg border border-blue-200"
-                        >
-                          작성예시
-                        </button>
-                      </div>
-                    )}
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      <div className="flex-1">
-                        <span className="text-xl text-gray-800">진료받은 분 기준 가족관계증명서(상세)</span>
-                        <div className="text-base text-gray-500 mt-1">- 최근 3개월 이내 발급 분</div>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      <div className="flex-1">
-                        <span className="text-xl text-gray-800">신청인 부모 기준 가족관계증명서(상세)</span>
-                        <div className="text-base text-gray-500 mt-1">- 최근 3개월 이내 발급 분</div>
-                      </div>
-                    </div>
-                    {hasOtherDaeseup && (
-                      <div className="flex items-start gap-3">
-                        <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <div className="flex-1">
-                          <span className="text-xl text-gray-800">돌아가신 다른 자녀 기준 가족관계증명서(상세)</span>
-                          <div className="text-base text-gray-500 mt-1">- 최근 3개월 이내 발급 분</div>
-                        </div>
-                      </div>
-                    )}
+                  <h2 style={{
+                    fontSize: '24px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '20px'
+                  }}>어떤 서류를 제출해야하나요?</h2>
+
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>환급금 지급신청서</span>
                   </div>
+                  {(otherChildrenStatus !== 'none' || hasGrandparentSpouse || hasOtherDaeseup) && (
+                    <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                      <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                      <div style={{ flex: 1 }}>
+                        <span style={{ fontSize: '20px', color: '#1F2937' }}>상속대표선정동의서</span>
+                        <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 상속인 전원 서명 필요</div>
+                      </div>
+                    </div>
+                  )}
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <div style={{ flex: 1 }}>
+                      <span style={{ fontSize: '20px', color: '#1F2937' }}>진료받은 분 기준 가족관계증명서(상세)</span>
+                      <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 최근 3개월 이내 발급 분</div>
+                    </div>
+                  </div>
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <div style={{ flex: 1 }}>
+                      <span style={{ fontSize: '20px', color: '#1F2937' }}>신청인 부모 기준 가족관계증명서(상세)</span>
+                      <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 최근 3개월 이내 발급 분</div>
+                    </div>
+                  </div>
+                  {hasOtherDaeseup && (
+                    <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                      <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                      <div style={{ flex: 1 }}>
+                        <span style={{ fontSize: '20px', color: '#1F2937' }}>돌아가신 다른 자녀 기준 가족관계증명서(상세)</span>
+                        <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 최근 3개월 이내 발급 분</div>
+                      </div>
+                    </div>
+                  )}
 
                   {/* 구분선 */}
-                  <div className="border-t border-gray-200 my-6"></div>
+                  <div style={{
+                    borderTop: '1px solid #000000',
+                    marginTop: '24px',
+                    marginBottom: '24px'
+                  }}></div>
 
-                  <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">누가 상속인인가요? (진료받은 분 기준)</h2>
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span className="text-xl text-gray-800 flex-1">손자녀 (신청인 - 대습상속)</span>
-                    </div>
-                    {otherChildrenStatus !== 'none' && (
-                      <div className="flex items-start gap-3">
-                        <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        <span className="text-xl text-gray-800 flex-1">다른 자녀 (살아계신 분)</span>
-                      </div>
-                    )}
-                    {hasGrandparentSpouse && (
-                      <div className="flex items-start gap-3">
-                        <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        <span className="text-xl text-gray-800 flex-1">배우자 (할머니/할아버지)</span>
-                      </div>
-                    )}
-                    {hasOtherDaeseup && (
-                      <>
-                        <div className="flex items-start gap-3">
-                          <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                          <span className="text-xl text-gray-800 flex-1">돌아가신 다른 자녀의 배우자 (대습상속)</span>
-                        </div>
-                        <div className="flex items-start gap-3">
-                          <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                          <span className="text-xl text-gray-800 flex-1">돌아가신 다른 자녀의 자녀 (대습상속)</span>
-                        </div>
-                      </>
-                    )}
+                  <h2 style={{
+                    fontSize: '24px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '20px'
+                  }}>누가 상속인인가요? (진료받은 분 기준)</h2>
+
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
+                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>손자녀 (신청인 - 대습상속)</span>
                   </div>
+                  {otherChildrenStatus !== 'none' && (
+                    <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                      <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
+                      <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>다른 자녀 (살아계신 분)</span>
+                    </div>
+                  )}
+                  {hasGrandparentSpouse && (
+                    <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                      <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
+                      <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>배우자 (할머니/할아버지)</span>
+                    </div>
+                  )}
+                  {hasOtherDaeseup && (
+                    <>
+                      <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                        <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
+                        <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>돌아가신 다른 자녀의 배우자 (대습상속)</span>
+                      </div>
+                      <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                        <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
+                        <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>돌아가신 다른 자녀의 자녀 (대습상속)</span>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -2636,7 +2640,7 @@ export default function DocumentsPage() {
         {step === 35 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'sibling' && (
           <>
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-gray-900 leading-tight">
+              <h1 className="text-4xl font-bold text-black leading-tight">
                 진료받은 분의 배우자,
                 <br />
                 직계가족(자녀/손자녀/
@@ -2652,14 +2656,14 @@ export default function DocumentsPage() {
                 onClick={() => handleSiblingCaseSeniorHeirsCheck(true)}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <span className="text-2xl font-bold text-gray-900">예</span>
+                <span className="text-2xl font-bold text-black">예</span>
               </button>
 
               <button
                 onClick={() => handleSiblingCaseSeniorHeirsCheck(false)}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <span className="text-2xl font-bold text-gray-900">아니오</span>
+                <span className="text-2xl font-bold text-black">아니오</span>
               </button>
             </div>
           </>
@@ -2669,7 +2673,7 @@ export default function DocumentsPage() {
         {step === 36 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'sibling' && !hasSeniorHeirs && (
           <>
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-gray-900 leading-tight">
+              <h1 className="text-4xl font-bold text-black leading-tight">
                 진료받은 분의 형제자매는
                 <br />
                 어떤 상황인가요?
@@ -2682,23 +2686,23 @@ export default function DocumentsPage() {
                 onClick={() => handleSiblingsStatusTypeSelect('only_self')}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <div className="text-2xl font-bold text-gray-900">본인뿐입니다</div>
+                <div className="text-2xl font-bold text-black">본인뿐입니다</div>
               </button>
 
               <button
                 onClick={() => handleSiblingsStatusTypeSelect('multiple_alive')}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <div className="text-2xl font-bold text-gray-900">여러 명이고</div>
-                <div className="text-2xl font-bold text-gray-900">모두 살아있습니다</div>
+                <div className="text-2xl font-bold text-black">여러 명이고</div>
+                <div className="text-2xl font-bold text-black">모두 살아있습니다</div>
               </button>
 
               <button
                 onClick={() => handleSiblingsStatusTypeSelect('some_deceased')}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <div className="text-2xl font-bold text-gray-900">여러 명이고</div>
-                <div className="text-2xl font-bold text-gray-900">먼저 돌아가신 분이 있습니다</div>
+                <div className="text-2xl font-bold text-black">여러 명이고</div>
+                <div className="text-2xl font-bold text-black">먼저 돌아가신 분이 있습니다</div>
               </button>
             </div>
           </>
@@ -2708,7 +2712,7 @@ export default function DocumentsPage() {
         {step === 37 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'sibling' && siblingsStatusType === 'some_deceased' && (
           <>
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-gray-900 leading-tight">
+              <h1 className="text-4xl font-bold text-black leading-tight">
                 먼저 돌아가신 형제분의
                 <br />
                 배우자나 자녀가
@@ -2722,14 +2726,14 @@ export default function DocumentsPage() {
                 onClick={() => handleSiblingDaeseupCheck(true)}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <span className="text-2xl font-bold text-gray-900">예</span>
+                <span className="text-2xl font-bold text-black">예</span>
               </button>
 
               <button
                 onClick={() => handleSiblingDaeseupCheck(false)}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <span className="text-2xl font-bold text-gray-900">아니오</span>
+                <span className="text-2xl font-bold text-black">아니오</span>
               </button>
             </div>
           </>
@@ -2739,124 +2743,116 @@ export default function DocumentsPage() {
         {step === 38 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'sibling' && (
           <>
             <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              <div ref={captureRef} className="space-y-4" style={{ backgroundColor: '#f3f4f6' }}>
+              <div ref={captureRef} style={{ backgroundColor: '#ffffff' }}>
                 {/* 신청방법 */}
-                <div className="bg-white rounded-[20px] p-6">
-                  <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">어떻게 신청하나요?</h2>
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span className="text-xl text-gray-800 flex-1">팩스, 우편, 내방</span>
-                    </div>
+                <div style={{
+                  backgroundColor: '#ffffff',
+                  borderRadius: '20px',
+                  padding: '24px'
+                }}>
+                  <h2 style={{
+                    fontSize: '24px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '20px'
+                  }}>어떻게 신청하나요?</h2>
+
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
+                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>팩스, 우편, 내방</span>
                   </div>
                 </div>
 
                 {/* 제출서류 */}
-                <div className="bg-white rounded-[20px] p-6">
-                  <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">어떤 서류를 제출해야하나요?</h2>
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      <span className="text-xl text-gray-800 flex-1">환급금 지급신청서</span>
-                      <button
-                        onClick={() => setSampleImage('/환급금 지급신청서.png')}
-                        className="bg-blue-50 text-blue-600 hover:bg-blue-100 active:scale-95 transition-all text-sm whitespace-nowrap px-3 py-1.5 rounded-lg border border-blue-200"
-                      >
-                        작성예시
-                      </button>
-                    </div>
-                    {siblingsStatusType !== 'only_self' && (
-                      <div className="flex items-start gap-3">
-                        <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <div className="flex-1">
-                          <span className="text-xl text-gray-800">상속대표선정동의서</span>
-                          <div className="text-base text-gray-500 mt-1">- 상속인 전원 서명 필요</div>
-                        </div>
-                        <button
-                          onClick={() => setSampleImage('/상속대표선정동의서.png')}
-                          className="bg-blue-50 text-blue-600 hover:bg-blue-100 active:scale-95 transition-all text-sm whitespace-nowrap px-3 py-1.5 rounded-lg border border-blue-200"
-                        >
-                          작성예시
-                        </button>
-                      </div>
-                    )}
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      <div className="flex-1">
-                        <span className="text-xl text-gray-800">진료받은 분 기준 가족관계증명서(상세)</span>
-                        <div className="text-base text-gray-500 mt-1">- 최근 3개월 이내 발급 분</div>
-                      </div>
-                    </div>
-                    {siblingsStatusType === 'only_self' && (
-                      <div className="flex items-start gap-3">
-                        <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <div className="flex-1">
-                          <span className="text-xl text-gray-800">진료받은 분의 부모님 기준 가족관계증명서(상세)</span>
-                          <div className="text-base text-gray-500 mt-1">- 최근 3개월 이내 발급 분</div>
-                        </div>
-                      </div>
-                    )}
-                    {siblingsStatusType === 'some_deceased' && (
-                      <div className="flex items-start gap-3">
-                        <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <div className="flex-1">
-                          <span className="text-xl text-gray-800">사망한 형제(자매) 기준 가족관계증명서(상세)</span>
-                          <div className="text-base text-gray-500 mt-1">- 최근 3개월 이내 발급 분</div>
-                        </div>
-                      </div>
-                    )}
+                <div style={{
+                  backgroundColor: '#ffffff',
+                  borderRadius: '20px',
+                  padding: '24px'
+                }}>
+                  <h2 style={{
+                    fontSize: '24px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '20px'
+                  }}>어떤 서류를 제출해야하나요?</h2>
+
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>환급금 지급신청서</span>
                   </div>
+                  {siblingsStatusType !== 'only_self' && (
+                    <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                      <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                      <div style={{ flex: 1 }}>
+                        <span style={{ fontSize: '20px', color: '#1F2937' }}>상속대표선정동의서</span>
+                        <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 상속인 전원 서명 필요</div>
+                      </div>
+                    </div>
+                  )}
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <div style={{ flex: 1 }}>
+                      <span style={{ fontSize: '20px', color: '#1F2937' }}>진료받은 분 기준 가족관계증명서(상세)</span>
+                      <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 최근 3개월 이내 발급 분</div>
+                    </div>
+                  </div>
+                  {siblingsStatusType === 'only_self' && (
+                    <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                      <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                      <div style={{ flex: 1 }}>
+                        <span style={{ fontSize: '20px', color: '#1F2937' }}>진료받은 분의 부모님 기준 가족관계증명서(상세)</span>
+                        <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 최근 3개월 이내 발급 분</div>
+                      </div>
+                    </div>
+                  )}
+                  {siblingsStatusType === 'some_deceased' && (
+                    <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                      <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                      <div style={{ flex: 1 }}>
+                        <span style={{ fontSize: '20px', color: '#1F2937' }}>사망한 형제(자매) 기준 가족관계증명서(상세)</span>
+                        <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 최근 3개월 이내 발급 분</div>
+                      </div>
+                    </div>
+                  )}
 
                   {/* 구분선 */}
-                  <div className="border-t border-gray-200 my-6"></div>
+                  <div style={{
+                    borderTop: '1px solid #000000',
+                    marginTop: '24px',
+                    marginBottom: '24px'
+                  }}></div>
 
-                  <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">누가 상속인인가요? (진료받은 분 기준)</h2>
-                  <div className="space-y-3">
-                    {siblingsStatusType === 'only_self' && (
-                      <div className="flex items-start gap-3">
-                        <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        <span className="text-xl text-gray-800 flex-1">형제자매 (신청인 단독)</span>
+                  <h2 style={{
+                    fontSize: '24px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '20px'
+                  }}>누가 상속인인가요? (진료받은 분 기준)</h2>
+
+                  {siblingsStatusType === 'only_self' && (
+                    <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                      <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
+                      <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>형제자매 (신청인 단독)</span>
+                    </div>
+                  )}
+                  {siblingsStatusType !== 'only_self' && (
+                    <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                      <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
+                      <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>형제자매 (살아계신 분들)</span>
+                    </div>
+                  )}
+                  {hasSiblingDaeseup && (
+                    <>
+                      <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                        <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
+                        <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>돌아가신 형제의 배우자 (대습상속)</span>
                       </div>
-                    )}
-                    {siblingsStatusType !== 'only_self' && (
-                      <div className="flex items-start gap-3">
-                        <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        <span className="text-xl text-gray-800 flex-1">형제자매 (살아계신 분들)</span>
+                      <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                        <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
+                        <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>돌아가신 형제의 자녀 (대습상속)</span>
                       </div>
-                    )}
-                    {hasSiblingDaeseup && (
-                      <>
-                        <div className="flex items-start gap-3">
-                          <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                          <span className="text-xl text-gray-800 flex-1">돌아가신 형제의 배우자 (대습상속)</span>
-                        </div>
-                        <div className="flex items-start gap-3">
-                          <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                          <span className="text-xl text-gray-800 flex-1">돌아가신 형제의 자녀 (대습상속)</span>
-                        </div>
-                      </>
-                    )}
-                  </div>
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -2953,11 +2949,11 @@ export default function DocumentsPage() {
                   </div>
 
                   <div className="bg-white rounded-xl p-5 space-y-4">
-                    <div className="text-2xl font-bold text-gray-900 mb-3">핵심 안내사항:</div>
+                    <div className="text-2xl font-bold text-black mb-3">핵심 안내사항:</div>
 
                     <div className="space-y-4">
                       <div>
-                        <div className="text-2xl font-semibold text-gray-900">• 정확한 상속인 확인 필요</div>
+                        <div className="text-2xl font-semibold text-black">• 정확한 상속인 확인 필요</div>
                         <div className="text-xl text-gray-700 ml-4 mt-1">
                           3촌(삼촌, 고모 등)과 4촌(사촌 등) 간의
                           <br />
@@ -2966,7 +2962,7 @@ export default function DocumentsPage() {
                       </div>
 
                       <div>
-                        <div className="text-2xl font-semibold text-gray-900">• 필수 서류 복잡</div>
+                        <div className="text-2xl font-semibold text-black">• 필수 서류 복잡</div>
                         <div className="text-xl text-gray-700 ml-4 mt-1">
                           진료받은 분의 제적등본 및 가계 확인을 위한
                           <br />
@@ -2975,7 +2971,7 @@ export default function DocumentsPage() {
                       </div>
 
                       <div>
-                        <div className="text-2xl font-semibold text-gray-900">• 지사 방문 권장</div>
+                        <div className="text-2xl font-semibold text-black">• 지사 방문 권장</div>
                         <div className="text-xl text-gray-700 ml-4 mt-1">
                           서류 누락 방지를 위해 가까운
                           <br />
@@ -3032,11 +3028,11 @@ export default function DocumentsPage() {
                   </div>
 
                   <div className="bg-white rounded-xl p-5 space-y-4">
-                    <div className="text-2xl font-bold text-gray-900 mb-3">핵심 안내사항:</div>
+                    <div className="text-2xl font-bold text-black mb-3">핵심 안내사항:</div>
 
                     <div className="space-y-4">
                       <div>
-                        <div className="text-2xl font-semibold text-gray-900">• 대습상속 여부 확인 필요</div>
+                        <div className="text-2xl font-semibold text-black">• 대습상속 여부 확인 필요</div>
                         <div className="text-xl text-gray-700 ml-4 mt-1">
                           부모님(진료받은 분의 자녀)이 사망한 경우
                           <br />
@@ -3047,7 +3043,7 @@ export default function DocumentsPage() {
                       </div>
 
                       <div>
-                        <div className="text-2xl font-semibold text-gray-900">• 필수 서류 복잡</div>
+                        <div className="text-2xl font-semibold text-black">• 필수 서류 복잡</div>
                         <div className="text-xl text-gray-700 ml-4 mt-1">
                           진료받은 분 기준 가족관계증명서,
                           <br />
@@ -3058,7 +3054,7 @@ export default function DocumentsPage() {
                       </div>
 
                       <div>
-                        <div className="text-2xl font-semibold text-gray-900">• 지사 방문 권장</div>
+                        <div className="text-2xl font-semibold text-black">• 지사 방문 권장</div>
                         <div className="text-xl text-gray-700 ml-4 mt-1">
                           정확한 상속인 확인 및 서류 누락 방지를 위해
                           <br />
@@ -3098,7 +3094,7 @@ export default function DocumentsPage() {
         {step === 42 && situation === 'alive' && aliveDetailType === 'minor' && (
           <>
             <div className="mb-10">
-              <h1 className="text-[32px] font-bold text-[#1A1A1A] leading-tight">
+              <h1 className="text-[32px] font-bold text-black leading-tight">
                 아이 부모님의 현재 상황을
                 <br />
                 알려주세요
@@ -3117,8 +3113,8 @@ export default function DocumentsPage() {
                     </svg>
                   </div>
                   <div className="flex-1 text-left">
-                    <div className="text-2xl font-semibold text-[#1A1A1A]">현재 두 분이 혼인 관계이심</div>
-                    <div className="text-base text-gray-500 mt-0.5">(이혼/사별 안 함)</div>
+                    <div className="text-2xl font-semibold text-black">현재 두 분이 혼인 관계이심</div>
+                    <div className="text-base text-gray-800 mt-0.5">(이혼/사별 안 함)</div>
                   </div>
                 </div>
               </button>
@@ -3134,7 +3130,7 @@ export default function DocumentsPage() {
                     </svg>
                   </div>
                   <div className="flex-1 text-left">
-                    <div className="text-2xl font-semibold text-[#1A1A1A]">이혼 또는 한 분이 사별하심</div>
+                    <div className="text-2xl font-semibold text-black">이혼 또는 한 분이 사별하심</div>
                   </div>
                 </div>
               </button>
@@ -3150,7 +3146,7 @@ export default function DocumentsPage() {
                     </svg>
                   </div>
                   <div className="flex-1 text-left">
-                    <div className="text-2xl font-semibold text-[#1A1A1A]">두 분 모두 돌아가셨음</div>
+                    <div className="text-2xl font-semibold text-black">두 분 모두 돌아가셨음</div>
                   </div>
                 </div>
               </button>
@@ -3162,50 +3158,52 @@ export default function DocumentsPage() {
         {step === 46 && situation === 'alive' && aliveDetailType === 'minor' && (
           <>
             <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              <div ref={captureRef} className="space-y-4" style={{ backgroundColor: '#f3f4f6' }}>
+              <div ref={captureRef} style={{ backgroundColor: '#ffffff' }}>
                 {/* 신청방법 카드 */}
-                <div className="bg-white rounded-[20px] p-6">
-                  <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">어떻게 신청하나요?</h2>
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span className="text-xl text-gray-800 flex-1">팩스, 우편, 내방</span>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span className="text-xl text-gray-800 flex-1">유선<br /><span className="text-base text-gray-500">(※ 조건: 부, 모, 자녀 주민등록 주소 동일)</span></span>
-                    </div>
+                <div style={{
+                  backgroundColor: '#ffffff',
+                  borderRadius: '20px',
+                  padding: '24px'
+                }}>
+                  <h2 style={{
+                    fontSize: '24px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '20px'
+                  }}>어떻게 신청하나요?</h2>
+
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
+                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>팩스, 우편, 내방</span>
+                  </div>
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
+                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>유선<br /><span style={{ fontSize: '16px', color: '#1F2937' }}>(※ 조건: 부, 모, 자녀 주민등록 주소 동일)</span></span>
                   </div>
                 </div>
 
                 {/* 제출서류 카드 */}
-                <div className="bg-white rounded-[20px] p-6">
-                  <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">어떤 서류를 제출해야하나요?</h2>
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      <span className="text-xl text-gray-800 flex-1">환급금 지급신청서</span>
-                      <button
-                        onClick={() => setSampleImage('/환급금 지급신청서.png')}
-                        className="bg-blue-50 text-blue-600 hover:bg-blue-100 active:scale-95 transition-all text-sm whitespace-nowrap px-3 py-1.5 rounded-lg border border-blue-200"
-                      >
-                        작성예시
-                      </button>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      <div className="flex-1">
-                        <span className="text-xl text-gray-800">부모님 기준 가족관계증명서(상세)</span>
-                        <div className="text-base text-gray-500 mt-1">- 최근 3개월 이내 발급 분</div>
-                      </div>
+                <div style={{
+                  backgroundColor: '#ffffff',
+                  borderRadius: '20px',
+                  padding: '24px'
+                }}>
+                  <h2 style={{
+                    fontSize: '24px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '20px'
+                  }}>어떤 서류를 제출해야하나요?</h2>
+
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>환급금 지급신청서</span>
+                  </div>
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <div style={{ flex: 1 }}>
+                      <span style={{ fontSize: '20px', color: '#1F2937' }}>부모님 기준 가족관계증명서(상세)</span>
+                      <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 최근 3개월 이내 발급 분</div>
                     </div>
                   </div>
                 </div>
@@ -3262,42 +3260,46 @@ export default function DocumentsPage() {
         {step === 47 && situation === 'alive' && aliveDetailType === 'minor' && (
           <>
             <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              <div ref={captureRef} className="space-y-4" style={{ backgroundColor: '#f3f4f6' }}>
+              <div ref={captureRef} style={{ backgroundColor: '#ffffff' }}>
                 {/* 신청방법 카드 */}
-                <div className="bg-white rounded-[20px] p-6">
-                  <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">어떻게 신청하나요?</h2>
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span className="text-xl text-gray-800 flex-1">팩스, 우편, 내방</span>
-                    </div>
+                <div style={{
+                  backgroundColor: '#ffffff',
+                  borderRadius: '20px',
+                  padding: '24px'
+                }}>
+                  <h2 style={{
+                    fontSize: '24px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '20px'
+                  }}>어떻게 신청하나요?</h2>
+
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
+                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>팩스, 우편, 내방</span>
                   </div>
                 </div>
 
                 {/* 제출서류 카드 */}
-                <div className="bg-white rounded-[20px] p-6">
-                  <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">어떤 서류를 제출해야하나요?</h2>
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      <span className="text-xl text-gray-800 flex-1">환급금 지급신청서</span>
-                      <button
-                        onClick={() => setSampleImage('/환급금 지급신청서.png')}
-                        className="bg-blue-50 text-blue-600 hover:bg-blue-100 active:scale-95 transition-all text-sm whitespace-nowrap px-3 py-1.5 rounded-lg border border-blue-200"
-                      >
-                        작성예시
-                      </button>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      <span className="text-xl text-gray-800">아이 기준 기본증명서(상세)</span>
-                    </div>
+                <div style={{
+                  backgroundColor: '#ffffff',
+                  borderRadius: '20px',
+                  padding: '24px'
+                }}>
+                  <h2 style={{
+                    fontSize: '24px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '20px'
+                  }}>어떤 서류를 제출해야하나요?</h2>
+
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>환급금 지급신청서</span>
+                  </div>
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <span style={{ fontSize: '20px', color: '#1F2937' }}>아이 기준 기본증명서(상세)</span>
                   </div>
                 </div>
               </div>
@@ -3353,48 +3355,50 @@ export default function DocumentsPage() {
         {step === 48 && situation === 'alive' && aliveDetailType === 'guardian_adult' && (
           <>
             <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              <div ref={captureRef} className="space-y-4" style={{ backgroundColor: '#f3f4f6' }}>
+              <div ref={captureRef} style={{ backgroundColor: '#ffffff' }}>
                 {/* 신청방법 */}
-                <div className="bg-white rounded-[20px] p-6">
-                  <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">어떻게 신청하나요?</h2>
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span className="text-xl text-gray-800 flex-1">팩스, 우편, 내방</span>
-                    </div>
+                <div style={{
+                  backgroundColor: '#ffffff',
+                  borderRadius: '20px',
+                  padding: '24px'
+                }}>
+                  <h2 style={{
+                    fontSize: '24px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '20px'
+                  }}>어떻게 신청하나요?</h2>
+
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
+                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>팩스, 우편, 내방</span>
                   </div>
                 </div>
 
                 {/* 제출서류 */}
-                <div className="bg-white rounded-[20px] p-6">
-                  <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">어떤 서류를 제출해야하나요?</h2>
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      <span className="text-xl text-gray-800 flex-1">환급금 지급신청서</span>
-                      <button
-                        onClick={() => setSampleImage('/환급금 지급신청서.png')}
-                        className="bg-blue-50 text-blue-600 hover:bg-blue-100 active:scale-95 transition-all text-sm whitespace-nowrap px-3 py-1.5 rounded-lg border border-blue-200"
-                      >
-                        작성예시
-                      </button>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      <span className="text-xl text-gray-800">후견 등기사항증명서</span>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      <span className="text-xl text-gray-800">성년후견인 신분증 사본</span>
-                    </div>
+                <div style={{
+                  backgroundColor: '#ffffff',
+                  borderRadius: '20px',
+                  padding: '24px'
+                }}>
+                  <h2 style={{
+                    fontSize: '24px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '20px'
+                  }}>어떤 서류를 제출해야하나요?</h2>
+
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>환급금 지급신청서</span>
+                  </div>
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <span style={{ fontSize: '20px', color: '#1F2937' }}>후견 등기사항증명서</span>
+                  </div>
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <span style={{ fontSize: '20px', color: '#1F2937' }}>성년후견인 신분증 사본</span>
                   </div>
                 </div>
               </div>
@@ -3469,11 +3473,11 @@ export default function DocumentsPage() {
                   </div>
 
                   <div className="bg-white rounded-xl p-5 space-y-4">
-                    <div className="text-2xl font-bold text-gray-900 mb-3">핵심 안내사항:</div>
+                    <div className="text-2xl font-bold text-black mb-3">핵심 안내사항:</div>
 
                     <div className="space-y-4">
                       <div>
-                        <div className="text-2xl font-semibold text-gray-900">• 후견 관계 확인 필요</div>
+                        <div className="text-2xl font-semibold text-black">• 후견 관계 확인 필요</div>
                         <div className="text-xl text-gray-700 ml-4 mt-1">
                           상속인과 후견인의 관계 및
                           <br />
@@ -3482,7 +3486,7 @@ export default function DocumentsPage() {
                       </div>
 
                       <div>
-                        <div className="text-2xl font-semibold text-gray-900">• 정확한 서류 안내</div>
+                        <div className="text-2xl font-semibold text-black">• 정확한 서류 안내</div>
                         <div className="text-xl text-gray-700 ml-4 mt-1">
                           개별 상황에 맞는 정확한 서류 안내를 위해
                           <br />
@@ -3491,7 +3495,7 @@ export default function DocumentsPage() {
                       </div>
 
                       <div>
-                        <div className="text-2xl font-semibold text-gray-900">• 지사 방문 권장</div>
+                        <div className="text-2xl font-semibold text-black">• 지사 방문 권장</div>
                         <div className="text-xl text-gray-700 ml-4 mt-1">
                           가까운 국민건강보험공단 지사를 방문하시거나
                           <br />
@@ -3544,11 +3548,11 @@ export default function DocumentsPage() {
                   </div>
 
                   <div className="bg-white rounded-xl p-5 space-y-4">
-                    <div className="text-2xl font-bold text-gray-900 mb-3">핵심 안내사항:</div>
+                    <div className="text-2xl font-bold text-black mb-3">핵심 안내사항:</div>
 
                     <div className="space-y-4">
                       <div>
-                        <div className="text-2xl font-semibold text-gray-900">• 대습상속이란?</div>
+                        <div className="text-2xl font-semibold text-black">• 대습상속이란?</div>
                         <div className="text-xl text-gray-700 ml-4 mt-1">
                           상속인이 사망한 경우,
                           <br />
@@ -3557,7 +3561,7 @@ export default function DocumentsPage() {
                       </div>
 
                       <div>
-                        <div className="text-2xl font-semibold text-gray-900">• 복잡한 서류 확인</div>
+                        <div className="text-2xl font-semibold text-black">• 복잡한 서류 확인</div>
                         <div className="text-xl text-gray-700 ml-4 mt-1">
                           대습상속인의 관계 확인 및
                           <br />
@@ -3566,7 +3570,7 @@ export default function DocumentsPage() {
                       </div>
 
                       <div>
-                        <div className="text-2xl font-semibold text-gray-900">• 전문 상담 필요</div>
+                        <div className="text-2xl font-semibold text-black">• 전문 상담 필요</div>
                         <div className="text-xl text-gray-700 ml-4 mt-1">
                           정확한 서류 안내를 위해
                           <br />
@@ -3604,7 +3608,7 @@ export default function DocumentsPage() {
         {step === 60 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'parent' && (
           <>
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-gray-900 leading-tight">
+              <h1 className="text-4xl font-bold text-black leading-tight">
                 진료받은 분의 자녀나
                 <br />
                 손자녀가 한 명이라도
@@ -3618,14 +3622,14 @@ export default function DocumentsPage() {
                 onClick={() => handleParentCaseSeniorHeirsCheck(true)}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <span className="text-2xl font-bold text-gray-900">예</span>
+                <span className="text-2xl font-bold text-black">예</span>
               </button>
 
               <button
                 onClick={() => handleParentCaseSeniorHeirsCheck(false)}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <span className="text-2xl font-bold text-gray-900">아니오</span>
+                <span className="text-2xl font-bold text-black">아니오</span>
               </button>
             </div>
           </>
@@ -3661,7 +3665,7 @@ export default function DocumentsPage() {
         {step === 62 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'parent' && !hasSeniorHeirsForParent && (
           <>
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-gray-900 leading-tight">
+              <h1 className="text-4xl font-bold text-black leading-tight">
                 진료받은 분의<br />배우자가<br />살아계신가요?
               </h1>
             </div>
@@ -3671,14 +3675,14 @@ export default function DocumentsPage() {
                 onClick={() => handleParentCaseSpouseCheck(true)}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <span className="text-2xl font-bold text-gray-900">예</span>
+                <span className="text-2xl font-bold text-black">예</span>
               </button>
 
               <button
                 onClick={() => handleParentCaseSpouseCheck(false)}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <span className="text-2xl font-bold text-gray-900">아니오</span>
+                <span className="text-2xl font-bold text-black">아니오</span>
               </button>
             </div>
           </>
@@ -3688,84 +3692,84 @@ export default function DocumentsPage() {
         {step === 64 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'parent' && (
           <>
             <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              <div ref={captureRef} className="space-y-4" style={{ backgroundColor: '#f3f4f6' }}>
+              <div ref={captureRef} style={{ backgroundColor: '#ffffff' }}>
                 {/* 신청방법 & 제출서류 통합 카드 */}
-                <div className="bg-white rounded-[20px] p-6">
-                  <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">어떻게 신청하나요?</h2>
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span className="text-xl text-gray-800 flex-1">팩스, 우편, 내방</span>
+                <div style={{
+                  backgroundColor: '#ffffff',
+                  borderRadius: '20px',
+                  padding: '24px'
+                }}>
+                  <h2 style={{
+                    fontSize: '24px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '20px'
+                  }}>어떻게 신청하나요?</h2>
+
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
+                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>팩스, 우편, 내방</span>
+                  </div>
+
+                  {/* 구분선 */}
+                  <div style={{
+                    borderTop: '1px solid #000000',
+                    marginTop: '24px',
+                    marginBottom: '24px'
+                  }}></div>
+
+                  <h2 style={{
+                    fontSize: '24px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '20px'
+                  }}>어떤 서류를 제출해야하나요?</h2>
+
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>환급금 지급신청서</span>
+                  </div>
+                  {hasSpouse && (
+                    <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                      <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                      <div style={{ flex: 1 }}>
+                        <span style={{ fontSize: '20px', color: '#1F2937' }}>상속대표선정동의서</span>
+                        <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 상속인 전원 서명 필요</div>
+                      </div>
+                    </div>
+                  )}
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <div style={{ flex: 1 }}>
+                      <span style={{ fontSize: '20px', color: '#1F2937' }}>진료받은 분 기준 가족관계증명서(상세)</span>
+                      <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 최근 3개월 이내 발급 분</div>
                     </div>
                   </div>
 
                   {/* 구분선 */}
-                  <div className="border-t border-gray-200 my-6"></div>
+                  <div style={{
+                    borderTop: '1px solid #000000',
+                    marginTop: '24px',
+                    marginBottom: '24px'
+                  }}></div>
 
-                  <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">어떤 서류를 제출해야하나요?</h2>
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      <span className="text-xl text-gray-800 flex-1">환급금 지급신청서</span>
-                      <button
-                        onClick={() => setSampleImage('/환급금 지급신청서.png')}
-                        className="bg-blue-50 text-blue-600 hover:bg-blue-100 active:scale-95 transition-all text-sm whitespace-nowrap px-3 py-1.5 rounded-lg border border-blue-200"
-                      >
-                        작성예시
-                      </button>
-                    </div>
-                    {hasSpouse && (
-                      <div className="flex items-start gap-3">
-                        <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <div className="flex-1">
-                          <span className="text-xl text-gray-800">상속대표선정동의서</span>
-                          <div className="text-base text-gray-500 mt-1">- 상속인 전원 서명 필요</div>
-                        </div>
-                        <button
-                          onClick={() => setSampleImage('/상속대표선정동의서.png')}
-                          className="bg-blue-50 text-blue-600 hover:bg-blue-100 active:scale-95 transition-all text-sm whitespace-nowrap px-3 py-1.5 rounded-lg border border-blue-200"
-                        >
-                          작성예시
-                        </button>
-                      </div>
-                    )}
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      <div className="flex-1">
-                        <span className="text-xl text-gray-800">진료받은 분 기준 가족관계증명서(상세)</span>
-                        <div className="text-base text-gray-500 mt-1">- 최근 3개월 이내 발급 분</div>
-                      </div>
-                    </div>
+                  <h2 style={{
+                    fontSize: '24px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '20px'
+                  }}>누가 상속인인가요? (진료받은 분 기준)</h2>
+
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
+                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>부모</span>
                   </div>
-
-                  {/* 구분선 */}
-                  <div className="border-t border-gray-200 my-6"></div>
-
-                  <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">누가 상속인인가요? (진료받은 분 기준)</h2>
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span className="text-xl text-gray-800 flex-1">부모</span>
+                  {hasSpouse && (
+                    <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                      <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
+                      <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>배우자</span>
                     </div>
-                    {hasSpouse && (
-                      <div className="flex items-start gap-3">
-                        <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        <span className="text-xl text-gray-800 flex-1">배우자</span>
-                      </div>
-                    )}
-                  </div>
+                  )}
                 </div>
               </div>
 
@@ -3820,7 +3824,7 @@ export default function DocumentsPage() {
         {step === 65 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'grandparent' && (
           <>
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-gray-900 leading-tight">
+              <h1 className="text-4xl font-bold text-black leading-tight">
                 진료받은 분의<br />자녀나 손자녀가<br />한 명이라도 살아계신가요?
               </h1>
             </div>
@@ -3830,14 +3834,14 @@ export default function DocumentsPage() {
                 onClick={() => handleGrandparentCaseSeniorHeirsCheck(true)}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <span className="text-2xl font-bold text-gray-900">예</span>
+                <span className="text-2xl font-bold text-black">예</span>
               </button>
 
               <button
                 onClick={() => handleGrandparentCaseSeniorHeirsCheck(false)}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <span className="text-2xl font-bold text-gray-900">아니오</span>
+                <span className="text-2xl font-bold text-black">아니오</span>
               </button>
             </div>
           </>
@@ -3875,7 +3879,7 @@ export default function DocumentsPage() {
         {step === 67 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'grandparent' && (
           <>
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-gray-900 leading-tight">
+              <h1 className="text-4xl font-bold text-black leading-tight">
                 진료받은 분의<br />부모님이<br />모두 돌아가셨나요?
               </h1>
               <p className="text-2xl text-gray-600 mt-4">(생물학적 부모 기준)</p>
@@ -3886,14 +3890,14 @@ export default function DocumentsPage() {
                 onClick={() => handleParentsDeceasedCheck(true)}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <span className="text-2xl font-bold text-gray-900">예 (모두 돌아가심)</span>
+                <span className="text-2xl font-bold text-black">예 (모두 돌아가심)</span>
               </button>
 
               <button
                 onClick={() => handleParentsDeceasedCheck(false)}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <span className="text-2xl font-bold text-gray-900">아니오 (한 분이라도 생존)</span>
+                <span className="text-2xl font-bold text-black">아니오 (한 분이라도 생존)</span>
               </button>
             </div>
           </>
@@ -3903,7 +3907,7 @@ export default function DocumentsPage() {
         {step === 68 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'grandparent' && (
           <>
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-gray-900 leading-tight">
+              <h1 className="text-4xl font-bold text-black leading-tight">
                 진료받은 분의<br />배우자가<br />살아계신가요?
               </h1>
             </div>
@@ -3913,14 +3917,14 @@ export default function DocumentsPage() {
                 onClick={() => handleGrandparentCaseSpouseCheck(true)}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <span className="text-2xl font-bold text-gray-900">예</span>
+                <span className="text-2xl font-bold text-black">예</span>
               </button>
 
               <button
                 onClick={() => handleGrandparentCaseSpouseCheck(false)}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <span className="text-2xl font-bold text-gray-900">아니오</span>
+                <span className="text-2xl font-bold text-black">아니오</span>
               </button>
             </div>
           </>
@@ -3930,93 +3934,91 @@ export default function DocumentsPage() {
         {step === 69 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'grandparent' && (
           <>
             <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              <div ref={captureRef} className="space-y-4" style={{ backgroundColor: '#f3f4f6' }}>
+              <div ref={captureRef} style={{ backgroundColor: '#ffffff' }}>
                 {/* 신청방법 & 제출서류 통합 카드 */}
-                <div className="bg-white rounded-[20px] p-6">
-                  <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">어떻게 신청하나요?</h2>
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span className="text-xl text-gray-800 flex-1">팩스, 우편, 내방</span>
+                <div style={{
+                  backgroundColor: '#ffffff',
+                  borderRadius: '20px',
+                  padding: '24px'
+                }}>
+                  <h2 style={{
+                    fontSize: '24px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '20px'
+                  }}>어떻게 신청하나요?</h2>
+
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
+                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>팩스, 우편, 내방</span>
+                  </div>
+
+                  {/* 구분선 */}
+                  <div style={{
+                    borderTop: '1px solid #000000',
+                    marginTop: '24px',
+                    marginBottom: '24px'
+                  }}></div>
+
+                  <h2 style={{
+                    fontSize: '24px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '20px'
+                  }}>어떤 서류를 제출해야하나요?</h2>
+
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>환급금 지급신청서</span>
+                  </div>
+                  {hasSpouse && (
+                    <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                      <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                      <div style={{ flex: 1 }}>
+                        <span style={{ fontSize: '20px', color: '#1F2937' }}>상속대표선정동의서</span>
+                        <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 상속인 전원 서명 필요</div>
+                      </div>
+                    </div>
+                  )}
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <div style={{ flex: 1 }}>
+                      <span style={{ fontSize: '20px', color: '#1F2937' }}>진료받은 분 기준 가족관계증명서(상세)</span>
+                      <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 최근 3개월 이내 발급 분</div>
+                    </div>
+                  </div>
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <div style={{ flex: 1 }}>
+                      <span style={{ fontSize: '20px', color: '#1F2937' }}>진료받은 분의 부모님 기준 가족관계증명서(상세)</span>
+                      <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 최근 3개월 이내 발급 분 (부모님 사망 증명용)</div>
                     </div>
                   </div>
 
                   {/* 구분선 */}
-                  <div className="border-t border-gray-200 my-6"></div>
+                  <div style={{
+                    borderTop: '1px solid #000000',
+                    marginTop: '24px',
+                    marginBottom: '24px'
+                  }}></div>
 
-                  <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">어떤 서류를 제출해야하나요?</h2>
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      <span className="text-xl text-gray-800 flex-1">환급금 지급신청서</span>
-                      <button
-                        onClick={() => setSampleImage('/환급금 지급신청서.png')}
-                        className="bg-blue-50 text-blue-600 hover:bg-blue-100 active:scale-95 transition-all text-sm whitespace-nowrap px-3 py-1.5 rounded-lg border border-blue-200"
-                      >
-                        작성예시
-                      </button>
-                    </div>
-                    {hasSpouse && (
-                      <div className="flex items-start gap-3">
-                        <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <div className="flex-1">
-                          <span className="text-xl text-gray-800">상속대표선정동의서</span>
-                          <div className="text-base text-gray-500 mt-1">- 상속인 전원 서명 필요</div>
-                        </div>
-                        <button
-                          onClick={() => setSampleImage('/상속대표선정동의서.png')}
-                          className="bg-blue-50 text-blue-600 hover:bg-blue-100 active:scale-95 transition-all text-sm whitespace-nowrap px-3 py-1.5 rounded-lg border border-blue-200"
-                        >
-                          작성예시
-                        </button>
-                      </div>
-                    )}
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      <div className="flex-1">
-                        <span className="text-xl text-gray-800">진료받은 분 기준 가족관계증명서(상세)</span>
-                        <div className="text-base text-gray-500 mt-1">- 최근 3개월 이내 발급 분</div>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      <div className="flex-1">
-                        <span className="text-xl text-gray-800">진료받은 분의 부모님 기준 가족관계증명서(상세)</span>
-                        <div className="text-base text-gray-500 mt-1">- 최근 3개월 이내 발급 분 (부모님 사망 증명용)</div>
-                      </div>
-                    </div>
+                  <h2 style={{
+                    fontSize: '24px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '20px'
+                  }}>누가 상속인인가요? (진료받은 분 기준)</h2>
+
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
+                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>조부모</span>
                   </div>
-
-                  {/* 구분선 */}
-                  <div className="border-t border-gray-200 my-6"></div>
-
-                  <h2 className="text-2xl font-bold text-[#1A1A1A] mb-5">누가 상속인인가요? (진료받은 분 기준)</h2>
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span className="text-xl text-gray-800 flex-1">조부모</span>
+                  {hasSpouse && (
+                    <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                      <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
+                      <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>배우자</span>
                     </div>
-                    {hasSpouse && (
-                      <div className="flex items-start gap-3">
-                        <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        <span className="text-xl text-gray-800 flex-1">배우자</span>
-                      </div>
-                    )}
-                  </div>
+                  )}
                 </div>
               </div>
 
@@ -4121,7 +4123,7 @@ export default function DocumentsPage() {
 
               {/* 메시지 */}
               <div className="space-y-3">
-                <h2 className="text-3xl font-bold text-gray-900">사진으로 저장 완료!</h2>
+                <h2 className="text-3xl font-bold text-black">사진으로 저장 완료!</h2>
                 <p className="text-xl text-gray-700 leading-relaxed">
                   필요한 서류를<br />모두 확인하셨어요
                 </p>
@@ -4131,7 +4133,7 @@ export default function DocumentsPage() {
               </div>
 
               {/* 구분선 */}
-              <div className="border-t border-gray-200 my-6"></div>
+              <div className="border-t border-black my-6"></div>
 
               {/* 피드백 질문 */}
               <div className="space-y-4">
