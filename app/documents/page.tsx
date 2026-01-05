@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import html2canvas from 'html2canvas';
-import { recordSatisfaction } from "@/lib/statistics";
+import { recordSatisfaction, incrementUserCount } from "@/lib/statistics";
 
 type Situation = 'alive' | 'deceased' | null;
 type AliveDetailType = 'adult' | 'minor' | 'guardian_adult' | null;
@@ -66,6 +66,15 @@ export default function DocumentsPage() {
   const captureRef = useRef<HTMLDivElement>(null);
   const [sampleImage, setSampleImage] = useState<string | null>(null);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+
+  // 페이지 방문 시 이용자 수 증가 (세션당 1회)
+  useEffect(() => {
+    const sessionKey = "nhis_session_counted";
+    if (!sessionStorage.getItem(sessionKey)) {
+      incrementUserCount();
+      sessionStorage.setItem(sessionKey, "true");
+    }
+  }, []);
 
   // Helper function to navigate to a new step while tracking history
   const navigateToStep = (newStep: number) => {
@@ -1212,7 +1221,10 @@ export default function DocumentsPage() {
                       </div>
                       <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
                         <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
-                        <span style={{ fontSize: '20px', color: '#1F2937' }}>진단서(소견서)</span>
+                        <div style={{ flex: 1 }}>
+                          <span style={{ fontSize: '20px', color: '#1F2937' }}>진단서(소견서)</span>
+                          <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 최근 6개월이내 발급분</div>
+                        </div>
                       </div>
                       <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
                         <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
@@ -3208,7 +3220,7 @@ export default function DocumentsPage() {
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
                     <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
                     <div style={{ flex: 1 }}>
-                      <span style={{ fontSize: '20px', color: '#1F2937' }}>부모님 기준 가족관계증명서(상세)</span>
+                      <span style={{ fontSize: '20px', color: '#1F2937' }}>아이 기준 가족관계증명서(상세)</span>
                       <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 최근 3개월 이내 발급 분</div>
                     </div>
                   </div>
