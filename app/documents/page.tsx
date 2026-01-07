@@ -966,7 +966,7 @@ export default function DocumentsPage() {
                     color: '#000000',
                     marginBottom: '24px',
                     textAlign: 'center'
-                  }}>본인부담상한제 환급금 신청 안내</h1>
+                  }}>본인부담상한제<br /><span style={{ paddingLeft: '1em' }}>환급금 신청 안내</span></h1>
 
                   <h2 style={{
                     fontSize: '24px',
@@ -1104,7 +1104,7 @@ export default function DocumentsPage() {
                     color: '#000000',
                     marginBottom: '24px',
                     textAlign: 'center'
-                  }}>본인부담상한제 환급금 신청 안내</h1>
+                  }}>본인부담상한제<br /><span style={{ paddingLeft: '1em' }}>환급금 신청 안내</span></h1>
 
                   <h2 style={{
                     fontSize: '24px',
@@ -1210,7 +1210,7 @@ export default function DocumentsPage() {
                     color: '#000000',
                     marginBottom: '24px',
                     textAlign: 'center'
-                  }}>본인부담상한제 환급금 신청 안내</h1>
+                  }}>본인부담상한제<br /><span style={{ paddingLeft: '1em' }}>환급금 신청 안내</span></h1>
 
                   <h2 style={{
                     fontSize: '24px',
@@ -1357,7 +1357,7 @@ export default function DocumentsPage() {
                     color: '#000000',
                     marginBottom: '24px',
                     textAlign: 'center'
-                  }}>본인부담상한제 환급금 신청 안내</h1>
+                  }}>본인부담상한제<br /><span style={{ paddingLeft: '1em' }}>환급금 신청 안내</span></h1>
 
                   <h2 style={{
                     fontSize: '24px',
@@ -1731,7 +1731,7 @@ export default function DocumentsPage() {
                     color: '#000000',
                     marginBottom: '24px',
                     textAlign: 'center'
-                  }}>본인부담상한제 환급금 신청 안내</h1>
+                  }}>본인부담상한제<br /><span style={{ paddingLeft: '1em' }}>환급금 신청 안내</span></h1>
 
                   <h2 style={{
                     fontSize: '24px',
@@ -1998,7 +1998,7 @@ export default function DocumentsPage() {
                     color: '#000000',
                     marginBottom: '24px',
                     textAlign: 'center'
-                  }}>본인부담상한제 환급금 신청 안내</h1>
+                  }}>본인부담상한제<br /><span style={{ paddingLeft: '1em' }}>환급금 신청 안내</span></h1>
 
                   <h2 style={{
                     fontSize: '24px',
@@ -2285,7 +2285,7 @@ export default function DocumentsPage() {
                     color: '#000000',
                     marginBottom: '24px',
                     textAlign: 'center'
-                  }}>본인부담상한제 환급금 신청 안내</h1>
+                  }}>본인부담상한제<br /><span style={{ paddingLeft: '1em' }}>환급금 신청 안내</span></h1>
 
                   <h2 style={{
                     fontSize: '24px',
@@ -2583,7 +2583,7 @@ export default function DocumentsPage() {
                     color: '#000000',
                     marginBottom: '24px',
                     textAlign: 'center'
-                  }}>본인부담상한제 환급금 신청 안내</h1>
+                  }}>본인부담상한제<br /><span style={{ paddingLeft: '1em' }}>환급금 신청 안내</span></h1>
 
                   <h2 style={{
                     fontSize: '24px',
@@ -2881,7 +2881,7 @@ export default function DocumentsPage() {
                     color: '#000000',
                     marginBottom: '24px',
                     textAlign: 'center'
-                  }}>본인부담상한제 환급금 신청 안내</h1>
+                  }}>본인부담상한제<br /><span style={{ paddingLeft: '1em' }}>환급금 신청 안내</span></h1>
 
                   <h2 style={{
                     fontSize: '24px',
@@ -3347,7 +3347,7 @@ export default function DocumentsPage() {
                     color: '#000000',
                     marginBottom: '24px',
                     textAlign: 'center'
-                  }}>본인부담상한제 환급금 신청 안내</h1>
+                  }}>본인부담상한제<br /><span style={{ paddingLeft: '1em' }}>환급금 신청 안내</span></h1>
 
                   <h2 style={{
                     fontSize: '24px',
@@ -3479,7 +3479,7 @@ export default function DocumentsPage() {
                     color: '#000000',
                     marginBottom: '24px',
                     textAlign: 'center'
-                  }}>본인부담상한제 환급금 신청 안내</h1>
+                  }}>본인부담상한제<br /><span style={{ paddingLeft: '1em' }}>환급금 신청 안내</span></h1>
 
                   <h2 style={{
                     fontSize: '24px',
@@ -3597,7 +3597,7 @@ export default function DocumentsPage() {
                     color: '#000000',
                     marginBottom: '24px',
                     textAlign: 'center'
-                  }}>본인부담상한제 환급금 신청 안내</h1>
+                  }}>본인부담상한제<br /><span style={{ paddingLeft: '1em' }}>환급금 신청 안내</span></h1>
 
                   <h2 style={{
                     fontSize: '24px',
@@ -3920,7 +3920,7 @@ export default function DocumentsPage() {
                     color: '#000000',
                     marginBottom: '24px',
                     textAlign: 'center'
-                  }}>본인부담상한제 환급금 신청 안내</h1>
+                  }}>본인부담상한제<br /><span style={{ paddingLeft: '1em' }}>환급금 신청 안내</span></h1>
 
                   <h2 style={{
                     fontSize: '24px',
@@ -4172,7 +4172,7 @@ export default function DocumentsPage() {
                     color: '#000000',
                     marginBottom: '24px',
                     textAlign: 'center'
-                  }}>본인부담상한제 환급금 신청 안내</h1>
+                  }}>본인부담상한제<br /><span style={{ paddingLeft: '1em' }}>환급금 신청 안내</span></h1>
 
                   <h2 style={{
                     fontSize: '24px',
@@ -4348,7 +4348,7 @@ export default function DocumentsPage() {
                     color: '#000000',
                     marginBottom: '24px',
                     textAlign: 'center'
-                  }}>본인부담상한제 환급금 신청 안내</h1>
+                  }}>본인부담상한제<br /><span style={{ paddingLeft: '1em' }}>환급금 신청 안내</span></h1>
 
                   <h2 style={{
                     fontSize: '24px',
