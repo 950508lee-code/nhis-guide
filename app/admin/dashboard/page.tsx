@@ -166,10 +166,10 @@ export default function AdminDashboard() {
   const yearMonthlyData = getYearMonthlyData(selectedYear);
   const maxMonthlyCount = Math.max(...yearMonthlyData.map((d) => d.count), 1);
 
-  // 사용 가능한 연도 목록 (2024년부터 현재 연도까지)
+  // 사용 가능한 연도 목록 (2026년부터 현재 연도까지)
   const availableYears = [];
   const currentYear = new Date().getFullYear();
-  for (let year = 2024; year <= currentYear; year++) {
+  for (let year = 2026; year <= currentYear; year++) {
     availableYears.push(year);
   }
 

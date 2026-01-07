@@ -385,14 +385,6 @@ export default function BranchPage() {
                       </p>
                     </div>
 
-                    {/* 전화번호 */}
-                    <div className="flex items-baseline gap-4">
-                      <p className="text-lg font-semibold whitespace-nowrap" style={{ color: '#374151' }}>전화번호</p>
-                      <p className="text-3xl font-bold" style={{ color: '#111827' }}>
-                        {selectedBranch.phone}
-                      </p>
-                    </div>
-
                     {/* 주소 */}
                     <div className="space-y-2">
                       <p className="text-lg font-semibold" style={{ color: '#374151' }}>주소</p>
@@ -426,10 +418,12 @@ export default function BranchPage() {
                   </div>
 
                   {/* 버튼들 */}
-                  <div className="flex gap-3">
-                    <button
-                      onClick={handleSave}
-                      className="flex-1 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-2xl py-4 px-6 text-lg font-bold hover:from-red-600 hover:to-red-700 active:scale-[0.98] transition-all shadow-lg flex items-center justify-center gap-3"
+                  <div className="space-y-3">
+                    <a
+                      href={`https://map.naver.com/v5/search/${encodeURIComponent(selectedBranch.address)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-2xl py-4 px-6 text-lg font-bold hover:from-blue-600 hover:to-blue-700 active:scale-[0.98] transition-all shadow-lg flex items-center justify-center gap-3"
                     >
                       <svg
                         className="w-6 h-6"
@@ -441,30 +435,57 @@ export default function BranchPage() {
                           strokeLinecap="round"
                           strokeLinejoin="round"
                           strokeWidth={2}
-                          d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
                         />
-                      </svg>
-                      저장하기
-                    </button>
-                    <button
-                      onClick={handleShare}
-                      className="flex-1 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-2xl py-4 px-6 text-lg font-bold hover:from-emerald-600 hover:to-emerald-700 active:scale-[0.98] transition-all shadow-lg flex items-center justify-center gap-3"
-                    >
-                      <svg
-                        className="w-6 h-6"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
                         <path
                           strokeLinecap="round"
                           strokeLinejoin="round"
                           strokeWidth={2}
-                          d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                         />
                       </svg>
-                      공유하기
-                    </button>
+                      위치 지도로 보기
+                    </a>
+                    <div className="flex gap-3">
+                      <button
+                        onClick={handleSave}
+                        className="flex-1 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-2xl py-4 px-6 text-lg font-bold hover:from-red-600 hover:to-red-700 active:scale-[0.98] transition-all shadow-lg flex items-center justify-center gap-3"
+                      >
+                        <svg
+                          className="w-6 h-6"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                          />
+                        </svg>
+                        저장하기
+                      </button>
+                      <button
+                        onClick={handleShare}
+                        className="flex-1 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-2xl py-4 px-6 text-lg font-bold hover:from-emerald-600 hover:to-emerald-700 active:scale-[0.98] transition-all shadow-lg flex items-center justify-center gap-3"
+                      >
+                        <svg
+                          className="w-6 h-6"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+                          />
+                        </svg>
+                        공유하기
+                      </button>
+                    </div>
                   </div>
                 </div>
               </main>

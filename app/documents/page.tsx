@@ -16,6 +16,7 @@ type ChildStatus = 'one_child' | 'multiple_alive' | 'some_deceased' | null;
 type OtherChildrenStatus = 'none' | 'all_alive' | 'some_deceased' | null;
 type SiblingsStatusType = 'only_self' | 'multiple_alive' | 'some_deceased' | null;
 type ParentRelationStatus = 'both_married' | 'divorced_or_bereaved' | 'both_deceased' | null;
+type MinorApplicantType = 'parental_authority' | 'minor_guardian' | null;
 
 export default function DocumentsPage() {
   const [step, setStep] = useState<number>(1);
@@ -61,6 +62,7 @@ export default function DocumentsPage() {
 
   // 미성년자 케이스용 state
   const [parentRelationStatus, setParentRelationStatus] = useState<ParentRelationStatus>(null);
+  const [minorApplicantType, setMinorApplicantType] = useState<MinorApplicantType>(null);
 
   const [answers, setAnswers] = useState<Record<string, any>>({});
   const captureRef = useRef<HTMLDivElement>(null);
@@ -135,17 +137,17 @@ export default function DocumentsPage() {
     else if (refundAmount === 'over300k' && selected === 'spouse') {
       navigateToStep(24); // 배우자 케이스 STEP 1: 자녀/손자녀 확인
     }
-    // 100만원 초과이고 손자녀 선택 시 지사 방문 안내로
+    // 100만원 초과이고 손자녀 선택 시 생존 자녀 확인으로
     else if (refundAmount === 'over300k' && selected === 'grandchild') {
-      navigateToStep(41); // 손자녀 케이스: 지사 방문 안내
+      navigateToStep(52); // 손자녀 케이스: 생존 자녀 확인
     }
     // 100만원 초과이고 형제자매 선택 시 형제자매 전용 플로우로
     else if (refundAmount === 'over300k' && selected === 'sibling') {
       navigateToStep(35); // 형제자매 케이스 STEP 1: 선순위 상속인 확인
     }
-    // 100만원 초과이고 4촌 이내 친척 선택 시 지사 방문 안내로
+    // 100만원 초과이고 4촌 이내 친척 선택 시 선순위 상속인 확인으로
     else if (refundAmount === 'over300k' && selected === 'fourth_degree') {
-      navigateToStep(40); // 4촌 친척 케이스: 지사 방문 안내
+      navigateToStep(45); // 4촌 친척 케이스: 선순위 상속인 확인
     }
     // 100만원 이하이고 형제자매 선택 시 선순위 상속인 확인
     else if (refundAmount === 'under300k' && selected === 'sibling') {
@@ -450,16 +452,41 @@ export default function DocumentsPage() {
 
   // === 미성년자 케이스 핸들러 ===
 
-  // STEP 1: 부모님 관계 확인 (미성년자 케이스)
-  const handleParentRelationStatusSelect = (status: ParentRelationStatus) => {
-    setParentRelationStatus(status);
-    setAnswers({ ...answers, parentRelationStatus: status });
-
-    if (status === 'both_married') {
-      navigateToStep(46); // 일반 부모 대리 신청 결과로
+  // STEP 42: 친권자 여부 확인
+  const handleParentalAuthorityCheck = (isParentalAuthority: boolean) => {
+    if (isParentalAuthority) {
+      setMinorApplicantType('parental_authority');
+      navigateToStep(46); // 친권자 결과로
     } else {
-      // divorced_or_bereaved 또는 both_deceased
-      navigateToStep(47); // 친권자/후견인 결과로
+      navigateToStep(43); // 미성년 후견인 여부 확인으로
+    }
+  };
+
+  // STEP 43: 미성년 후견인 여부 확인
+  const handleMinorGuardianCheck = (isMinorGuardian: boolean) => {
+    if (isMinorGuardian) {
+      setMinorApplicantType('minor_guardian');
+      navigateToStep(47); // 미성년 후견인 결과로
+    } else {
+      navigateToStep(44); // 신청 불가 안내로
+    }
+  };
+
+  // STEP 45: 4촌 이내 친척 - 선순위 상속인 확인
+  const handleFourthDegreeSeniorHeirsCheck = (hasSeniorHeirs: boolean) => {
+    if (hasSeniorHeirs) {
+      navigateToStep(51); // 선순위 상속인 있으면 신청 불가
+    } else {
+      navigateToStep(40); // 선순위 상속인 없으면 지사 상담으로
+    }
+  };
+
+  // 손자녀 케이스: 생존 자녀 확인
+  const handleGrandchildSeniorHeirsCheck = (hasSeniorHeirs: boolean) => {
+    if (hasSeniorHeirs) {
+      navigateToStep(53); // 선순위 상속인(자녀) 있으면 신청 불가
+    } else {
+      navigateToStep(41); // 선순위 상속인 없으면 개별 상담 필요
     }
   };
 
@@ -1072,7 +1099,7 @@ export default function DocumentsPage() {
 
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
                     <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
-                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>유선, 팩스, 우편, 내방<br /><span style={{ fontSize: '16px', color: '#1F2937' }}>(유선은 전산상 가족관계 확인 가능 시)</span></span>
+                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>유선, 팩스, 우편, 내방<br /><span style={{ fontSize: '16px', color: '#1F2937' }}>(유선은 공단 전산상 가족관계 확인 가능 시)</span></span>
                   </div>
 
                   {/* 구분선 */}
@@ -1311,6 +1338,10 @@ export default function DocumentsPage() {
                     <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
                     <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>우편, 내방</span>
                   </div>
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
+                    <span style={{ fontSize: '20px', color: '#DC2626', flex: 1, fontWeight: 'bold' }}>본인의 유선동의가 반드시 필요해요</span>
+                  </div>
 
                   {/* 구분선 */}
                   <div style={{
@@ -1469,11 +1500,11 @@ export default function DocumentsPage() {
                   </>
                 ) : (
                   <>
-                    <option value="child">자녀 (아들/딸)</option>
-                    <option value="spouse">배우자 (남편/아내)</option>
-                    <option value="grandchild">손자녀 (손자/손녀)</option>
-                    <option value="parent">부모 (아버지/어머니)</option>
-                    <option value="grandparent">조부모 (할아버지/할머니)</option>
+                    <option value="child">자녀</option>
+                    <option value="spouse">배우자</option>
+                    <option value="grandchild">손자녀</option>
+                    <option value="parent">부모</option>
+                    <option value="grandparent">조부모/외조부모</option>
                     <option value="sibling">형제자매</option>
                     <option value="fourth_degree">4촌 이내 친척</option>
                     <option value="heir_guardian">상속인의 후견인</option>
@@ -1674,7 +1705,7 @@ export default function DocumentsPage() {
                     {(deceasedRelationship === 'parent' || deceasedRelationship === 'grandchild') ? (
                       <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>팩스, 우편, 내방</span>
                     ) : (
-                      <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>팩스, 우편, 방문, 유선<br /><span style={{ fontSize: '16px', color: '#1F2937' }}>(유선은 전산상 가족관계 확인 시)</span></span>
+                      <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>팩스, 우편, 방문, 유선<br /><span style={{ fontSize: '16px', color: '#1F2937' }}>(유선은 공단 전산상 가족관계 확인 시)</span></span>
                     )}
                   </div>
 
@@ -1707,7 +1738,7 @@ export default function DocumentsPage() {
                     <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
                       <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
                       <div style={{ flex: 1 }}>
-                        <span style={{ fontSize: '20px', color: '#1F2937' }}>손자녀의 부모님 기준 가족관계증명서(상세)</span>
+                        <span style={{ fontSize: '20px', color: '#1F2937' }}>손자녀의 부모 기준 가족관계증명서(상세)</span>
                         <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 최근 3개월 이내 발급 분</div>
                       </div>
                     </div>
@@ -1781,47 +1812,27 @@ export default function DocumentsPage() {
         {/* STEP 19: 지급불가 결과 (100만원 이하, 부모/손자녀이나 1순위 상속자 있음) */}
         {step === 19 && situation === 'deceased' && (
           <>
-            <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              {/* 헤더 */}
-              <div className="bg-red-50 rounded-2xl p-5 border-2 border-red-300">
-                <h2 className="text-2xl font-bold text-red-900 flex items-center gap-2 mb-2">
-                  <span>❌</span>
-                  <span>신청 불가</span>
+            <div className="flex flex-col gap-6 h-full overflow-y-auto">
+              <div className="bg-blue-50 rounded-2xl p-6 border-2 border-blue-300">
+                <h2 className="text-3xl font-bold text-blue-900 mb-6 flex items-center gap-2">
+                  <span>ℹ️</span>
+                  <span>신청이 불가합니다</span>
                 </h2>
-                <p className="text-lg text-red-800">
-                  죄송하지만, 신청인분은 환급금을 받으실 수 없어요
-                </p>
-              </div>
 
-              {/* 이유 설명 */}
-              <div className="bg-white rounded-2xl p-5 border border-gray-200">
-                <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2 mb-3">
-                  <span>📌</span>
-                  <span>이유</span>
-                </h3>
-                <p className="text-gray-700 text-lg mb-4">
-                  선순위 상속인이 계시기 때문이에요
-                </p>
+                <div className="text-2xl text-blue-900 leading-relaxed mb-6">
+                  선순위 상속인이 계실 경우
+                  <br />
+                  신청하실 수 없습니다.
+                </div>
 
-                {/* 상속 순위 설명 */}
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <p className="text-sm font-semibold text-gray-600 mb-2">상속 순위 (가까운 순서대로)</p>
-                  <ul className="text-gray-700 space-y-1">
-                    <li className="flex items-start gap-2">
-                      <span className="text-blue-500 font-bold">1순위:</span>
-                      <span>자녀, 손자녀</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-blue-500 font-bold">2순위:</span>
-                      <span>부모, 조부모</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-blue-500 font-bold">3순위:</span>
-                      <span>형제자매</span>
-                    </li>
-                  </ul>
-                  <p className="text-gray-600 mt-2 text-sm">
-                    + 배우자는 항상 공동 상속인
+                <div className="bg-white rounded-xl p-4">
+                  <p className="text-lg font-semibold text-gray-700 mb-2">[참고]</p>
+                  <p className="text-lg text-gray-600 leading-relaxed">
+                    민법 상속 순위에 따라
+                    <br />
+                    선순위 상속인에게
+                    <br />
+                    지급됩니다.
                   </p>
                 </div>
               </div>
@@ -1971,15 +1982,15 @@ export default function DocumentsPage() {
                     <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
                     <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>환급금 지급신청서</span>
                   </div>
-                  {(hasSpouse || siblingStatus !== 'only_child') && (
-                    <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                      <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
-                      <div style={{ flex: 1 }}>
-                        <span style={{ fontSize: '20px', color: '#1F2937' }}>상속대표선정동의서</span>
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <div style={{ flex: 1 }}>
+                      <span style={{ fontSize: '20px', color: '#1F2937' }}>상속대표선정동의서</span>
+                      {(hasSpouse || siblingStatus !== 'only_child') && (
                         <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 상속인 전원 서명 필요</div>
-                      </div>
+                      )}
                     </div>
-                  )}
+                  </div>
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
                     <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
                     <div style={{ flex: 1 }}>
@@ -2013,7 +2024,9 @@ export default function DocumentsPage() {
 
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
                     <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
-                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>자녀 (신청인 포함)</span>
+                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>
+                      {siblingStatus === 'only_child' ? '자녀 (신청인 단독)' : '자녀 (신청인 포함)'}
+                    </span>
                   </div>
                   {hasSpouse && (
                     <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
@@ -2248,15 +2261,15 @@ export default function DocumentsPage() {
                     <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
                     <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>환급금 지급신청서</span>
                   </div>
-                  {hasChildren && (
-                    <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                      <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
-                      <div style={{ flex: 1 }}>
-                        <span style={{ fontSize: '20px', color: '#1F2937' }}>상속대표선정동의서</span>
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <div style={{ flex: 1 }}>
+                      <span style={{ fontSize: '20px', color: '#1F2937' }}>상속대표선정동의서</span>
+                      {(hasChildren || hasParents) && (
                         <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 상속인 전원 서명 필요</div>
-                      </div>
+                      )}
                     </div>
-                  )}
+                  </div>
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
                     <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
                     <div style={{ flex: 1 }}>
@@ -2290,7 +2303,9 @@ export default function DocumentsPage() {
 
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
                     <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
-                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>배우자 (신청인)</span>
+                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>
+                      {!hasChildren && !hasParents ? '배우자 (신청인 단독)' : '배우자 (신청인)'}
+                    </span>
                   </div>
                   {hasChildren && (
                     <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
@@ -2846,7 +2861,7 @@ export default function DocumentsPage() {
                     <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
                       <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
                       <div style={{ flex: 1 }}>
-                        <span style={{ fontSize: '20px', color: '#1F2937' }}>진료받은 분의 부모님 기준 가족관계증명서(상세)</span>
+                        <span style={{ fontSize: '20px', color: '#1F2937' }}>진료받은 분의 부모 기준 가족관계증명서(상세)</span>
                         <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 최근 3개월 이내 발급 분</div>
                       </div>
                     </div>
@@ -2952,47 +2967,27 @@ export default function DocumentsPage() {
         {/* STEP 39: 신청 불가 (형제자매 케이스 - 선순위 상속인 존재) */}
         {step === 39 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'sibling' && hasSeniorHeirs && (
           <>
-            <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              {/* 헤더 */}
-              <div className="bg-red-50 rounded-2xl p-5 border-2 border-red-300">
-                <h2 className="text-2xl font-bold text-red-900 flex items-center gap-2 mb-2">
-                  <span>❌</span>
-                  <span>신청 불가</span>
+            <div className="flex flex-col gap-6 h-full overflow-y-auto">
+              <div className="bg-blue-50 rounded-2xl p-6 border-2 border-blue-300">
+                <h2 className="text-3xl font-bold text-blue-900 mb-6 flex items-center gap-2">
+                  <span>ℹ️</span>
+                  <span>신청이 불가합니다</span>
                 </h2>
-                <p className="text-lg text-red-800">
-                  죄송하지만, 신청인분은 환급금을 받으실 수 없어요
-                </p>
-              </div>
 
-              {/* 이유 설명 */}
-              <div className="bg-white rounded-2xl p-5 border border-gray-200">
-                <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2 mb-3">
-                  <span>📌</span>
-                  <span>이유</span>
-                </h3>
-                <p className="text-gray-700 text-lg mb-4">
-                  선순위 상속인이 계시기 때문이에요
-                </p>
+                <div className="text-2xl text-blue-900 leading-relaxed mb-6">
+                  선순위 상속인이 계실 경우
+                  <br />
+                  신청하실 수 없습니다.
+                </div>
 
-                {/* 상속 순위 설명 */}
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <p className="text-sm font-semibold text-gray-600 mb-2">상속 순위 (가까운 순서대로)</p>
-                  <ul className="text-gray-700 space-y-1">
-                    <li className="flex items-start gap-2">
-                      <span className="text-blue-500 font-bold">1순위:</span>
-                      <span>자녀, 손자녀</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-blue-500 font-bold">2순위:</span>
-                      <span>부모, 조부모</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-blue-500 font-bold">3순위:</span>
-                      <span>형제자매</span>
-                    </li>
-                  </ul>
-                  <p className="text-gray-600 mt-2 text-sm">
-                    + 배우자는 항상 공동 상속인
+                <div className="bg-white rounded-xl p-4">
+                  <p className="text-lg font-semibold text-gray-700 mb-2">[참고]</p>
+                  <p className="text-lg text-gray-600 leading-relaxed">
+                    민법 상속 순위에 따라
+                    <br />
+                    선순위 상속인에게
+                    <br />
+                    지급됩니다.
                   </p>
                 </div>
               </div>
@@ -3002,51 +2997,110 @@ export default function DocumentsPage() {
 
         {/* === 100만원 초과 4촌 이내 친척 케이스 === */}
 
+        {/* STEP 45: 4촌 이내 친척 - 선순위 상속인 확인 */}
+        {step === 45 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'fourth_degree' && (
+          <>
+            <div className="mb-8">
+              <h1 className="text-4xl font-bold text-black leading-tight">
+                사망하신 분께서
+                <br />
+                배우자, 자녀, 부모 중
+                <br />
+                생존해 계신 분이
+                <br />
+                계신가요?
+              </h1>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => handleFourthDegreeSeniorHeirsCheck(true)}
+                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+              >
+                <span className="text-2xl font-bold text-black">예</span>
+              </button>
+
+              <button
+                onClick={() => handleFourthDegreeSeniorHeirsCheck(false)}
+                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+              >
+                <span className="text-2xl font-bold text-black">아니오</span>
+              </button>
+            </div>
+          </>
+        )}
+
+        {/* STEP 51: 4촌 이내 친척 - 신청 불가 (선순위 상속인 존재) */}
+        {step === 51 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'fourth_degree' && (
+          <>
+            <div className="flex flex-col gap-6 h-full overflow-y-auto">
+              <div className="bg-blue-50 rounded-2xl p-6 border-2 border-blue-300">
+                <h2 className="text-3xl font-bold text-blue-900 mb-6 flex items-center gap-2">
+                  <span>ℹ️</span>
+                  <span>신청이 불가합니다</span>
+                </h2>
+
+                <div className="text-2xl text-blue-900 leading-relaxed mb-6">
+                  선순위 상속인이 계실 경우
+                  <br />
+                  신청하실 수 없습니다.
+                </div>
+
+                <div className="bg-white rounded-xl p-4">
+                  <p className="text-lg font-semibold text-gray-700 mb-2">[참고]</p>
+                  <p className="text-lg text-gray-600 leading-relaxed">
+                    민법 상속 순위에 따라
+                    <br />
+                    선순위 상속인에게
+                    <br />
+                    지급됩니다.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+
         {/* STEP 40: 지사 방문 및 전화 상담 안내 (4촌 친척 케이스) */}
         {step === 40 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'fourth_degree' && (
           <>
-            <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              {/* 헤더 */}
-              <div className="bg-orange-50 rounded-2xl p-5 border-2 border-orange-300">
-                <h2 className="text-2xl font-bold text-orange-900 flex items-center gap-2 mb-2">
+            <div className="flex flex-col gap-6 h-full overflow-y-auto">
+              <div className="bg-orange-50 rounded-2xl p-6 border-2 border-orange-300">
+                <h2 className="text-3xl font-bold text-orange-900 mb-6 flex items-center gap-2">
                   <span>⚠️</span>
-                  <span>지사 상담이 필요합니다</span>
+                  <span>개별 상담이 필요합니다</span>
                 </h2>
-                <p className="text-lg text-orange-800">
-                  유선 또는 지사내방 상담이 필요해요
-                </p>
-              </div>
 
-              {/* 왜 상담이 필요한가요? */}
-              <div className="bg-blue-50 rounded-2xl p-5 border border-blue-200">
-                <h3 className="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
-                  <span>📋</span>
-                  <span>왜 상담이 필요한가요?</span>
-                </h3>
-                <div className="space-y-2 text-lg text-gray-700">
-                  <p>✓ 선순위 상속인 부재 확인 필요</p>
-                  <p>✓ 3촌/4촌 간 우선순위 확인 필요</p>
-                  <p>✓ 제적등본 등 서류 매우 복잡</p>
+                <div className="text-2xl text-orange-900 leading-relaxed">
+                  귀하의 상황은 상속 관계가
+                  <br />
+                  복잡하여 개별 검토가
+                  <br />
+                  필요합니다.
+                  <br />
+                  <br />
+                  정확한 안내를 위해
+                  <br />
+                  지사 상담을 권장드립니다.
                 </div>
-                <p className="text-base text-red-600 font-medium mt-3">
-                  → 서류 누락 시 재방문해야 해요
-                </p>
               </div>
 
               {/* Action Buttons */}
-              <div className="space-y-3 pb-4 mt-2">
+              <div className="space-y-3 pb-4">
                 <a
                   href="tel:1577-1000"
-                  className="w-full bg-red-500 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-600 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center gap-2"
                 >
-                  1577-1000 전화 상담
+                  <span>📞</span>
+                  <span>전화 상담 하기</span>
                 </a>
 
                 <Link
                   href="/branch"
-                  className="w-full bg-red-500 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-600 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center gap-2"
                 >
-                  가까운 지사 찾기
+                  <span>🏢</span>
+                  <span>가까운 지사 찾기</span>
                 </Link>
               </div>
             </div>
@@ -3055,39 +3109,81 @@ export default function DocumentsPage() {
 
         {/* === 100만원 초과 손자녀 케이스 === */}
 
-        {/* STEP 41: 지사 방문 및 전화 상담 안내 (손자녀/대습상속 케이스) */}
+        {/* STEP 52: 손자녀 케이스 - 생존 자녀 확인 */}
+        {step === 52 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'grandchild' && (
+          <>
+            <div className="mb-10">
+              <h1 className="text-[32px] font-bold text-black leading-tight">
+                사망하신 분께서
+                <br />
+                생존해 계신 자녀가
+                <br />
+                있나요?
+              </h1>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => handleGrandchildSeniorHeirsCheck(true)}
+                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+              >
+                <span className="text-2xl font-bold text-black">예</span>
+              </button>
+
+              <button
+                onClick={() => handleGrandchildSeniorHeirsCheck(false)}
+                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+              >
+                <span className="text-2xl font-bold text-black">아니오</span>
+              </button>
+            </div>
+          </>
+        )}
+
+        {/* STEP 53: 손자녀 케이스 - 신청 불가 (선순위 상속인 존재) */}
+        {step === 53 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'grandchild' && (
+          <>
+            <div className="flex flex-col gap-6 h-full overflow-y-auto">
+              <div className="bg-blue-50 rounded-2xl p-6 border-2 border-blue-300">
+                <h2 className="text-3xl font-bold text-blue-900 mb-6 flex items-center gap-2">
+                  <span>ℹ️</span>
+                  <span>신청이 불가합니다</span>
+                </h2>
+                <div className="text-2xl text-blue-900 leading-relaxed mb-6">
+                  선순위 상속인이 계실 경우<br />신청하실 수 없습니다.
+                </div>
+                <div className="bg-white rounded-xl p-4">
+                  <p className="text-lg font-semibold text-gray-700 mb-2">[참고]</p>
+                  <p className="text-lg text-gray-600 leading-relaxed">
+                    민법 상속 순위에 따라<br />선순위 상속인에게<br />지급됩니다.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* STEP 41: 개별 상담 필요 (손자녀 케이스 - 생존 자녀 없음) */}
         {step === 41 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'grandchild' && (
           <>
-            <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              {/* 헤더 */}
-              <div className="bg-orange-50 rounded-2xl p-5 border-2 border-orange-300">
-                <h2 className="text-2xl font-bold text-orange-900 flex items-center gap-2 mb-2">
+            <div className="flex flex-col gap-6 h-full overflow-y-auto">
+              <div className="bg-orange-50 rounded-2xl p-6 border-2 border-orange-300">
+                <h2 className="text-3xl font-bold text-orange-900 mb-6 flex items-center gap-2">
                   <span>⚠️</span>
-                  <span>지사 상담이 필요합니다</span>
+                  <span>개별 상담이 필요합니다</span>
                 </h2>
-                <p className="text-lg text-orange-800">
-                  유선 또는 지사내방 상담이 필요해요
-                </p>
-              </div>
-
-              {/* 왜 상담이 필요한가요? */}
-              <div className="bg-blue-50 rounded-2xl p-5 border border-blue-200">
-                <h3 className="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
-                  <span>📋</span>
-                  <span>왜 상담이 필요한가요?</span>
-                </h3>
-                <div className="space-y-2 text-lg text-gray-700">
-                  <p>✓ 상속인 범위 확인 복잡</p>
-                  <p>✓ 가족관계증명서 여러 장 필요</p>
-                  <p>✓ 케이스마다 서류 다름</p>
+                <div className="text-2xl text-orange-900 leading-relaxed mb-6">
+                  귀하의 상황은 상속 관계가<br />복잡하여 개별 검토가<br />필요합니다.
                 </div>
-                <p className="text-base text-red-600 font-medium mt-3">
-                  → 서류 누락 시 재방문해야 해요
-                </p>
+                <div className="bg-white rounded-xl p-4">
+                  <p className="text-lg text-gray-700 leading-relaxed">
+                    정확한 안내를 위해<br />지사 상담을 권장드립니다.
+                  </p>
+                </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="space-y-3 pb-4 mt-2">
+              <div className="space-y-3 pb-4">
                 <a
                   href="tel:1577-1000"
                   className="w-full bg-red-500 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-600 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
@@ -3108,65 +3204,55 @@ export default function DocumentsPage() {
 
         {/* === 미성년자 케이스 === */}
 
-        {/* STEP 42: 부모님 관계 확인 (미성년자) */}
+        {/* STEP 42: 친권자 여부 확인 (미성년자) */}
         {step === 42 && situation === 'alive' && aliveDetailType === 'minor' && (
           <>
             <div className="mb-10">
               <h1 className="text-[32px] font-bold text-black leading-tight">
-                아이 부모님의 현재 상황을
-                <br />
-                알려주세요
+                친권자이신가요?
               </h1>
             </div>
 
             <div className="flex flex-col gap-3">
               <button
-                onClick={() => handleParentRelationStatusSelect('both_married')}
+                onClick={() => handleParentalAuthorityCheck(true)}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
-                    <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                    </svg>
-                  </div>
-                  <div className="flex-1 text-left">
-                    <div className="text-2xl font-semibold text-black">현재 두 분이 혼인 관계이심</div>
-                    <div className="text-base text-gray-800 mt-0.5">(이혼/사별 안 함)</div>
-                  </div>
-                </div>
+                <span className="text-2xl font-bold text-black">예</span>
               </button>
 
               <button
-                onClick={() => handleParentRelationStatusSelect('divorced_or_bereaved')}
+                onClick={() => handleParentalAuthorityCheck(false)}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
-                    <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                  </div>
-                  <div className="flex-1 text-left">
-                    <div className="text-2xl font-semibold text-black">이혼 또는 한 분이 사별하심</div>
-                  </div>
-                </div>
+                <span className="text-2xl font-bold text-black">아니오</span>
+              </button>
+            </div>
+          </>
+        )}
+
+        {/* STEP 43: 미성년 후견인 여부 확인 */}
+        {step === 43 && situation === 'alive' && aliveDetailType === 'minor' && (
+          <>
+            <div className="mb-10">
+              <h1 className="text-[32px] font-bold text-black leading-tight">
+                미성년 후견인이신가요?
+              </h1>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => handleMinorGuardianCheck(true)}
+                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+              >
+                <span className="text-2xl font-bold text-black">예</span>
               </button>
 
               <button
-                onClick={() => handleParentRelationStatusSelect('both_deceased')}
+                onClick={() => handleMinorGuardianCheck(false)}
                 className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
               >
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
-                    <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  <div className="flex-1 text-left">
-                    <div className="text-2xl font-semibold text-black">두 분 모두 돌아가셨음</div>
-                  </div>
-                </div>
+                <span className="text-2xl font-bold text-black">아니오</span>
               </button>
             </div>
           </>
@@ -3274,7 +3360,29 @@ export default function DocumentsPage() {
           </>
         )}
 
-        {/* STEP 47: 친권자/후견인 확인 필요 (미성년자 - 이혼/사별/양쪽 사망) */}
+        {/* STEP 44: 미성년자 신청 불가 (친권자도 후견인도 아님) */}
+        {step === 44 && situation === 'alive' && aliveDetailType === 'minor' && (
+          <>
+            <div className="flex flex-col gap-6 h-full overflow-y-auto">
+              <div className="bg-blue-50 rounded-2xl p-6 border-2 border-blue-300">
+                <h2 className="text-3xl font-bold text-blue-900 mb-6 flex items-center gap-2">
+                  <span>ℹ️</span>
+                  <span>신청이 불가합니다</span>
+                </h2>
+
+                <div className="text-2xl text-blue-900 leading-relaxed">
+                  미성년자의 환급금은
+                  <br />
+                  친권자 또는 미성년 후견인만
+                  <br />
+                  신청하실 수 있습니다.
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* STEP 47: 미성년 후견인 결과 */}
         {step === 47 && situation === 'alive' && aliveDetailType === 'minor' && (
           <>
             <div className="flex flex-col gap-4 h-full overflow-y-auto">
@@ -3317,8 +3425,23 @@ export default function DocumentsPage() {
                   </div>
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
                     <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
-                    <span style={{ fontSize: '20px', color: '#1F2937' }}>아이 기준 기본증명서(상세)</span>
+                    <div style={{ flex: 1 }}>
+                      <span style={{ fontSize: '20px', color: '#1F2937' }}>아이 기준 기본증명서(상세)</span>
+                      <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 최근 3개월 이내 발급 분</div>
+                    </div>
                   </div>
+                </div>
+
+                {/* 추가 안내 */}
+                <div style={{
+                  backgroundColor: '#FEF3C7',
+                  borderRadius: '16px',
+                  padding: '16px',
+                  marginTop: '12px'
+                }}>
+                  <p style={{ fontSize: '16px', color: '#92400E' }}>
+                    (지사 담당자가 필요시 추가서류를 요구 할 수 있습니다. ex) 미성년후견인 심판문 등)
+                  </p>
                 </div>
               </div>
 
@@ -3374,7 +3497,7 @@ export default function DocumentsPage() {
           <>
             <div className="flex flex-col gap-4 h-full overflow-y-auto">
               <div ref={captureRef} style={{ backgroundColor: '#ffffff' }}>
-                {/* 신청방법 */}
+                {/* 신청방법 & 제출서류 통합 카드 */}
                 <div style={{
                   backgroundColor: '#ffffff',
                   borderRadius: '20px',
@@ -3391,14 +3514,14 @@ export default function DocumentsPage() {
                     <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
                     <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>팩스, 우편, 내방</span>
                   </div>
-                </div>
 
-                {/* 제출서류 */}
-                <div style={{
-                  backgroundColor: '#ffffff',
-                  borderRadius: '20px',
-                  padding: '24px'
-                }}>
+                  {/* 구분선 */}
+                  <div style={{
+                    borderTop: '1px solid #000000',
+                    marginTop: '24px',
+                    marginBottom: '24px'
+                  }}></div>
+
                   <h2 style={{
                     fontSize: '24px',
                     fontWeight: 'bold',
@@ -3412,11 +3535,43 @@ export default function DocumentsPage() {
                   </div>
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
                     <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
-                    <span style={{ fontSize: '20px', color: '#1F2937' }}>후견 등기사항증명서</span>
+                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>후견 등기사항증명서</span>
                   </div>
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
                     <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
-                    <span style={{ fontSize: '20px', color: '#1F2937' }}>성년후견인 신분증 사본</span>
+                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>성년후견인 신분증 사본</span>
+                  </div>
+
+                  {/* 구분선 */}
+                  <div style={{
+                    borderTop: '1px solid #000000',
+                    marginTop: '24px',
+                    marginBottom: '24px'
+                  }}></div>
+
+                  <h2 style={{
+                    fontSize: '24px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '20px'
+                  }}>유의사항</h2>
+
+                  <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '20px', color: '#000000', flexShrink: 0, fontWeight: 'bold' }}>1.</span>
+                    <span style={{ fontSize: '18px', color: '#1F2937', flex: 1, lineHeight: '1.6' }}>
+                      가정법원에서 성년후견인으로<br />정식 등록되어 있어야 합니다.
+                    </span>
+                  </div>
+                  <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '20px', color: '#000000', flexShrink: 0, fontWeight: 'bold' }}>2.</span>
+                    <span style={{ fontSize: '18px', color: '#1F2937', flex: 1, lineHeight: '1.6' }}>
+                      후견등기사항증명서에서<br />'금전 관리' 또는 '재산 관리' 권한이<br />제한되어 있지 않은지 확인해주세요.
+                    </span>
+                  </div>
+                  <div style={{ marginTop: '16px', padding: '12px', backgroundColor: '#FEF3C7', borderRadius: '12px' }}>
+                    <span style={{ fontSize: '16px', color: '#92400E', fontWeight: '500' }}>
+                      ※ 권한이 제한된 경우 지급이 불가할 수 있습니다.
+                    </span>
                   </div>
                 </div>
               </div>
@@ -3472,74 +3627,43 @@ export default function DocumentsPage() {
         {step === 49 && situation === 'deceased' && deceasedRelationship === 'heir_guardian' && (
           <>
             <div className="flex flex-col gap-6 h-full overflow-y-auto">
-              <div className="space-y-3">
-                {/* 안내 메시지 */}
-                <div className="bg-orange-50 rounded-2xl p-6 border-2 border-orange-300">
-                  <h2 className="text-3xl font-bold text-orange-900 mb-6 flex items-center gap-2">
-                    <span>⚠️</span>
-                    <span>지사 방문 및 전화 상담 필요</span>
-                  </h2>
+              <div className="bg-orange-50 rounded-2xl p-6 border-2 border-orange-300">
+                <h2 className="text-3xl font-bold text-orange-900 mb-6 flex items-center gap-2">
+                  <span>⚠️</span>
+                  <span>개별 상담이 필요합니다</span>
+                </h2>
 
-                  <div className="text-2xl text-orange-900 leading-relaxed mb-6">
-                    상속인의 후견인
-                    <br />
-                    (미성년 후견인 포함)의 경우
-                    <br />
-                    필요 서류가 복잡하여
-                    <br />
-                    정확한 안내가 필요합니다.
-                  </div>
-
-                  <div className="bg-white rounded-xl p-5 space-y-4">
-                    <div className="text-2xl font-bold text-black mb-3">핵심 안내사항:</div>
-
-                    <div className="space-y-4">
-                      <div>
-                        <div className="text-2xl font-semibold text-black">• 후견 관계 확인 필요</div>
-                        <div className="text-xl text-gray-700 ml-4 mt-1">
-                          상속인과 후견인의 관계 및
-                          <br />
-                          후견 형태에 따라 필요 서류가 다릅니다.
-                        </div>
-                      </div>
-
-                      <div>
-                        <div className="text-2xl font-semibold text-black">• 정확한 서류 안내</div>
-                        <div className="text-xl text-gray-700 ml-4 mt-1">
-                          개별 상황에 맞는 정확한 서류 안내를 위해
-                          <br />
-                          지사 방문 또는 전화 상담이 필요합니다.
-                        </div>
-                      </div>
-
-                      <div>
-                        <div className="text-2xl font-semibold text-black">• 지사 방문 권장</div>
-                        <div className="text-xl text-gray-700 ml-4 mt-1">
-                          가까운 국민건강보험공단 지사를 방문하시거나
-                          <br />
-                          고객센터로 먼저 상담해 주세요.
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                <div className="text-2xl text-orange-900 leading-relaxed">
+                  귀하의 상황은 상속 관계가
+                  <br />
+                  복잡하여 개별 검토가
+                  <br />
+                  필요합니다.
+                  <br />
+                  <br />
+                  정확한 안내를 위해
+                  <br />
+                  지사 상담을 권장드립니다.
                 </div>
               </div>
 
               {/* Action Buttons */}
               <div className="space-y-3 pb-4">
-                <Link
-                  href="/branch"
-                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
-                >
-                  가까운 지사 찾기
-                </Link>
-
                 <a
                   href="tel:1577-1000"
-                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center gap-2"
                 >
-                  고객센터 전화 (1577-1000)
+                  <span>📞</span>
+                  <span>전화 상담 하기</span>
                 </a>
+
+                <Link
+                  href="/branch"
+                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center gap-2"
+                >
+                  <span>🏢</span>
+                  <span>가까운 지사 찾기</span>
+                </Link>
               </div>
             </div>
           </>
@@ -3548,48 +3672,43 @@ export default function DocumentsPage() {
         {/* STEP 50: 대습상속 케이스 - 지사 상담 안내 */}
         {step === 50 && (
           <>
-            <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              {/* 헤더 */}
-              <div className="bg-orange-50 rounded-2xl p-5 border-2 border-orange-300">
-                <h2 className="text-2xl font-bold text-orange-900 flex items-center gap-2 mb-2">
+            <div className="flex flex-col gap-6 h-full overflow-y-auto">
+              <div className="bg-orange-50 rounded-2xl p-6 border-2 border-orange-300">
+                <h2 className="text-3xl font-bold text-orange-900 mb-6 flex items-center gap-2">
                   <span>⚠️</span>
-                  <span>지사 상담이 필요합니다</span>
+                  <span>개별 상담이 필요합니다</span>
                 </h2>
-                <p className="text-lg text-orange-800">
-                  유선 또는 지사내방 상담이 필요해요
-                </p>
-              </div>
 
-              {/* 왜 상담이 필요한가요? */}
-              <div className="bg-blue-50 rounded-2xl p-5 border border-blue-200">
-                <h3 className="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
-                  <span>📋</span>
-                  <span>왜 상담이 필요한가요?</span>
-                </h3>
-                <div className="space-y-2 text-lg text-gray-700">
-                  <p>✓ 대습상속 포함 케이스</p>
-                  <p>✓ 상속인 관계 확인 필요</p>
-                  <p>✓ 추가 서류 필요할 수 있음</p>
+                <div className="text-2xl text-orange-900 leading-relaxed">
+                  귀하의 상황은 상속 관계가
+                  <br />
+                  복잡하여 개별 검토가
+                  <br />
+                  필요합니다.
+                  <br />
+                  <br />
+                  정확한 안내를 위해
+                  <br />
+                  지사 상담을 권장드립니다.
                 </div>
-                <p className="text-base text-red-600 font-medium mt-3">
-                  → 서류 누락 시 재방문해야 해요
-                </p>
               </div>
 
               {/* Action Buttons */}
-              <div className="space-y-3 pb-4 mt-2">
+              <div className="space-y-3 pb-4">
                 <a
                   href="tel:1577-1000"
-                  className="w-full bg-red-500 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-600 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center gap-2"
                 >
-                  1577-1000 전화 상담
+                  <span>📞</span>
+                  <span>전화 상담 하기</span>
                 </a>
 
                 <Link
                   href="/branch"
-                  className="w-full bg-red-500 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-600 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center gap-2"
                 >
-                  가까운 지사 찾기
+                  <span>🏢</span>
+                  <span>가까운 지사 찾기</span>
                 </Link>
               </div>
             </div>
@@ -3632,47 +3751,27 @@ export default function DocumentsPage() {
         {/* STEP 61: 신청 불가 (선순위 상속인 존재) */}
         {step === 61 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'parent' && hasSeniorHeirsForParent && (
           <>
-            <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              {/* 헤더 */}
-              <div className="bg-red-50 rounded-2xl p-5 border-2 border-red-300">
-                <h2 className="text-2xl font-bold text-red-900 flex items-center gap-2 mb-2">
-                  <span>❌</span>
-                  <span>신청 불가</span>
+            <div className="flex flex-col gap-6 h-full overflow-y-auto">
+              <div className="bg-blue-50 rounded-2xl p-6 border-2 border-blue-300">
+                <h2 className="text-3xl font-bold text-blue-900 mb-6 flex items-center gap-2">
+                  <span>ℹ️</span>
+                  <span>신청이 불가합니다</span>
                 </h2>
-                <p className="text-lg text-red-800">
-                  죄송하지만, 신청인분은 환급금을 받으실 수 없어요
-                </p>
-              </div>
 
-              {/* 이유 설명 */}
-              <div className="bg-white rounded-2xl p-5 border border-gray-200">
-                <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2 mb-3">
-                  <span>📌</span>
-                  <span>이유</span>
-                </h3>
-                <p className="text-gray-700 text-lg mb-4">
-                  선순위 상속인이 계시기 때문이에요
-                </p>
+                <div className="text-2xl text-blue-900 leading-relaxed mb-6">
+                  선순위 상속인이 계실 경우
+                  <br />
+                  신청하실 수 없습니다.
+                </div>
 
-                {/* 상속 순위 설명 */}
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <p className="text-sm font-semibold text-gray-600 mb-2">상속 순위 (가까운 순서대로)</p>
-                  <ul className="text-gray-700 space-y-1">
-                    <li className="flex items-start gap-2">
-                      <span className="text-blue-500 font-bold">1순위:</span>
-                      <span>자녀, 손자녀</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-blue-500 font-bold">2순위:</span>
-                      <span>부모, 조부모</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-blue-500 font-bold">3순위:</span>
-                      <span>형제자매</span>
-                    </li>
-                  </ul>
-                  <p className="text-gray-600 mt-2 text-sm">
-                    + 배우자는 항상 공동 상속인
+                <div className="bg-white rounded-xl p-4">
+                  <p className="text-lg font-semibold text-gray-700 mb-2">[참고]</p>
+                  <p className="text-lg text-gray-600 leading-relaxed">
+                    민법 상속 순위에 따라
+                    <br />
+                    선순위 상속인에게
+                    <br />
+                    지급됩니다.
                   </p>
                 </div>
               </div>
@@ -3749,15 +3848,13 @@ export default function DocumentsPage() {
                     <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
                     <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>환급금 지급신청서</span>
                   </div>
-                  {hasSpouse && (
-                    <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                      <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
-                      <div style={{ flex: 1 }}>
-                        <span style={{ fontSize: '20px', color: '#1F2937' }}>상속대표선정동의서</span>
-                        <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 상속인 전원 서명 필요</div>
-                      </div>
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <div style={{ flex: 1 }}>
+                      <span style={{ fontSize: '20px', color: '#1F2937' }}>상속대표선정동의서</span>
+                      <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 상속인 전원 서명 필요</div>
                     </div>
-                  )}
+                  </div>
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
                     <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
                     <div style={{ flex: 1 }}>
@@ -3871,24 +3968,27 @@ export default function DocumentsPage() {
         {step === 66 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'grandparent' && (
           <>
             <div className="flex flex-col gap-6 h-full overflow-y-auto">
-              <div className="space-y-3">
-                <div className="bg-red-50 rounded-2xl p-6 border-2 border-red-300">
-                  <h2 className="text-3xl font-bold text-red-900 mb-6 flex items-center gap-2">
-                    <span>❌</span>
-                    <span>조부모님은 신청할 수 없습니다</span>
-                  </h2>
-                  <div className="text-2xl text-red-900 leading-relaxed mb-4">
-                    {hasSeniorHeirsForGrandparent
-                      ? '민법상 1순위 상속인(자녀/손자녀)이 계시므로 조부모님은 상속권이 없습니다.'
-                      : '진료받은 분의 부모님 중 한 분이라도 살아계시면 촌수가 더 가까운 부모님이 우선 상속인이 됩니다.'
-                    }
-                  </div>
-                  <div className="text-xl text-red-800 bg-red-100 rounded-xl p-4">
-                    {hasSeniorHeirsForGrandparent
-                      ? '→ 자녀분 또는 손자녀분이 신청하셔야 합니다.'
-                      : '→ 부모님이 신청하셔야 합니다.'
-                    }
-                  </div>
+              <div className="bg-blue-50 rounded-2xl p-6 border-2 border-blue-300">
+                <h2 className="text-3xl font-bold text-blue-900 mb-6 flex items-center gap-2">
+                  <span>ℹ️</span>
+                  <span>신청이 불가합니다</span>
+                </h2>
+
+                <div className="text-2xl text-blue-900 leading-relaxed mb-6">
+                  선순위 상속인이 계실 경우
+                  <br />
+                  신청하실 수 없습니다.
+                </div>
+
+                <div className="bg-white rounded-xl p-4">
+                  <p className="text-lg font-semibold text-gray-700 mb-2">[참고]</p>
+                  <p className="text-lg text-gray-600 leading-relaxed">
+                    민법 상속 순위에 따라
+                    <br />
+                    선순위 상속인에게
+                    <br />
+                    지급됩니다.
+                  </p>
                 </div>
               </div>
             </div>
@@ -3902,7 +4002,7 @@ export default function DocumentsPage() {
               <h1 className="text-4xl font-bold text-black leading-tight">
                 진료받은 분의<br />부모님이<br />모두 돌아가셨나요?
               </h1>
-              <p className="text-2xl text-gray-600 mt-4">(생물학적 부모 기준)</p>
+              <p className="text-2xl text-gray-600 mt-4">(가족관계증명서 기준)</p>
             </div>
 
             <div className="flex flex-col gap-3">
@@ -3992,15 +4092,13 @@ export default function DocumentsPage() {
                     <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
                     <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>환급금 지급신청서</span>
                   </div>
-                  {hasSpouse && (
-                    <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                      <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
-                      <div style={{ flex: 1 }}>
-                        <span style={{ fontSize: '20px', color: '#1F2937' }}>상속대표선정동의서</span>
-                        <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 상속인 전원 서명 필요</div>
-                      </div>
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <div style={{ flex: 1 }}>
+                      <span style={{ fontSize: '20px', color: '#1F2937' }}>상속대표선정동의서</span>
+                      <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 상속인 전원 서명 필요</div>
                     </div>
-                  )}
+                  </div>
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
                     <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
                     <div style={{ flex: 1 }}>
@@ -4011,7 +4109,7 @@ export default function DocumentsPage() {
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
                     <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
                     <div style={{ flex: 1 }}>
-                      <span style={{ fontSize: '20px', color: '#1F2937' }}>진료받은 분의 부모님 기준 가족관계증명서(상세)</span>
+                      <span style={{ fontSize: '20px', color: '#1F2937' }}>진료받은 분의 부모 기준 가족관계증명서(상세)</span>
                       <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 최근 3개월 이내 발급 분 (부모님 사망 증명용)</div>
                     </div>
                   </div>
@@ -4032,7 +4130,7 @@ export default function DocumentsPage() {
 
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
                     <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
-                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>조부모</span>
+                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>조부모/외조부모</span>
                   </div>
                   {hasSpouse && (
                     <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
@@ -4236,47 +4334,27 @@ export default function DocumentsPage() {
         {/* STEP 72: 지급불가 (형제자매 100만원 이하 - 선순위 상속인 존재) */}
         {step === 72 && situation === 'deceased' && refundAmount === 'under300k' && deceasedRelationship === 'sibling' && (
           <>
-            <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              {/* 헤더 */}
-              <div className="bg-red-50 rounded-2xl p-5 border-2 border-red-300">
-                <h2 className="text-2xl font-bold text-red-900 flex items-center gap-2 mb-2">
-                  <span>❌</span>
-                  <span>신청 불가</span>
+            <div className="flex flex-col gap-6 h-full overflow-y-auto">
+              <div className="bg-blue-50 rounded-2xl p-6 border-2 border-blue-300">
+                <h2 className="text-3xl font-bold text-blue-900 mb-6 flex items-center gap-2">
+                  <span>ℹ️</span>
+                  <span>신청이 불가합니다</span>
                 </h2>
-                <p className="text-lg text-red-800">
-                  죄송하지만, 신청인분은 환급금을 받으실 수 없어요
-                </p>
-              </div>
 
-              {/* 이유 설명 */}
-              <div className="bg-white rounded-2xl p-5 border border-gray-200">
-                <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2 mb-3">
-                  <span>📌</span>
-                  <span>이유</span>
-                </h3>
-                <p className="text-gray-700 text-lg mb-4">
-                  선순위 상속인이 계시기 때문이에요
-                </p>
+                <div className="text-2xl text-blue-900 leading-relaxed mb-6">
+                  선순위 상속인이 계실 경우
+                  <br />
+                  신청하실 수 없습니다.
+                </div>
 
-                {/* 상속 순위 설명 */}
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <p className="text-sm font-semibold text-gray-600 mb-2">상속 순위 (가까운 순서대로)</p>
-                  <ul className="text-gray-700 space-y-1">
-                    <li className="flex items-start gap-2">
-                      <span className="text-blue-500 font-bold">1순위:</span>
-                      <span>자녀, 손자녀</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-blue-500 font-bold">2순위:</span>
-                      <span>부모, 조부모</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-blue-500 font-bold">3순위:</span>
-                      <span>형제자매</span>
-                    </li>
-                  </ul>
-                  <p className="text-gray-600 mt-2 text-sm">
-                    + 배우자는 항상 공동 상속인
+                <div className="bg-white rounded-xl p-4">
+                  <p className="text-lg font-semibold text-gray-700 mb-2">[참고]</p>
+                  <p className="text-lg text-gray-600 leading-relaxed">
+                    민법 상속 순위에 따라
+                    <br />
+                    선순위 상속인에게
+                    <br />
+                    지급됩니다.
                   </p>
                 </div>
               </div>
