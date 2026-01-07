@@ -960,6 +960,14 @@ export default function DocumentsPage() {
                   borderRadius: '20px',
                   padding: '24px'
                 }}>
+                  <h1 style={{
+                    fontSize: '28px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '24px',
+                    textAlign: 'center'
+                  }}>본인부담상한제 환급금 신청 안내</h1>
+
                   <h2 style={{
                     fontSize: '24px',
                     fontWeight: 'bold',
@@ -1090,6 +1098,14 @@ export default function DocumentsPage() {
                   borderRadius: '20px',
                   padding: '24px'
                 }}>
+                  <h1 style={{
+                    fontSize: '28px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '24px',
+                    textAlign: 'center'
+                  }}>본인부담상한제 환급금 신청 안내</h1>
+
                   <h2 style={{
                     fontSize: '24px',
                     fontWeight: 'bold',
@@ -1188,6 +1204,14 @@ export default function DocumentsPage() {
                   borderRadius: '20px',
                   padding: '24px'
                 }}>
+                  <h1 style={{
+                    fontSize: '28px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '24px',
+                    textAlign: 'center'
+                  }}>본인부담상한제 환급금 신청 안내</h1>
+
                   <h2 style={{
                     fontSize: '24px',
                     fontWeight: 'bold',
@@ -1327,6 +1351,14 @@ export default function DocumentsPage() {
                   borderRadius: '20px',
                   padding: '24px'
                 }}>
+                  <h1 style={{
+                    fontSize: '28px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '24px',
+                    textAlign: 'center'
+                  }}>본인부담상한제 환급금 신청 안내</h1>
+
                   <h2 style={{
                     fontSize: '24px',
                     fontWeight: 'bold',
@@ -1693,6 +1725,14 @@ export default function DocumentsPage() {
                   borderRadius: '20px',
                   padding: '24px'
                 }}>
+                  <h1 style={{
+                    fontSize: '28px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '24px',
+                    textAlign: 'center'
+                  }}>본인부담상한제 환급금 신청 안내</h1>
+
                   <h2 style={{
                     fontSize: '24px',
                     fontWeight: 'bold',
@@ -1952,6 +1992,14 @@ export default function DocumentsPage() {
                   borderRadius: '20px',
                   padding: '24px'
                 }}>
+                  <h1 style={{
+                    fontSize: '28px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '24px',
+                    textAlign: 'center'
+                  }}>본인부담상한제 환급금 신청 안내</h1>
+
                   <h2 style={{
                     fontSize: '24px',
                     fontWeight: 'bold',
@@ -2231,6 +2279,14 @@ export default function DocumentsPage() {
                   borderRadius: '20px',
                   padding: '24px'
                 }}>
+                  <h1 style={{
+                    fontSize: '28px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '24px',
+                    textAlign: 'center'
+                  }}>본인부담상한제 환급금 신청 안내</h1>
+
                   <h2 style={{
                     fontSize: '24px',
                     fontWeight: 'bold',
@@ -2521,6 +2577,14 @@ export default function DocumentsPage() {
                   borderRadius: '20px',
                   padding: '24px'
                 }}>
+                  <h1 style={{
+                    fontSize: '28px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '24px',
+                    textAlign: 'center'
+                  }}>본인부담상한제 환급금 신청 안내</h1>
+
                   <h2 style={{
                     fontSize: '24px',
                     fontWeight: 'bold',
@@ -2811,6 +2875,14 @@ export default function DocumentsPage() {
                   borderRadius: '20px',
                   padding: '24px'
                 }}>
+                  <h1 style={{
+                    fontSize: '28px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '24px',
+                    textAlign: 'center'
+                  }}>본인부담상한제 환급금 신청 안내</h1>
+
                   <h2 style={{
                     fontSize: '24px',
                     fontWeight: 'bold',
@@ -3269,6 +3341,14 @@ export default function DocumentsPage() {
                   borderRadius: '20px',
                   padding: '24px'
                 }}>
+                  <h1 style={{
+                    fontSize: '28px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '24px',
+                    textAlign: 'center'
+                  }}>본인부담상한제 환급금 신청 안내</h1>
+
                   <h2 style={{
                     fontSize: '24px',
                     fontWeight: 'bold',
@@ -3393,6 +3473,14 @@ export default function DocumentsPage() {
                   borderRadius: '20px',
                   padding: '24px'
                 }}>
+                  <h1 style={{
+                    fontSize: '28px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '24px',
+                    textAlign: 'center'
+                  }}>본인부담상한제 환급금 신청 안내</h1>
+
                   <h2 style={{
                     fontSize: '24px',
                     fontWeight: 'bold',
@@ -3503,6 +3591,14 @@ export default function DocumentsPage() {
                   borderRadius: '20px',
                   padding: '24px'
                 }}>
+                  <h1 style={{
+                    fontSize: '28px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '24px',
+                    textAlign: 'center'
+                  }}>본인부담상한제 환급금 신청 안내</h1>
+
                   <h2 style={{
                     fontSize: '24px',
                     fontWeight: 'bold',
@@ -3818,6 +3914,14 @@ export default function DocumentsPage() {
                   borderRadius: '20px',
                   padding: '24px'
                 }}>
+                  <h1 style={{
+                    fontSize: '28px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '24px',
+                    textAlign: 'center'
+                  }}>본인부담상한제 환급금 신청 안내</h1>
+
                   <h2 style={{
                     fontSize: '24px',
                     fontWeight: 'bold',
@@ -4062,6 +4166,14 @@ export default function DocumentsPage() {
                   borderRadius: '20px',
                   padding: '24px'
                 }}>
+                  <h1 style={{
+                    fontSize: '28px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '24px',
+                    textAlign: 'center'
+                  }}>본인부담상한제 환급금 신청 안내</h1>
+
                   <h2 style={{
                     fontSize: '24px',
                     fontWeight: 'bold',
@@ -4230,6 +4342,14 @@ export default function DocumentsPage() {
                   borderRadius: '20px',
                   padding: '24px'
                 }}>
+                  <h1 style={{
+                    fontSize: '28px',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    marginBottom: '24px',
+                    textAlign: 'center'
+                  }}>본인부담상한제 환급금 신청 안내</h1>
+
                   <h2 style={{
                     fontSize: '24px',
                     fontWeight: 'bold',
