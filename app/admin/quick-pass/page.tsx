@@ -71,20 +71,21 @@ export default function QuickPassPage() {
       return;
     }
 
+    // 이름 입력이 필요한 서류는 항상 새로 추가 가능 (여러 사람 것 추가 가능)
+    if (doc.needsName) {
+      setPendingDocId(docId);
+      setTempName("");
+      setShowNameModal(true);
+      return;
+    }
+
+    // 이름 입력이 필요 없는 서류는 토글 방식
     if (isDocSelected(docId)) {
       // 이미 선택된 경우 제거
       setSelectedDocs((prev) => prev.filter((d) => d.id !== docId));
     } else {
-      // 새로 추가
-      if (doc.needsName) {
-        // 이름 입력 필요한 서류
-        setPendingDocId(docId);
-        setTempName("");
-        setShowNameModal(true);
-      } else {
-        // 바로 추가
-        setSelectedDocs((prev) => [...prev, { id: docId }]);
-      }
+      // 바로 추가
+      setSelectedDocs((prev) => [...prev, { id: docId }]);
     }
   };
 
@@ -105,8 +106,8 @@ export default function QuickPassPage() {
     setTempName("");
   };
 
-  const removeSelectedDoc = (docId: string) => {
-    setSelectedDocs((prev) => prev.filter((d) => d.id !== docId));
+  const removeSelectedDoc = (index: number) => {
+    setSelectedDocs((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleShowResult = () => {
@@ -276,7 +277,7 @@ export default function QuickPassPage() {
                       </span>
                     </div>
                     <button
-                      onClick={() => removeSelectedDoc(selectedDoc.id)}
+                      onClick={() => removeSelectedDoc(index)}
                       className="p-1 hover:bg-blue-100 rounded-lg transition-colors"
                     >
                       <X className="w-5 h-5 text-blue-600" />
@@ -294,28 +295,30 @@ export default function QuickPassPage() {
           <div className="space-y-2">
             {documentList.map((doc) => {
               const isSelected = isDocSelected(doc.id);
+              // needsName이 true인 서류는 여러 번 추가 가능하므로 항상 + 버튼 표시
+              const showAsSelected = isSelected && !doc.needsName;
               return (
                 <button
                   key={doc.id}
                   onClick={() => toggleDocument(doc.id)}
                   className={`w-full flex items-center justify-between p-4 rounded-xl transition-all ${
-                    isSelected
+                    showAsSelected
                       ? "bg-blue-50 border-2 border-blue-500"
                       : "bg-white border border-gray-200 hover:border-gray-300"
                   }`}
                 >
                   <div className="flex items-center gap-3">
                     <span className="text-xl">{doc.emoji}</span>
-                    <span className={`text-lg ${isSelected ? "font-semibold text-blue-700" : "text-gray-900"}`}>
+                    <span className={`text-lg ${showAsSelected ? "font-semibold text-blue-700" : "text-gray-900"}`}>
                       {doc.name}
                     </span>
                   </div>
                   <div
                     className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                      isSelected ? "bg-blue-500" : "bg-gray-100"
+                      showAsSelected ? "bg-blue-500" : "bg-gray-100"
                     }`}
                   >
-                    {isSelected ? (
+                    {showAsSelected ? (
                       <Check className="w-5 h-5 text-white" />
                     ) : (
                       <Plus className="w-5 h-5 text-gray-400" />

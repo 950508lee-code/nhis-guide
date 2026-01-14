@@ -237,9 +237,12 @@ export default function Home() {
 
               {/* 사이드바 푸터 */}
               <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-100">
-                <p className="text-sm text-gray-400 text-center">
-                  관리자 전용 메뉴입니다
-                </p>
+                <div className="text-center text-sm text-gray-400">
+                  <div className="mb-1">━━━━━━━━━━━━━━━━</div>
+                  <div>ⓒ 2026 NHIS Suwon-East</div>
+                  <div>Lead Architect: 이승현 (Lee Seung-hyun)</div>
+                  <div className="mt-1">━━━━━━━━━━━━━━━━</div>
+                </div>
               </div>
             </motion.div>
           </>
