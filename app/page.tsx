@@ -14,8 +14,9 @@ export default function Home() {
   useEffect(() => {
     const sessionKey = "nhis_session_counted";
     if (!sessionStorage.getItem(sessionKey)) {
-      incrementUserCount();
-      sessionStorage.setItem(sessionKey, "true");
+      incrementUserCount().then(() => {
+        sessionStorage.setItem(sessionKey, "true");
+      });
     }
   }, []);
 

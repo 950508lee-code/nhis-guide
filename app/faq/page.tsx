@@ -256,8 +256,7 @@ export default function FAQ() {
                 <div className="flex justify-center gap-6 pt-2">
                   <button
                     onClick={() => {
-                      recordSatisfaction('good');
-                      setShowFeedbackModal(false);
+                      recordSatisfaction('good').then(() => setShowFeedbackModal(false));
                     }}
                     className="flex flex-col items-center gap-2 p-4 rounded-2xl hover:bg-gray-100 active:scale-95 transition-all"
                   >
@@ -266,8 +265,7 @@ export default function FAQ() {
                   </button>
                   <button
                     onClick={() => {
-                      recordSatisfaction('neutral');
-                      setShowFeedbackModal(false);
+                      recordSatisfaction('neutral').then(() => setShowFeedbackModal(false));
                     }}
                     className="flex flex-col items-center gap-2 p-4 rounded-2xl hover:bg-gray-100 active:scale-95 transition-all"
                   >
@@ -276,8 +274,7 @@ export default function FAQ() {
                   </button>
                   <button
                     onClick={() => {
-                      recordSatisfaction('bad');
-                      setShowFeedbackModal(false);
+                      recordSatisfaction('bad').then(() => setShowFeedbackModal(false));
                     }}
                     className="flex flex-col items-center gap-2 p-4 rounded-2xl hover:bg-gray-100 active:scale-95 transition-all"
                   >

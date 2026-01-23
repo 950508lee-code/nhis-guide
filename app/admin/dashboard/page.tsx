@@ -30,16 +30,22 @@ export default function AdminDashboard() {
   useEffect(() => {
     if (!isAuthenticated) return;
 
-    const loadStats = () => {
-      setStats(getStatistics());
-      setTopBranches(getTopBranches(5));
-      setAllBranches(getAllBranchSearches());
-      setMonthlyData(getMonthlyUsers());
+    const loadStats = async () => {
+      const [statsData, topData, allData, monthlyData] = await Promise.all([
+        getStatistics(),
+        getTopBranches(5),
+        getAllBranchSearches(),
+        getMonthlyUsers(),
+      ]);
+      setStats(statsData);
+      setTopBranches(topData);
+      setAllBranches(allData);
+      setMonthlyData(monthlyData);
     };
     loadStats();
 
-    // 1초마다 새로고침
-    const interval = setInterval(loadStats, 1000);
+    // 5초마다 새로고침 (API 부하 감소)
+    const interval = setInterval(loadStats, 5000);
     return () => clearInterval(interval);
   }, [isAuthenticated]);
 
