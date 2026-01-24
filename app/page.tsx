@@ -10,12 +10,15 @@ import { incrementUserCount } from "@/lib/statistics";
 export default function Home() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // 페이지 방문 시 이용자 수 증가 (세션당 1회)
+  // 페이지 방문 시 이용자 수 증가 (하루 1회)
   useEffect(() => {
-    const sessionKey = "nhis_session_counted";
-    if (!sessionStorage.getItem(sessionKey)) {
+    const storageKey = "nhis_last_counted_date";
+    const today = new Date().toISOString().split('T')[0]; // "2026-01-24" 형식
+    const lastCountedDate = localStorage.getItem(storageKey);
+
+    if (lastCountedDate !== today) {
       incrementUserCount().then(() => {
-        sessionStorage.setItem(sessionKey, "true");
+        localStorage.setItem(storageKey, today);
       });
     }
   }, []);
