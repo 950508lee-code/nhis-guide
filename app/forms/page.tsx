@@ -1,11 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
+import { countMenuVisit } from "@/lib/statistics";
 
 export default function FormsPage() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+  // 페이지 방문 시 이용자 카운트 (하루 1회)
+  useEffect(() => {
+    countMenuVisit();
+  }, []);
 
   const forms = [
     { name: "환급금 지급신청서", image: "/환급금 지급신청서.png" },

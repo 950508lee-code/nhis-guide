@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import html2canvas from 'html2canvas';
-import { recordSatisfaction, incrementUserCount } from "@/lib/statistics";
+import { recordSatisfaction, countMenuVisit } from "@/lib/statistics";
 
 type Situation = 'alive' | 'deceased' | null;
 type AliveDetailType = 'adult' | 'minor' | 'guardian_adult' | null;
@@ -20,6 +20,11 @@ type MinorApplicantType = 'parental_authority' | 'minor_guardian' | null;
 
 export default function DocumentsPage() {
   const [step, setStep] = useState<number>(1);
+
+  // 페이지 방문 시 이용자 카운트 (하루 1회)
+  useEffect(() => {
+    countMenuVisit();
+  }, []);
   const [stepHistory, setStepHistory] = useState<number[]>([]);
   const [situation, setSituation] = useState<Situation>(null);
   const [aliveDetailType, setAliveDetailType] = useState<AliveDetailType>(null);

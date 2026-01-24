@@ -2,13 +2,18 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { regions, getBranchesByRegion, Branch } from "@/lib/branches";
 import html2canvas from "html2canvas";
-import { recordBranchSearch, recordSatisfaction, type SatisfactionType } from "@/lib/statistics";
+import { recordBranchSearch, recordSatisfaction, countMenuVisit, type SatisfactionType } from "@/lib/statistics";
 
 export default function BranchPage() {
   const [selectedBranch, setSelectedBranch] = useState<Branch | null>(null);
+
+  // 페이지 방문 시 이용자 카운트 (하루 1회)
+  useEffect(() => {
+    countMenuVisit();
+  }, []);
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);

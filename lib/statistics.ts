@@ -129,3 +129,24 @@ export function formatMonth(monthKey: string): string {
   const month = parseInt(monthKey.split('-')[1], 10);
   return `${month}월`;
 }
+
+// 메뉴 방문 시 이용자 카운트 (하루 1회, 어떤 메뉴든 첫 클릭만)
+export async function countMenuVisit(): Promise<void> {
+  const storageKey = "nhis_daily_counted";
+  const today = new Date().toISOString().split('T')[0];
+
+  try {
+    const lastCountedDate = localStorage.getItem(storageKey);
+
+    // 오늘 이미 카운트됐으면 무시
+    if (lastCountedDate === today) {
+      return;
+    }
+
+    // 카운트 증가 및 날짜 기록
+    await incrementUserCount();
+    localStorage.setItem(storageKey, today);
+  } catch (error) {
+    console.error('Failed to count menu visit:', error);
+  }
+}

@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { recordSatisfaction } from "@/lib/statistics";
+import { useState, useEffect } from "react";
+import { recordSatisfaction, countMenuVisit } from "@/lib/statistics";
 
 interface FAQ {
   id: number;
@@ -16,6 +16,11 @@ interface FAQ {
 
 export default function FAQ() {
   const [selectedFaq, setSelectedFaq] = useState<FAQ | null>(null);
+
+  // 페이지 방문 시 이용자 카운트 (하루 1회)
+  useEffect(() => {
+    countMenuVisit();
+  }, []);
   const [likedFaqs, setLikedFaqs] = useState<Set<number>>(new Set());
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
 

@@ -2,26 +2,12 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Settings, X, BarChart3, Zap } from "lucide-react";
-import { incrementUserCount } from "@/lib/statistics";
 
 export default function Home() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  // 페이지 방문 시 이용자 수 증가 (하루 1회)
-  useEffect(() => {
-    const storageKey = "nhis_last_counted_date";
-    const today = new Date().toISOString().split('T')[0]; // "2026-01-24" 형식
-    const lastCountedDate = localStorage.getItem(storageKey);
-
-    if (lastCountedDate !== today) {
-      incrementUserCount().then(() => {
-        localStorage.setItem(storageKey, today);
-      });
-    }
-  }, []);
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
