@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import PageTransition from "./components/PageTransition";
-import RouteIndicator from "./components/RouteIndicator";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -37,7 +36,6 @@ export default function RootLayout({
       </head>
       <body className="antialiased">
         <PageTransition>{children}</PageTransition>
-        <RouteIndicator />
       </body>
     </html>
   );

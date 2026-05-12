@@ -87,90 +87,6 @@ export default function SplashScreen() {
               }}
               className="relative mb-10 sm:mb-12"
             >
-              {/* 글로우 트레일 — 등장 직후 1회 큰 글로우 퍼짐 */}
-              <motion.div
-                initial={{ scale: 0.4, opacity: 0 }}
-                animate={{ scale: 2.6, opacity: [0, 0.7, 0] }}
-                transition={{
-                  duration: 1.6,
-                  delay: 0.15,
-                  ease: [0.22, 1, 0.36, 1],
-                  times: [0, 0.25, 1],
-                }}
-                className="absolute inset-0 rounded-full blur-2xl pointer-events-none"
-                style={{
-                  background:
-                    "radial-gradient(circle, rgba(239,45,56,0.5) 0%, rgba(239,45,56,0.15) 40%, transparent 70%)",
-                }}
-              />
-
-              {/* 부드러운 단발 링 — 등장 시 1회 */}
-              <motion.div
-                initial={{ scale: 0.6, opacity: 0 }}
-                animate={{ scale: 2.4, opacity: 0 }}
-                transition={{
-                  duration: 1.4,
-                  delay: 0.3,
-                  ease: "easeOut",
-                  times: [0, 1],
-                }}
-                style={{
-                  borderColor: "rgba(239,45,56,0.2)",
-                }}
-                className="absolute inset-0 rounded-full border-2"
-              />
-
-              {/* 두 번째 펄스 링 — 살짝 늦게 */}
-              <motion.div
-                initial={{ scale: 0.7, opacity: 0 }}
-                animate={{ scale: 2.0, opacity: 0 }}
-                transition={{
-                  duration: 1.6,
-                  delay: 0.55,
-                  ease: "easeOut",
-                  times: [0, 1],
-                }}
-                style={{
-                  borderColor: "rgba(239,45,56,0.15)",
-                }}
-                className="absolute inset-0 rounded-full border-2"
-              />
-
-              {/* 스파클 도트 — 등장 시 4방향에서 작은 빛 점 */}
-              {[
-                { x: -28, y: -28, delay: 0.2 },
-                { x: 28, y: -28, delay: 0.35 },
-                { x: -28, y: 28, delay: 0.5 },
-                { x: 28, y: 28, delay: 0.4 },
-              ].map((sparkle, i) => (
-                <motion.div
-                  key={i}
-                  initial={{
-                    opacity: 0,
-                    scale: 0,
-                    x: 0,
-                    y: 0,
-                  }}
-                  animate={{
-                    opacity: [0, 1, 0],
-                    scale: [0, 1, 0],
-                    x: sparkle.x * 2,
-                    y: sparkle.y * 2,
-                  }}
-                  transition={{
-                    duration: 1.2,
-                    delay: sparkle.delay,
-                    ease: [0.22, 1, 0.36, 1],
-                    times: [0, 0.5, 1],
-                  }}
-                  className="absolute top-1/2 left-1/2 w-1.5 h-1.5 rounded-full pointer-events-none"
-                  style={{
-                    backgroundColor: "rgba(239,45,56,0.7)",
-                    boxShadow: "0 0 8px rgba(239,45,56,0.5)",
-                  }}
-                />
-              ))}
-
               {/* 로고 — 부드러운 플로팅 (y + x sway) */}
               <motion.div
                 animate={{
@@ -212,10 +128,10 @@ export default function SplashScreen() {
                   <Image
                     src="/logo-symbol.svg"
                     alt="국민건강보험공단"
-                    width={180}
-                    height={189}
+                    width={200}
+                    height={210}
                     priority
-                    className="object-contain w-[135px] h-[142px] sm:w-[162px] sm:h-[170px] md:w-[180px] md:h-[189px]"
+                    className="object-contain w-[150px] h-[158px] sm:w-[180px] sm:h-[189px] md:w-[200px] md:h-[210px]"
                     style={{
                       filter:
                         "drop-shadow(0 16px 32px rgba(239,45,56,0.18)) drop-shadow(0 4px 8px rgba(0,0,0,0.05))",
@@ -236,7 +152,7 @@ export default function SplashScreen() {
               }}
               className="text-center px-2"
             >
-              <h1 className="text-[19px] sm:text-[22px] md:text-[26px] font-semibold tracking-[-0.02em] leading-tight text-gray-700">
+              <h1 className="text-[21px] sm:text-[24px] md:text-[28px] font-semibold tracking-[-0.02em] leading-tight text-gray-700">
                 복잡한 서류 안내를
               </h1>
             </motion.div>
@@ -253,7 +169,7 @@ export default function SplashScreen() {
               className="mt-3 text-center relative inline-block px-2"
             >
               <h2
-                className="text-[30px] sm:text-[36px] md:text-[40px] font-black tracking-[-0.03em] leading-[1.05] relative"
+                className="text-[33px] sm:text-[40px] md:text-[44px] font-black tracking-[-0.03em] leading-[1.05] relative"
                 style={{
                   background:
                     "linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)",
@@ -274,7 +190,7 @@ export default function SplashScreen() {
                   duration: 0.7,
                   ease: [0.22, 1, 0.36, 1],
                 }}
-                className="absolute left-1/2 -translate-x-1/2 h-[10px] w-[180px] sm:w-[220px] md:w-[250px] origin-left rounded-full -z-10"
+                className="absolute left-1/2 -translate-x-1/2 h-[10px] w-[200px] sm:w-[245px] md:w-[275px] origin-left rounded-full -z-10"
                 style={{
                   bottom: "0px",
                   background:
