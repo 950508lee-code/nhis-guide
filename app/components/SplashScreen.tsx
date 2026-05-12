@@ -8,7 +8,7 @@ export default function SplashScreen() {
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsVisible(false), 4200);
+    const timer = setTimeout(() => setIsVisible(false), 5200);
     return () => clearTimeout(timer);
   }, []);
 
@@ -16,9 +16,13 @@ export default function SplashScreen() {
     <AnimatePresence>
       {isVisible && (
         <motion.div
-          initial={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          initial={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 1.05, y: -20 }}
+          transition={{
+            opacity: { duration: 0.55, ease: [0.22, 1, 0.36, 1] },
+            scale: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
+            y: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
+          }}
           onClick={() => setIsVisible(false)}
           className="fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden cursor-pointer"
           style={{
@@ -26,6 +30,7 @@ export default function SplashScreen() {
               "linear-gradient(180deg, #FFFFFF 0%, #F5F9FF 55%, #EBF2FE 100%)",
             paddingTop: "env(safe-area-inset-top)",
             paddingBottom: "env(safe-area-inset-bottom)",
+            transformOrigin: "center 40%",
           }}
         >
           {/* 은은한 메쉬 글로우 — 좌상단 */}
@@ -72,15 +77,33 @@ export default function SplashScreen() {
           <div className="relative z-10 flex flex-col items-center px-5 sm:px-6 w-full">
             {/* 로고 영역 */}
             <motion.div
-              initial={{ opacity: 0, y: 24, scale: 0.85 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
+              initial={{ opacity: 0, scale: 0.35 }}
+              animate={{ opacity: 1, scale: 1 }}
               transition={{
-                duration: 1,
-                ease: [0.22, 1, 0.36, 1],
-                delay: 0.1,
+                type: "spring",
+                stiffness: 180,
+                damping: 14,
+                mass: 0.9,
               }}
-              className="relative mb-5 sm:mb-6"
+              className="relative mb-10 sm:mb-12"
             >
+              {/* 글로우 트레일 — 등장 직후 1회 큰 글로우 퍼짐 */}
+              <motion.div
+                initial={{ scale: 0.4, opacity: 0 }}
+                animate={{ scale: 2.6, opacity: [0, 0.7, 0] }}
+                transition={{
+                  duration: 1.6,
+                  delay: 0.15,
+                  ease: [0.22, 1, 0.36, 1],
+                  times: [0, 0.25, 1],
+                }}
+                className="absolute inset-0 rounded-full blur-2xl pointer-events-none"
+                style={{
+                  background:
+                    "radial-gradient(circle, rgba(239,45,56,0.5) 0%, rgba(239,45,56,0.15) 40%, transparent 70%)",
+                }}
+              />
+
               {/* 부드러운 단발 링 — 등장 시 1회 */}
               <motion.div
                 initial={{ scale: 0.6, opacity: 0 }}
@@ -97,6 +120,57 @@ export default function SplashScreen() {
                 className="absolute inset-0 rounded-full border-2"
               />
 
+              {/* 두 번째 펄스 링 — 살짝 늦게 */}
+              <motion.div
+                initial={{ scale: 0.7, opacity: 0 }}
+                animate={{ scale: 2.0, opacity: 0 }}
+                transition={{
+                  duration: 1.6,
+                  delay: 0.55,
+                  ease: "easeOut",
+                  times: [0, 1],
+                }}
+                style={{
+                  borderColor: "rgba(239,45,56,0.15)",
+                }}
+                className="absolute inset-0 rounded-full border-2"
+              />
+
+              {/* 스파클 도트 — 등장 시 4방향에서 작은 빛 점 */}
+              {[
+                { x: -28, y: -28, delay: 0.2 },
+                { x: 28, y: -28, delay: 0.35 },
+                { x: -28, y: 28, delay: 0.5 },
+                { x: 28, y: 28, delay: 0.4 },
+              ].map((sparkle, i) => (
+                <motion.div
+                  key={i}
+                  initial={{
+                    opacity: 0,
+                    scale: 0,
+                    x: 0,
+                    y: 0,
+                  }}
+                  animate={{
+                    opacity: [0, 1, 0],
+                    scale: [0, 1, 0],
+                    x: sparkle.x * 2,
+                    y: sparkle.y * 2,
+                  }}
+                  transition={{
+                    duration: 1.2,
+                    delay: sparkle.delay,
+                    ease: [0.22, 1, 0.36, 1],
+                    times: [0, 0.5, 1],
+                  }}
+                  className="absolute top-1/2 left-1/2 w-1.5 h-1.5 rounded-full pointer-events-none"
+                  style={{
+                    backgroundColor: "rgba(239,45,56,0.7)",
+                    boxShadow: "0 0 8px rgba(239,45,56,0.5)",
+                  }}
+                />
+              ))}
+
               {/* 로고 — 부드러운 플로팅 (y + x sway) */}
               <motion.div
                 animate={{
@@ -108,13 +182,11 @@ export default function SplashScreen() {
                     duration: 3.2,
                     repeat: Infinity,
                     ease: "easeInOut",
-                    delay: 1,
                   },
                   x: {
                     duration: 5,
                     repeat: Infinity,
                     ease: "easeInOut",
-                    delay: 1,
                   },
                 }}
               >
@@ -129,23 +201,21 @@ export default function SplashScreen() {
                       duration: 4,
                       repeat: Infinity,
                       ease: "easeInOut",
-                      delay: 1,
                     },
                     scale: {
                       duration: 2.8,
                       repeat: Infinity,
                       ease: "easeInOut",
-                      delay: 1,
                     },
                   }}
                 >
                   <Image
                     src="/logo-symbol.svg"
                     alt="국민건강보험공단"
-                    width={200}
-                    height={210}
+                    width={180}
+                    height={189}
                     priority
-                    className="object-contain w-[150px] h-[158px] sm:w-[180px] sm:h-[189px] md:w-[200px] md:h-[210px]"
+                    className="object-contain w-[135px] h-[142px] sm:w-[162px] sm:h-[170px] md:w-[180px] md:h-[189px]"
                     style={{
                       filter:
                         "drop-shadow(0 16px 32px rgba(239,45,56,0.18)) drop-shadow(0 4px 8px rgba(0,0,0,0.05))",
@@ -155,38 +225,15 @@ export default function SplashScreen() {
               </motion.div>
             </motion.div>
 
-            {/* 워드마크 — NHIS-GUIDE */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6, duration: 0.7, ease: "easeOut" }}
-              className="mb-6 sm:mb-8 flex items-baseline"
-            >
-              <span
-                className="text-[20px] sm:text-[24px] md:text-[26px] font-black tracking-[-0.04em] text-gray-900"
-                style={{ fontFeatureSettings: '"ss01"' }}
-              >
-                NHIS
-              </span>
-              <span
-                className="text-[20px] sm:text-[24px] md:text-[26px] font-black tracking-[-0.02em]"
-                style={{
-                  background:
-                    "linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                }}
-              >
-                ·GUIDE
-              </span>
-            </motion.div>
-
             {/* 메인 카피 — 1줄 */}
             <motion.div
-              initial={{ opacity: 0, y: 14 }}
+              initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.95, duration: 0.7, ease: "easeOut" }}
+              transition={{
+                delay: 1.0,
+                duration: 0.85,
+                ease: [0.22, 1, 0.36, 1],
+              }}
               className="text-center px-2"
             >
               <h1 className="text-[19px] sm:text-[22px] md:text-[26px] font-semibold tracking-[-0.02em] leading-tight text-gray-700">
@@ -198,8 +245,12 @@ export default function SplashScreen() {
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.2, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-              className="mt-2 text-center relative inline-block px-2"
+              transition={{
+                delay: 1.5,
+                duration: 0.85,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+              className="mt-3 text-center relative inline-block px-2"
             >
               <h2
                 className="text-[30px] sm:text-[36px] md:text-[40px] font-black tracking-[-0.03em] leading-[1.05] relative"
@@ -218,7 +269,11 @@ export default function SplashScreen() {
               <motion.div
                 initial={{ scaleX: 0, opacity: 0 }}
                 animate={{ scaleX: 1, opacity: 1 }}
-                transition={{ delay: 1.6, duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+                transition={{
+                  delay: 2.2,
+                  duration: 0.7,
+                  ease: [0.22, 1, 0.36, 1],
+                }}
                 className="absolute left-1/2 -translate-x-1/2 h-[10px] w-[180px] sm:w-[220px] md:w-[250px] origin-left rounded-full -z-10"
                 style={{
                   bottom: "0px",
@@ -227,38 +282,13 @@ export default function SplashScreen() {
                 }}
               />
             </motion.div>
-
-            {/* 로딩 인디케이터 */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.7, duration: 0.4 }}
-              className="flex items-center gap-1.5 mt-10 sm:mt-12"
-            >
-              {[0, 1, 2].map((i) => (
-                <motion.div
-                  key={i}
-                  animate={{
-                    scale: [1, 1.5, 1],
-                    opacity: [0.25, 1, 0.25],
-                  }}
-                  transition={{
-                    duration: 1,
-                    repeat: Infinity,
-                    delay: i * 0.16,
-                    ease: "easeInOut",
-                  }}
-                  className="w-1.5 h-1.5 rounded-full bg-blue-500"
-                />
-              ))}
-            </motion.div>
           </div>
 
           {/* 하단 브랜드 */}
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.9, duration: 0.5 }}
+            transition={{ delay: 3.0, duration: 0.6 }}
             className="absolute left-0 right-0 px-4 text-center"
             style={{
               bottom: "calc(env(safe-area-inset-bottom, 0px) + 32px)",
