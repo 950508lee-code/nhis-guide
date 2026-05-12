@@ -3,35 +3,83 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
 }
 
 @theme inline {
   --color-notation: legacy;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system,
+    BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI",
+    "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji",
+    "Segoe UI Emoji", sans-serif;
+  --font-mono: "Pretendard Variable", Pretendard, ui-monospace, monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  /* iOS 가로 회전 시 폰트 자동 확대 방지 */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  /* iOS overscroll 방지 */
+  overscroll-behavior-y: none;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Pretendard Variable", Pretendard, -apple-system,
+    BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI",
+    "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji",
+    "Segoe UI Emoji", sans-serif;
+  font-feature-settings: "ss01", "ss02";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* iOS 탭 하이라이트 제거 */
+  -webkit-tap-highlight-color: transparent;
+  /* 텍스트 선택 색상 */
+  -webkit-user-select: none;
+  user-select: none;
+  /* iOS safe-area 좌우 여백 보정 */
+  padding-left: var(--safe-left);
+  padding-right: var(--safe-right);
+  /* 100dvh 사용 가능한 환경에서 풀스크린 */
+  min-height: 100vh;
+  min-height: 100dvh;
 }
 
-/* 한글 텍스트 줄바꿈 개선 - 단어 중간에서 끊기지 않도록 */
+/* 입력/텍스트영역은 선택 허용 */
+input,
+textarea,
+[contenteditable="true"] {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* iOS 줌인 방지를 위해 입력 폰트 16px 이상 보장 */
+input,
+textarea,
+select {
+  font-size: 16px;
+}
+
+/* 한글 텍스트 줄바꿈 개선 */
 * {
   word-break: keep-all;
+  overflow-wrap: break-word;
 }
 
-/* 작은 화면에서 폰트 크기 자동 조절 */
+/* 폼 요소 기본 reset */
+button {
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* 작은 화면 폰트 자동 조절 */
 @media (max-width: 360px) {
   html {
     font-size: 14px;
@@ -44,8 +92,44 @@ body {
   }
 }
 
+/* safe-area 유틸리티 */
+.pt-safe {
+  padding-top: max(var(--safe-top), 16px);
+}
+.pb-safe {
+  padding-bottom: max(var(--safe-bottom), 16px);
+}
+.mt-safe {
+  margin-top: var(--safe-top);
+}
+.mb-safe {
+  margin-bottom: var(--safe-bottom);
+}
+
+/* 가로 스크롤 방지 */
+body,
+#__next {
+  overflow-x: hidden;
+}
+
 /* 캡처 시 SVG와 버튼 숨기기 */
 .capturing svg,
 .capturing button {
   display: none !important;
+}
+
+/* 스크롤바 미니멀 (선택적) */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25);
 }

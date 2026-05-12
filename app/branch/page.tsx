@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useMemo, useRef, useEffect } from "react";
+import { ArrowLeft, Home, Search, ChevronRight, X, MapPin, Download, Share2, ThumbsUp, CheckCircle2, Printer, Building2, Navigation } from "lucide-react";
 import { regions, getBranchesByRegion, Branch } from "@/lib/branches";
 import html2canvas from "html2canvas";
 import { recordBranchSearch, recordSatisfaction, countMenuVisit, type SatisfactionType } from "@/lib/statistics";
@@ -141,116 +142,81 @@ export default function BranchPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col">
+    <div
+      className="min-h-[100dvh] flex flex-col"
+      style={{ backgroundColor: "#F4F7FB" }}
+    >
       {/* Header */}
-      <header className="px-6 pt-4 pb-2 flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      <header className="bg-white/90 backdrop-blur-md px-4 sm:px-5 pt-safe pb-3 flex items-center justify-between gap-2 border-b border-gray-100/80 sticky top-0 z-10">
+        <div className="flex items-center gap-1">
           {selectedRegion ? (
             <button
               onClick={handleBack}
-              className="text-gray-600 hover:text-gray-900 transition-colors"
+              aria-label="뒤로 가기"
+              className="p-2 -ml-2 rounded-xl hover:bg-gray-100 transition-colors active:scale-95"
             >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
+              <ArrowLeft className="w-6 h-6 text-gray-700" />
             </button>
           ) : (
             <Link
               href="/"
-              className="text-gray-600 hover:text-gray-900 transition-colors"
+              aria-label="뒤로 가기"
+              className="p-2 -ml-2 rounded-xl hover:bg-gray-100 transition-colors active:scale-95"
             >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
+              <ArrowLeft className="w-6 h-6 text-gray-700" />
             </Link>
           )}
           <Link
             href="/"
-            className="text-gray-600 hover:text-gray-900 transition-colors"
+            aria-label="홈으로"
+            className="p-2 rounded-xl hover:bg-gray-100 transition-colors active:scale-95"
           >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-              />
-            </svg>
+            <Home className="w-5 h-5 text-gray-600" />
           </Link>
         </div>
-        <Image
-          src="/logo.svg"
-          alt="국민건강보험공단"
-          width={128}
-          height={40}
-          className="object-contain"
-        />
+        <h1
+          className="text-[17px] sm:text-[19px] font-bold tracking-[-0.02em]"
+          style={{ color: "#1F2937" }}
+        >
+          지사 팩스번호 찾기
+        </h1>
         <div className="w-[60px]"></div>
       </header>
 
       {/* Content */}
-      <main className="flex-1 px-5 pt-4 pb-4 overflow-y-auto">
+      <main className="flex-1 px-4 sm:px-5 pt-5 pb-safe overflow-y-auto">
         {/* 지사 목록 화면 */}
         {!selectedBranch && !selectedRegion && (
           <div className="space-y-4">
             {/* 검색창 */}
             <div className="relative">
+              <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2" style={{ color: "#9CA3AF" }} />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="지사명, 지역, 주소로 검색"
-                className="w-full bg-white rounded-2xl shadow-sm border border-gray-200 px-5 py-5 pr-14 text-lg placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="w-full bg-white rounded-2xl pl-12 pr-4 py-4 text-[16px] font-medium placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                style={{
+                  color: "#1F2937",
+                  boxShadow:
+                    "0 4px 16px -6px rgba(15,23,42,0.08), 0 2px 4px -2px rgba(15,23,42,0.04)",
+                }}
               />
-              <svg
-                className="w-6 h-6 text-gray-400 absolute right-5 top-1/2 -translate-y-1/2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
             </div>
 
             {/* 검색 중일 때 검색 결과 표시 */}
             {searchQuery ? (
               <>
-                <div className="px-2">
-                  <p className="text-sm text-gray-600">
-                    검색 결과: {filteredBranches.length}개
+                <div className="px-1">
+                  <p
+                    className="text-[13px] font-semibold"
+                    style={{ color: "#6B7280" }}
+                  >
+                    검색 결과 · {filteredBranches.length}개
                   </p>
                 </div>
-                <div className="space-y-3">
+                <div className="space-y-2.5">
                   {filteredBranches.length > 0 ? (
                     filteredBranches.map((branch) => (
                       <button
@@ -259,33 +225,31 @@ export default function BranchPage() {
                           setSelectedBranch(branch);
                           recordBranchSearch(branch.name);
                         }}
-                        className="w-full bg-white rounded-2xl shadow-sm border border-gray-100 p-5 hover:shadow-md hover:border-emerald-200 active:scale-[0.98] transition-all text-left"
+                        className="group w-full bg-white rounded-[20px] px-5 py-4 active:scale-[0.98] transition-all text-left"
+                        style={{
+                          boxShadow:
+                            "0 4px 16px -6px rgba(15,23,42,0.08), 0 2px 4px -2px rgba(15,23,42,0.04)",
+                        }}
                       >
-                        <div className="flex items-center justify-between gap-3">
-                          <div className="flex-1 min-w-0">
-                            <h3 className="text-xl font-semibold text-gray-900">
-                              {branch.name}
-                            </h3>
-                          </div>
-                          <svg
-                            className="w-6 h-6 text-gray-400 flex-shrink-0"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
+                        <div className="flex items-center gap-3">
+                          <h3
+                            className="flex-1 text-[17px] sm:text-[18px] font-bold tracking-[-0.02em]"
+                            style={{ color: "#1F2937" }}
                           >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M9 5l7 7-7 7"
-                            />
-                          </svg>
+                            {branch.name}
+                          </h3>
+                          <ChevronRight className="w-5 h-5 text-gray-300 flex-shrink-0 group-active:translate-x-0.5 transition-transform" />
                         </div>
                       </button>
                     ))
                   ) : (
-                    <div className="text-center py-12">
-                      <p className="text-gray-500">검색 결과가 없습니다</p>
+                    <div className="text-center py-16">
+                      <p
+                        className="text-[15px] font-medium"
+                        style={{ color: "#9CA3AF" }}
+                      >
+                        검색 결과가 없습니다
+                      </p>
                     </div>
                   )}
                 </div>
@@ -293,17 +257,29 @@ export default function BranchPage() {
             ) : (
               /* 검색하지 않을 때 지역 그리드 표시 */
               <>
-                <div className="px-2">
-                  <p className="text-sm text-gray-600">지역을 선택하세요</p>
+                <div className="px-1">
+                  <p
+                    className="text-[13px] font-semibold"
+                    style={{ color: "#6B7280" }}
+                  >
+                    지역을 선택하세요
+                  </p>
                 </div>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-3 gap-2.5">
                   {regions.map((region) => (
                     <button
                       key={region}
                       onClick={() => handleRegionSelect(region)}
-                      className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 hover:shadow-md hover:border-emerald-200 active:scale-[0.97] transition-all"
+                      className="bg-white rounded-[18px] py-5 px-3 active:scale-[0.97] transition-all"
+                      style={{
+                        boxShadow:
+                          "0 4px 16px -6px rgba(15,23,42,0.08), 0 2px 4px -2px rgba(15,23,42,0.04)",
+                      }}
                     >
-                      <span className="text-xl font-semibold text-gray-900">
+                      <span
+                        className="text-[16px] sm:text-[17px] font-bold tracking-[-0.02em]"
+                        style={{ color: "#1F2937" }}
+                      >
                         {region}
                       </span>
                     </button>
@@ -317,12 +293,15 @@ export default function BranchPage() {
         {/* 지역 선택 후 지사 목록 */}
         {selectedRegion && !selectedBranch && (
           <div className="space-y-4">
-            <div className="px-2">
-              <p className="text-sm text-gray-600">
+            <div className="px-1">
+              <p
+                className="text-[13px] font-semibold"
+                style={{ color: "#6B7280" }}
+              >
                 {selectedRegion} · {branches.length}개 지사
               </p>
             </div>
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               {branches.map((branch) => (
                 <button
                   key={branch.id}
@@ -330,25 +309,20 @@ export default function BranchPage() {
                     setSelectedBranch(branch);
                     recordBranchSearch(branch.name);
                   }}
-                  className="w-full bg-white rounded-2xl shadow-sm border border-gray-100 p-5 hover:shadow-md hover:border-emerald-200 active:scale-[0.98] transition-all text-left"
+                  className="group w-full bg-white rounded-[20px] px-5 py-4 active:scale-[0.98] transition-all text-left"
+                  style={{
+                    boxShadow:
+                      "0 4px 16px -6px rgba(15,23,42,0.08), 0 2px 4px -2px rgba(15,23,42,0.04)",
+                  }}
                 >
-                  <div className="flex items-center justify-between gap-3">
-                    <h3 className="text-xl font-semibold text-gray-900">
+                  <div className="flex items-center gap-3">
+                    <h3
+                      className="flex-1 text-[17px] sm:text-[18px] font-bold tracking-[-0.02em]"
+                      style={{ color: "#1F2937" }}
+                    >
                       {branch.name}
                     </h3>
-                    <svg
-                      className="w-6 h-6 text-gray-400 flex-shrink-0"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 5l7 7-7 7"
-                      />
-                    </svg>
+                    <ChevronRight className="w-5 h-5 text-gray-300 flex-shrink-0 group-active:translate-x-0.5 transition-transform" />
                   </div>
                 </button>
               ))}
@@ -358,157 +332,172 @@ export default function BranchPage() {
 
         {/* 지사 상세 정보 모달 */}
         {selectedBranch && (
-          <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50">
-            <div className="w-full h-full bg-gray-100 flex flex-col animate-in slide-in-from-bottom duration-300">
+          <div
+            className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm"
+            onClick={() => setSelectedBranch(null)}
+          >
+            <div
+              className="w-full h-[100dvh] flex flex-col animate-in slide-in-from-bottom duration-300"
+              style={{ backgroundColor: "#F4F7FB" }}
+              onClick={(e) => e.stopPropagation()}
+            >
               {/* 모달 헤더 */}
-              <header className="px-6 pt-4 pb-2 flex items-center justify-between">
+              <header
+                className="bg-white/90 backdrop-blur-md px-4 sm:px-5 pt-safe pb-3 flex items-center justify-between border-b border-gray-100/80"
+              >
                 <button
                   onClick={() => setSelectedBranch(null)}
-                  className="text-gray-600 hover:text-gray-900 transition-colors"
+                  aria-label="닫기"
+                  className="p-2 -ml-2 rounded-xl hover:bg-gray-100 transition-colors active:scale-95"
                 >
-                  <svg
-                    className="w-6 h-6"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
+                  <X className="w-6 h-6 text-gray-600" />
                 </button>
-                <Image
-                  src="/logo.svg"
-                  alt="국민건강보험공단"
-                  width={128}
-                  height={40}
-                  className="object-contain"
-                />
+                <h2
+                  className="text-[17px] font-bold tracking-[-0.02em]"
+                  style={{ color: "#1F2937" }}
+                >
+                  지사 정보
+                </h2>
+                <div className="w-10"></div>
               </header>
 
               {/* 모달 컨텐츠 */}
-              <main className="flex-1 px-5 pt-4 pb-6 flex flex-col justify-center">
+              <main className="flex-1 px-4 sm:px-5 pt-5 pb-safe overflow-y-auto">
                 <div className="space-y-4">
-                  <div ref={captureRef} className="w-full rounded-3xl shadow-lg p-6 space-y-6" style={{ backgroundColor: '#ffffff' }}>
+                  {/* 메인 정보 카드 */}
+                  <div
+                    ref={captureRef}
+                    className="w-full rounded-[24px] bg-white px-6 py-7 space-y-6"
+                    style={{
+                      boxShadow:
+                        "0 4px 16px -6px rgba(15,23,42,0.08), 0 2px 4px -2px rgba(15,23,42,0.04)",
+                    }}
+                  >
                     {/* 지사명 */}
-                    <div className="text-center pb-4" style={{ borderBottom: '1px solid #e5e7eb' }}>
-                      <h2 className="text-4xl font-bold mb-2" style={{ color: '#111827' }}>
+                    <div>
+                      <h2
+                        className="text-[26px] sm:text-[28px] font-extrabold tracking-[-0.03em] leading-tight"
+                        style={{ color: "#1F2937" }}
+                      >
                         {selectedBranch.name}
                       </h2>
-                      <p className="text-xl" style={{ color: '#6b7280' }}>
+                      <p
+                        className="text-[14px] mt-1 font-medium"
+                        style={{ color: "#6B7280" }}
+                      >
                         {selectedBranch.department}
                       </p>
                     </div>
 
+                    {/* 구분선 */}
+                    <div className="border-t" style={{ borderColor: "#F1F5F9" }} />
+
                     {/* 팩스번호 */}
-                    <div className="flex items-baseline gap-4">
-                      <p className="text-lg font-semibold whitespace-nowrap" style={{ color: '#374151' }}>팩스번호</p>
-                      <p className="text-3xl font-bold" style={{ color: '#111827' }}>
+                    <div>
+                      <p
+                        className="text-[12px] font-bold tracking-[0.02em] uppercase mb-2"
+                        style={{ color: "#9CA3AF" }}
+                      >
+                        팩스번호
+                      </p>
+                      <p
+                        className="text-[26px] sm:text-[28px] font-extrabold tracking-[-0.02em] tabular-nums leading-none"
+                        style={{ color: "#1F2937" }}
+                      >
                         {selectedBranch.fax}
                       </p>
                     </div>
 
+                    {/* 구분선 */}
+                    <div className="border-t" style={{ borderColor: "#F1F5F9" }} />
+
                     {/* 주소 */}
-                    <div className="space-y-2">
-                      <p className="text-lg font-semibold" style={{ color: '#374151' }}>주소</p>
-                      <p className="text-lg leading-relaxed" style={{ color: '#111827' }}>
+                    <div>
+                      <p
+                        className="text-[12px] font-bold tracking-[0.02em] uppercase mb-2"
+                        style={{ color: "#9CA3AF" }}
+                      >
+                        주소
+                      </p>
+                      <p
+                        className="text-[15px] sm:text-[16px] leading-relaxed font-semibold"
+                        style={{ color: "#1F2937" }}
+                      >
                         {selectedBranch.address}
                       </p>
                       {selectedBranch.postalCode && (
-                        <p className="text-base" style={{ color: '#6b7280' }}>
-                          우편번호: {selectedBranch.postalCode}
+                        <p
+                          className="text-[13px] mt-1.5 font-medium"
+                          style={{ color: "#9CA3AF" }}
+                        >
+                          우편번호 {selectedBranch.postalCode}
                         </p>
                       )}
                     </div>
                   </div>
 
                   {/* 도움이 되었어요 버튼 */}
-                  <div className="mb-3">
-                    <button
-                      onClick={() => setShowFeedbackModal(true)}
-                      className="w-full px-6 py-4 rounded-xl border-2 border-gray-200 bg-white text-gray-600 hover:border-blue-300 hover:text-blue-600 transition-all active:scale-[0.98] flex items-center justify-center gap-3"
+                  <button
+                    onClick={() => setShowFeedbackModal(true)}
+                    className="w-full px-6 py-3.5 rounded-2xl bg-white transition-all active:scale-[0.98] flex items-center justify-center gap-2.5"
+                    style={{
+                      boxShadow:
+                        "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                    }}
+                  >
+                    <ThumbsUp
+                      className="w-[18px] h-[18px]"
+                      strokeWidth={2.2}
+                      style={{ color: "#6B7280" }}
+                    />
+                    <span
+                      className="text-[15px] font-bold"
+                      style={{ color: "#6B7280" }}
                     >
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"
-                        />
-                      </svg>
-                      <span className="text-xl font-semibold">도움이 되었어요</span>
-                    </button>
-                  </div>
+                      도움이 되었어요
+                    </span>
+                  </button>
 
-                  {/* 버튼들 */}
-                  <div className="space-y-3">
+                  {/* 액션 버튼들 */}
+                  <div className="space-y-2.5">
                     <a
                       href={`https://map.naver.com/v5/search/${encodeURIComponent(selectedBranch.address)}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-2xl py-4 px-6 text-lg font-bold hover:from-blue-600 hover:to-blue-700 active:scale-[0.98] transition-all shadow-lg flex items-center justify-center gap-3"
+                      className="w-full rounded-2xl py-4 px-6 text-[16px] font-bold active:scale-[0.98] transition-all flex items-center justify-center gap-2.5 text-white"
+                      style={{
+                        background:
+                          "linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)",
+                        boxShadow:
+                          "0 6px 16px -4px rgba(37,99,235,0.4), 0 2px 4px rgba(37,99,235,0.15)",
+                      }}
                     >
-                      <svg
-                        className="w-6 h-6"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                        />
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                        />
-                      </svg>
+                      <Navigation className="w-5 h-5" strokeWidth={2.2} />
                       위치 지도로 보기
                     </a>
-                    <div className="flex gap-3">
+                    <div className="grid grid-cols-2 gap-2.5">
                       <button
                         onClick={handleSave}
-                        className="flex-1 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-2xl py-4 px-6 text-lg font-bold hover:from-red-600 hover:to-red-700 active:scale-[0.98] transition-all shadow-lg flex items-center justify-center gap-3"
+                        className="rounded-2xl py-3.5 px-4 text-[15px] font-bold active:scale-[0.98] transition-all flex items-center justify-center gap-2 bg-white"
+                        style={{
+                          color: "#1F2937",
+                          boxShadow:
+                            "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                        }}
                       >
-                        <svg
-                          className="w-6 h-6"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                          />
-                        </svg>
+                        <Download className="w-[18px] h-[18px]" strokeWidth={2.2} />
                         저장하기
                       </button>
                       <button
                         onClick={handleShare}
-                        className="flex-1 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-2xl py-4 px-6 text-lg font-bold hover:from-emerald-600 hover:to-emerald-700 active:scale-[0.98] transition-all shadow-lg flex items-center justify-center gap-3"
+                        className="rounded-2xl py-3.5 px-4 text-[15px] font-bold active:scale-[0.98] transition-all flex items-center justify-center gap-2 bg-white"
+                        style={{
+                          color: "#1F2937",
+                          boxShadow:
+                            "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                        }}
                       >
-                        <svg
-                          className="w-6 h-6"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
-                          />
-                        </svg>
+                        <Share2 className="w-[18px] h-[18px]" strokeWidth={2.2} />
                         공유하기
                       </button>
                     </div>
@@ -522,67 +511,82 @@ export default function BranchPage() {
         {/* 피드백 모달 */}
         {showFeedbackModal && (
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4"
             onClick={() => setShowFeedbackModal(false)}
           >
             <div
-              className="bg-white rounded-3xl p-8 max-w-sm w-[90%] shadow-2xl animate-in slide-in-from-bottom duration-300"
+              className="bg-white rounded-3xl p-7 max-w-sm w-full"
               onClick={(e) => e.stopPropagation()}
+              style={{ boxShadow: "0 20px 60px -10px rgba(15,23,42,0.25)" }}
             >
-              <div className="text-center space-y-6">
-                {/* 체크 아이콘 */}
+              <div className="text-center space-y-5">
                 <div className="flex justify-center">
-                  <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
-                    <svg className="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                    </svg>
+                  <div
+                    className="w-16 h-16 rounded-full flex items-center justify-center"
+                    style={{ backgroundColor: "#D4F5E5" }}
+                  >
+                    <CheckCircle2
+                      className="w-9 h-9"
+                      strokeWidth={2}
+                      style={{ color: "#10925A" }}
+                    />
                   </div>
                 </div>
 
-                {/* 메시지 */}
-                <div className="space-y-3">
-                  <h2 className="text-3xl font-bold text-gray-900">감사합니다!</h2>
-                  <p className="text-xl text-gray-700 leading-relaxed">
-                    소중한 의견<br />감사드립니다
+                <div className="space-y-2">
+                  <h2
+                    className="text-[22px] font-extrabold tracking-[-0.02em]"
+                    style={{ color: "#1F2937" }}
+                  >
+                    감사합니다!
+                  </h2>
+                  <p
+                    className="text-[15px] leading-relaxed font-medium"
+                    style={{ color: "#6B7280" }}
+                  >
+                    소중한 의견 감사드립니다
                   </p>
                 </div>
 
-                {/* 구분선 */}
-                <div className="border-t border-gray-200 my-6"></div>
+                <div
+                  className="border-t my-2"
+                  style={{ borderColor: "#F1F5F9" }}
+                />
 
-                {/* 피드백 질문 */}
-                <div className="space-y-4">
-                  <p className="text-xl text-gray-700 font-semibold">이 안내가<br />도움이 되셨나요?</p>
+                <div className="space-y-3">
+                  <p
+                    className="text-[15px] font-bold"
+                    style={{ color: "#1F2937" }}
+                  >
+                    이 안내가 도움이 되셨나요?
+                  </p>
 
-                  {/* 이모지 버튼들 */}
-                  <div className="flex justify-center gap-6 pt-2">
-                    <button
-                      onClick={() => {
-                        recordSatisfaction('good').then(() => setShowFeedbackModal(false));
-                      }}
-                      className="flex flex-col items-center gap-2 p-4 rounded-2xl hover:bg-gray-100 active:scale-95 transition-all"
-                    >
-                      <span className="text-5xl">😊</span>
-                      <span className="text-sm text-gray-600">좋아요</span>
-                    </button>
-                    <button
-                      onClick={() => {
-                        recordSatisfaction('neutral').then(() => setShowFeedbackModal(false));
-                      }}
-                      className="flex flex-col items-center gap-2 p-4 rounded-2xl hover:bg-gray-100 active:scale-95 transition-all"
-                    >
-                      <span className="text-5xl">😐</span>
-                      <span className="text-sm text-gray-600">보통</span>
-                    </button>
-                    <button
-                      onClick={() => {
-                        recordSatisfaction('bad').then(() => setShowFeedbackModal(false));
-                      }}
-                      className="flex flex-col items-center gap-2 p-4 rounded-2xl hover:bg-gray-100 active:scale-95 transition-all"
-                    >
-                      <span className="text-5xl">😢</span>
-                      <span className="text-sm text-gray-600">아쉬워요</span>
-                    </button>
+                  <div className="flex justify-center gap-3 pt-1">
+                    {[
+                      { emoji: "😊", label: "좋아요", value: "good" as const },
+                      { emoji: "😐", label: "보통", value: "neutral" as const },
+                      { emoji: "😢", label: "아쉬워요", value: "bad" as const },
+                    ].map((opt) => (
+                      <button
+                        key={opt.value}
+                        onClick={() => {
+                          recordSatisfaction(opt.value as SatisfactionType).then(() =>
+                            setShowFeedbackModal(false)
+                          );
+                        }}
+                        className="flex-1 flex flex-col items-center gap-1 p-3 rounded-2xl hover:bg-gray-50 active:scale-95 transition-all border border-gray-100"
+                      >
+                        <span className="text-[36px] leading-none">
+                          {opt.emoji}
+                        </span>
+                        <span
+                          className="text-[12px] font-semibold"
+                          style={{ color: "#6B7280" }}
+                        >
+                          {opt.label}
+                        </span>
+                      </button>
+                    ))}
                   </div>
                 </div>
               </div>

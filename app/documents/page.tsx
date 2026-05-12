@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
+import { ArrowLeft, Home, ThumbsUp, Phone, Download, Share2, CheckCircle2, MapPin } from "lucide-react";
 import html2canvas from 'html2canvas';
-import { recordSatisfaction, countMenuVisit } from "@/lib/statistics";
+import { recordSatisfaction, countMenuVisit, incrementUserCount } from "@/lib/statistics";
 
 type Situation = 'alive' | 'deceased' | null;
 type AliveDetailType = 'adult' | 'minor' | 'guardian_adult' | null;
@@ -25,6 +26,13 @@ export default function DocumentsPage() {
   useEffect(() => {
     countMenuVisit();
   }, []);
+
+  // 현재 step을 RouteIndicator로 전달
+  useEffect(() => {
+    window.dispatchEvent(
+      new CustomEvent("route-detail", { detail: { detail: `STEP ${step}` } })
+    );
+  }, [step]);
   const [stepHistory, setStepHistory] = useState<number[]>([]);
   const [situation, setSituation] = useState<Situation>(null);
   const [aliveDetailType, setAliveDetailType] = useState<AliveDetailType>(null);
@@ -607,99 +615,79 @@ export default function DocumentsPage() {
   };
 
   return (
-    <div className="h-screen bg-gray-100 flex flex-col overflow-hidden">
+    <div
+      className="h-[100dvh] flex flex-col overflow-hidden"
+      style={{ backgroundColor: "#F4F7FB" }}
+    >
       {/* Header with Progress */}
-      <header className="px-6 pt-4 pb-3">
-        <div className="flex items-center gap-4 mb-3">
-          {step === 1 ? (
-            <Link
-              href="/"
-              className="text-gray-600 hover:text-black transition-colors"
-            >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
-            </Link>
-          ) : (
-            <>
-              <button
-                onClick={handleBack}
-                className="text-gray-600 hover:text-black transition-colors"
-              >
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 19l-7-7 7-7"
-                  />
-                </svg>
-              </button>
+      <header className="bg-white/90 backdrop-blur-md px-4 sm:px-5 pt-safe pb-3 border-b border-gray-100/80">
+        <div className="flex items-center gap-3 h-12">
+          {/* 뒤로 / 홈 버튼 */}
+          <div className="flex items-center gap-0.5 flex-shrink-0">
+            {step === 1 ? (
               <Link
                 href="/"
-                className="text-gray-600 hover:text-black transition-colors"
+                aria-label="뒤로 가기"
+                className="p-2 -ml-2 rounded-xl hover:bg-gray-100 transition-colors active:scale-95"
               >
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-                  />
-                </svg>
+                <ArrowLeft className="w-[22px] h-[22px] text-gray-700" />
               </Link>
-            </>
-          )}
-        </div>
-        <div className="w-full bg-gray-200 rounded-full h-1">
+            ) : (
+              <>
+                <button
+                  onClick={handleBack}
+                  aria-label="뒤로 가기"
+                  className="p-2 -ml-2 rounded-xl hover:bg-gray-100 transition-colors active:scale-95"
+                >
+                  <ArrowLeft className="w-[22px] h-[22px] text-gray-700" />
+                </button>
+                <Link
+                  href="/"
+                  aria-label="홈으로"
+                  className="p-2 rounded-xl hover:bg-gray-100 transition-colors active:scale-95"
+                >
+                  <Home className="w-[20px] h-[20px] text-gray-600" />
+                </Link>
+              </>
+            )}
+          </div>
+
+          {/* 프로그레스 바 */}
           <div
-            className="bg-emerald-600 h-1 rounded-full transition-all duration-300 max-w-full"
-            style={{
-              width: `${Math.min(100,
-                situation === 'deceased'
-                  ? (step / 18) * 100
-                  : accountHolder === 'self'
-                  ? (step / 3) * 100
-                  : accountHolder === 'family' && refundAmount === 'under300k'
-                  ? (step / 5) * 100
-                  : accountHolder === 'family' && refundAmount === 'over300k'
-                  ? (step / 7) * 100
-                  : accountHolder === 'other'
-                  ? (step / 8) * 100
-                  : (step / 3) * 100
-              )}%`
-            }}
-          />
+            className="flex-1 rounded-md h-2 overflow-hidden"
+            style={{ backgroundColor: "#E5E7EB" }}
+          >
+            <div
+              className="h-full rounded-full transition-all duration-300 max-w-full"
+              style={{
+                background:
+                  "linear-gradient(90deg, #3B82F6 0%, #2563EB 100%)",
+                width: `${Math.min(100,
+                  situation === 'deceased'
+                    ? (step / 18) * 100
+                    : accountHolder === 'self'
+                    ? (step / 3) * 100
+                    : accountHolder === 'family' && refundAmount === 'under300k'
+                    ? (step / 5) * 100
+                    : accountHolder === 'family' && refundAmount === 'over300k'
+                    ? (step / 7) * 100
+                    : accountHolder === 'other'
+                    ? (step / 8) * 100
+                    : (step / 3) * 100
+                )}%`
+              }}
+            />
+          </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col px-6 pt-4 pb-4 overflow-hidden">
+      <main className="flex-1 flex flex-col px-4 sm:px-5 pt-6 pb-4 overflow-y-auto">
         {step === 1 && (
           <>
             {/* Question */}
-            <div className="mb-10">
-              <h1 className="text-[32px] font-bold text-black leading-tight">
+            <div className="mb-7">
+              <h1 className="text-[24px] sm:text-[26px] font-extrabold tracking-[-0.03em] leading-[1.25] text-gray-800">
                 진료받으신 분은
                 <br />
                 현재 어떤 상황인가요?
@@ -707,44 +695,40 @@ export default function DocumentsPage() {
             </div>
 
             {/* Options */}
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2.5">
               <button
                 onClick={() => handleSituationSelect('alive')}
-                className={`rounded-2xl border-2 transition-all active:scale-[0.98] py-5 px-5 ${
+                className={`rounded-[18px] border transition-all active:scale-[0.98] py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)] ${
                   situation === 'alive'
-                    ? 'bg-blue-50 border-blue-500'
-                    : 'bg-white border-gray-200 hover:border-blue-300'
+                    ? 'bg-blue-50/60 border-blue-500'
+                    : 'bg-white border-gray-100'
                 }`}
               >
                 <div className="flex items-center gap-4">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                    situation === 'alive' ? 'bg-blue-100' : 'bg-gray-100'
-                  }`}>
-                    <svg className={`w-5 h-5 ${situation === 'alive' ? 'text-blue-600' : 'text-gray-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50/70 flex items-center justify-center">
+                    <svg className="w-[22px] h-[22px] text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
                   </div>
-                  <span className="text-2xl font-semibold text-black">생존</span>
+                  <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">생존</span>
                 </div>
               </button>
 
               <button
                 onClick={() => handleSituationSelect('deceased')}
-                className={`rounded-2xl border-2 transition-all active:scale-[0.98] py-5 px-5 ${
+                className={`rounded-[18px] border transition-all active:scale-[0.98] py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)] ${
                   situation === 'deceased'
-                    ? 'bg-blue-50 border-blue-500'
-                    : 'bg-white border-gray-200 hover:border-blue-300'
+                    ? 'bg-blue-50/60 border-blue-500'
+                    : 'bg-white border-gray-100'
                 }`}
               >
                 <div className="flex items-center gap-4">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                    situation === 'deceased' ? 'bg-blue-100' : 'bg-gray-100'
-                  }`}>
-                    <svg className={`w-5 h-5 ${situation === 'deceased' ? 'text-blue-600' : 'text-gray-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50/70 flex items-center justify-center">
+                    <svg className="w-[22px] h-[22px] text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
-                  <span className="text-2xl font-semibold text-black">사망</span>
+                  <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">사망</span>
                 </div>
               </button>
             </div>
@@ -754,59 +738,59 @@ export default function DocumentsPage() {
         {/* STEP 2: 생존 - 상세 상황 선택 */}
         {step === 2 && situation === 'alive' && (
           <>
-            <div className="mb-10">
-              <h1 className="text-[32px] font-bold text-black leading-tight">
+            <div className="mb-7">
+              <h1 className="text-[24px] sm:text-[26px] font-extrabold tracking-[-0.03em] leading-[1.25] text-gray-800">
                 진료받으신 분의 상황은
                 <br />
                 다음 중 어떤 상황인가요?
               </h1>
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2.5">
               <button
                 onClick={() => handleAliveDetailSelect('adult')}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
-                    <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center">
+                    <svg className="w-[22px] h-[22px] text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
                   </div>
-                  <span className="text-2xl font-semibold text-black">성인</span>
+                  <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">성인</span>
                 </div>
               </button>
 
               <button
                 onClick={() => handleAliveDetailSelect('minor')}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
-                    <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center">
+                    <svg className="w-[22px] h-[22px] text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                     </svg>
                   </div>
                   <div className="flex-1 text-left">
-                    <div className="text-2xl font-semibold text-black">미성년자</div>
-                    <div className="text-base text-gray-800 mt-0.5">(만 19세 미만)</div>
+                    <div className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">미성년자</div>
+                    <div className="text-[13px] font-medium text-gray-500 mt-0.5">(만 19세 미만)</div>
                   </div>
                 </div>
               </button>
 
               <button
                 onClick={() => handleAliveDetailSelect('guardian_adult')}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
-                    <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center">
+                    <svg className="w-[22px] h-[22px] text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
                   </div>
                   <div className="flex-1 text-left">
-                    <div className="text-2xl font-semibold text-black">성년이며</div>
-                    <div className="text-2xl font-semibold text-black">후견인 있음</div>
+                    <div className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">성년이며</div>
+                    <div className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">후견인 있음</div>
                   </div>
                 </div>
               </button>
@@ -818,79 +802,73 @@ export default function DocumentsPage() {
         {step === 3 && situation === 'alive' && aliveDetailType === 'adult' && (
           <>
             {/* Question */}
-            <div className="mb-10">
-              <h1 className="text-[32px] font-bold text-black leading-tight">
+            <div className="mb-7">
+              <h1 className="text-[24px] sm:text-[26px] font-extrabold tracking-[-0.03em] leading-[1.25] text-gray-800">
                 누구 통장으로 받으시나요?
               </h1>
             </div>
 
             {/* Options */}
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2.5">
               <button
                 onClick={() => handleAccountHolderSelect('self')}
-                className={`min-h-[68px] rounded-[16px] border-2 transition-all active:scale-[0.98] p-5 text-left ${
+                className={`min-h-[68px] rounded-[18px] border transition-all active:scale-[0.98] p-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)] text-left ${
                   accountHolder === 'self'
-                    ? 'bg-blue-50 border-blue-500'
-                    : 'bg-white border-gray-200 hover:border-blue-300'
+                    ? 'bg-blue-50/60 border-blue-500'
+                    : 'bg-white border-gray-100'
                 }`}
               >
                 <div className="flex items-center gap-4">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                    accountHolder === 'self' ? 'bg-blue-100' : 'bg-gray-100'
-                  }`}>
-                    <svg className={`w-5 h-5 ${accountHolder === 'self' ? 'text-blue-600' : 'text-gray-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50/70 flex items-center justify-center">
+                    <svg className="w-[22px] h-[22px] text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                     </svg>
                   </div>
                   <div className="flex-1">
-                    <div className="text-2xl font-semibold text-black mb-0.5">본인</div>
-                    <div className="text-base text-gray-800">진료받은 분 본인</div>
+                    <div className="text-[18px] font-bold tracking-[-0.02em] text-gray-800 mb-0.5">본인</div>
+                    <div className="text-[13px] font-medium text-gray-500">진료받은 분 본인</div>
                   </div>
                 </div>
               </button>
 
               <button
                 onClick={() => handleAccountHolderSelect('family')}
-                className={`min-h-[68px] rounded-[16px] border-2 transition-all active:scale-[0.98] p-5 text-left ${
+                className={`min-h-[68px] rounded-[18px] border transition-all active:scale-[0.98] p-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)] text-left ${
                   accountHolder === 'family'
-                    ? 'bg-blue-50 border-blue-500'
-                    : 'bg-white border-gray-200 hover:border-blue-300'
+                    ? 'bg-blue-50/60 border-blue-500'
+                    : 'bg-white border-gray-100'
                 }`}
               >
                 <div className="flex items-center gap-4">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                    accountHolder === 'family' ? 'bg-blue-100' : 'bg-gray-100'
-                  }`}>
-                    <svg className={`w-5 h-5 ${accountHolder === 'family' ? 'text-blue-600' : 'text-gray-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50/70 flex items-center justify-center">
+                    <svg className="w-[22px] h-[22px] text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
                   </div>
                   <div className="flex-1">
-                    <div className="text-2xl font-semibold text-black mb-0.5">가족</div>
-                    <div className="text-base text-gray-800">배우자/부모/자녀/손자녀</div>
+                    <div className="text-[18px] font-bold tracking-[-0.02em] text-gray-800 mb-0.5">가족</div>
+                    <div className="text-[13px] font-medium text-gray-500">배우자/부모/자녀/손자녀</div>
                   </div>
                 </div>
               </button>
 
               <button
                 onClick={() => handleAccountHolderSelect('other')}
-                className={`min-h-[68px] rounded-[16px] border-2 transition-all active:scale-[0.98] p-5 text-left ${
+                className={`min-h-[68px] rounded-[18px] border transition-all active:scale-[0.98] p-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)] text-left ${
                   accountHolder === 'other'
-                    ? 'bg-blue-50 border-blue-500'
-                    : 'bg-white border-gray-200 hover:border-blue-300'
+                    ? 'bg-blue-50/60 border-blue-500'
+                    : 'bg-white border-gray-100'
                 }`}
               >
                 <div className="flex items-center gap-4">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                    accountHolder === 'other' ? 'bg-blue-100' : 'bg-gray-100'
-                  }`}>
-                    <svg className={`w-5 h-5 ${accountHolder === 'other' ? 'text-blue-600' : 'text-gray-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50/70 flex items-center justify-center">
+                    <svg className="w-[22px] h-[22px] text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
                   </div>
                   <div className="flex-1">
-                    <div className="text-2xl font-semibold text-black mb-0.5">타인</div>
-                    <div className="text-base text-gray-800">위 가족 외 모든 분</div>
+                    <div className="text-[18px] font-bold tracking-[-0.02em] text-gray-800 mb-0.5">타인</div>
+                    <div className="text-[13px] font-medium text-gray-500">위 가족 외 모든 분</div>
                   </div>
                 </div>
               </button>
@@ -902,8 +880,8 @@ export default function DocumentsPage() {
         {step === 5 && situation === 'alive' && aliveDetailType === 'adult' && accountHolder === 'family' && (
           <>
             {/* Question */}
-            <div className="mb-10">
-              <h1 className="text-[32px] font-bold text-black leading-tight">
+            <div className="mb-7">
+              <h1 className="text-[24px] sm:text-[26px] font-extrabold tracking-[-0.03em] leading-[1.25] text-gray-800">
                 환급금 지급예정금액이
                 <br />
                 얼마인가요?
@@ -911,44 +889,40 @@ export default function DocumentsPage() {
             </div>
 
             {/* Options */}
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2.5">
               <button
                 onClick={() => handleRefundAmountSelect('under300k')}
-                className={`min-h-[68px] rounded-[16px] border-2 transition-all active:scale-[0.98] p-5 ${
+                className={`min-h-[68px] rounded-[18px] border transition-all active:scale-[0.98] p-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)] ${
                   refundAmount === 'under300k'
-                    ? 'bg-blue-50 border-blue-500'
-                    : 'bg-white border-gray-200 hover:border-blue-300'
+                    ? 'bg-blue-50/60 border-blue-500'
+                    : 'bg-white border-gray-100'
                 }`}
               >
                 <div className="flex items-center gap-4">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                    refundAmount === 'under300k' ? 'bg-blue-100' : 'bg-gray-100'
-                  }`}>
-                    <svg className={`w-5 h-5 ${refundAmount === 'under300k' ? 'text-blue-600' : 'text-gray-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50/70 flex items-center justify-center">
+                    <svg className="w-[22px] h-[22px] text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
-                  <span className="text-2xl font-semibold text-black">30만원 이하</span>
+                  <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">30만원 이하</span>
                 </div>
               </button>
 
               <button
                 onClick={() => handleRefundAmountSelect('over300k')}
-                className={`min-h-[68px] rounded-[16px] border-2 transition-all active:scale-[0.98] p-5 ${
+                className={`min-h-[68px] rounded-[18px] border transition-all active:scale-[0.98] p-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)] ${
                   refundAmount === 'over300k'
-                    ? 'bg-blue-50 border-blue-500'
-                    : 'bg-white border-gray-200 hover:border-blue-300'
+                    ? 'bg-blue-50/60 border-blue-500'
+                    : 'bg-white border-gray-100'
                 }`}
               >
                 <div className="flex items-center gap-4">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                    refundAmount === 'over300k' ? 'bg-blue-100' : 'bg-gray-100'
-                  }`}>
-                    <svg className={`w-5 h-5 ${refundAmount === 'over300k' ? 'text-blue-600' : 'text-gray-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50/70 flex items-center justify-center">
+                    <svg className="w-[22px] h-[22px] text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
-                  <span className="text-2xl font-semibold text-black">30만원 초과</span>
+                  <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">30만원 초과</span>
                 </div>
               </button>
             </div>
@@ -960,92 +934,109 @@ export default function DocumentsPage() {
           <>
             {/* Result */}
             <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              <div ref={captureRef} style={{ backgroundColor: '#ffffff' }}>
+              <div ref={captureRef}>
                 <div style={{
                   backgroundColor: '#ffffff',
-                  borderRadius: '20px',
-                  padding: '24px'
+                  borderRadius: '16px',
+                  padding: '28px 24px',
+                  boxShadow: '0 4px 16px -6px rgba(15,23,42,0.08), 0 2px 4px -2px rgba(15,23,42,0.04)'
                 }}>
                   <h1 style={{
-                    fontSize: '28px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '24px',
-                    textAlign: 'center'
+                    fontSize: '22px',
+                    fontWeight: '800',
+                    color: '#1F2937',
+                    marginBottom: '28px',
+                    textAlign: 'center',
+                    letterSpacing: '-0.02em',
+                    lineHeight: '1.25'
                   }}>본인부담상한제<br />환급금 신청 안내</h1>
 
                   <h2 style={{
-                    fontSize: '24px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '20px'
+                    fontSize: '12px',
+                    fontWeight: '800',
+                    color: '#3B82F6',
+                    marginBottom: '12px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em'
                   }}>어떻게 신청하나요?</h2>
 
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
-                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>유선, 팩스, 우편, 내방</span>
+                    <span style={{ fontSize: '18px', color: '#3B82F6', flexShrink: 0, fontWeight: '700', lineHeight: '1.4' }}>•</span>
+                    <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>유선, 팩스, 우편, 내방</span>
                   </div>
 
                   {/* 구분선 */}
                   <div style={{
-                    borderTop: '1px solid #000000',
+                    borderTop: '1px solid #F1F5F9',
                     marginTop: '24px',
                     marginBottom: '24px'
                   }}></div>
 
                   <h2 style={{
-                    fontSize: '24px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '20px'
+                    fontSize: '12px',
+                    fontWeight: '800',
+                    color: '#3B82F6',
+                    marginBottom: '12px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em'
                   }}>어떤 서류를 제출해야하나요?</h2>
 
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
-                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>환급금 지급신청서</span>
+                    <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
+                    <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>환급금 지급신청서</span>
                   </div>
                 </div>
               </div>
 
-              {/* 도움이 되었어요 버튼 */}
-              <div className="px-4 pb-3">
+              {/* Action Buttons */}
+              <div className="space-y-2.5 pb-4 mt-2">
+                {/* 도움이 되었어요 */}
                 <button
                   onClick={() => setShowFeedbackModal(true)}
-                  className="w-full px-6 py-4 rounded-xl border-2 border-gray-200 bg-white text-gray-600 hover:border-blue-300 hover:text-blue-600 transition-all active:scale-[0.98] flex items-center justify-center gap-3"
+                  className="w-full rounded-xl py-3 px-5 bg-white transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                  style={{
+                    boxShadow:
+                      "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                  }}
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"
-                    />
-                  </svg>
-                  <span className="text-xl font-semibold">도움이 되었어요</span>
+                  <ThumbsUp className="w-[18px] h-[18px] text-gray-500" strokeWidth={2.2} />
+                  <span className="text-[15px] font-bold text-gray-600">도움이 되었어요</span>
                 </button>
-              </div>
 
-              {/* Action Buttons */}
-              <div className="space-y-3 pb-4 mt-2">
                 <a
                   href="tel:1577-1000"
-                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                  className="w-full rounded-xl py-3 px-5 text-[15px] font-bold text-white active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                  style={{
+                    background: "linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)",
+                    boxShadow: "0 4px 12px -3px rgba(37,99,235,0.35), 0 1px 2px rgba(37,99,235,0.1)",
+                  }}
                 >
+                  <Phone className="w-[18px] h-[18px]" strokeWidth={2.2} />
                   전화로 신청하기
                 </a>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2.5">
                   <button
                     onClick={handleSave}
-                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="rounded-xl py-3 px-4 text-[15px] font-bold text-gray-800 bg-white active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                    style={{
+                      boxShadow:
+                        "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                    }}
                   >
+                    <Download className="w-[18px] h-[18px]" strokeWidth={2.2} />
                     저장하기
                   </button>
 
                   <button
                     onClick={handleShare}
-                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="rounded-xl py-3 px-4 text-[15px] font-bold text-gray-800 bg-white active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                    style={{
+                      boxShadow:
+                        "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                    }}
                   >
+                    <Share2 className="w-[18px] h-[18px]" strokeWidth={2.2} />
                     공유하기
                   </button>
                 </div>
@@ -1059,7 +1050,7 @@ export default function DocumentsPage() {
           <>
             {/* Question */}
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-black leading-tight">
+              <h1 className="text-[24px] sm:text-[26px] font-extrabold tracking-[-0.03em] leading-[1.25] text-gray-800">
                 진료받은 분이
                 <br />
                 의사표현이 가능한가요?
@@ -1067,27 +1058,27 @@ export default function DocumentsPage() {
             </div>
 
             {/* Options */}
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2.5">
               <button
                 onClick={() => handleCanExpressSelect('yes')}
-                className={`h-20 rounded-2xl shadow-sm border transition-all active:scale-[0.98] ${
+                className={`min-h-[68px] rounded-[18px] border transition-all active:scale-[0.98] p-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)] ${
                   canExpress === 'yes'
-                    ? 'bg-emerald-50 border-emerald-500 border-2'
-                    : 'bg-white border-gray-200 hover:border-emerald-300'
+                    ? 'bg-blue-50/60 border-blue-500'
+                    : 'bg-white border-gray-100'
                 }`}
               >
-                <span className="text-2xl font-bold text-black">가능</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">가능</span>
               </button>
 
               <button
                 onClick={() => handleCanExpressSelect('no')}
-                className={`h-20 rounded-2xl shadow-sm border transition-all active:scale-[0.98] ${
+                className={`min-h-[68px] rounded-[18px] border transition-all active:scale-[0.98] p-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)] ${
                   canExpress === 'no'
-                    ? 'bg-emerald-50 border-emerald-500 border-2'
-                    : 'bg-white border-gray-200 hover:border-emerald-300'
+                    ? 'bg-blue-50/60 border-blue-500'
+                    : 'bg-white border-gray-100'
                 }`}
               >
-                <span className="text-2xl font-bold text-black">불가능(치매, 의식불명 등)</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">불가능(치매, 의식불명 등)</span>
               </button>
             </div>
           </>
@@ -1097,100 +1088,117 @@ export default function DocumentsPage() {
         {step === 6 && situation === 'alive' && aliveDetailType === 'adult' && accountHolder === 'family' && refundAmount === 'under300k' && (
           <>
             <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              <div ref={captureRef} style={{ backgroundColor: '#ffffff' }}>
+              <div ref={captureRef}>
                 {/* 신청방법 & 제출서류 통합 카드 */}
                 <div style={{
                   backgroundColor: '#ffffff',
-                  borderRadius: '20px',
-                  padding: '24px'
+                  borderRadius: '16px',
+                  padding: '28px 24px',
+                  boxShadow: '0 4px 16px -6px rgba(15,23,42,0.08), 0 2px 4px -2px rgba(15,23,42,0.04)'
                 }}>
                   <h1 style={{
-                    fontSize: '28px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '24px',
-                    textAlign: 'center'
+                    fontSize: '22px',
+                    fontWeight: '800',
+                    color: '#1F2937',
+                    marginBottom: '28px',
+                    textAlign: 'center',
+                    letterSpacing: '-0.02em',
+                    lineHeight: '1.25'
                   }}>본인부담상한제<br />환급금 신청 안내</h1>
 
                   <h2 style={{
-                    fontSize: '24px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '20px'
+                    fontSize: '12px',
+                    fontWeight: '800',
+                    color: '#3B82F6',
+                    marginBottom: '12px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em'
                   }}>어떻게 신청하나요?</h2>
 
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
-                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>유선, 팩스, 우편, 내방<br /><span style={{ fontSize: '16px', color: '#1F2937' }}>(유선은 공단 전산상 가족관계 확인 가능 시)</span></span>
+                    <span style={{ fontSize: '18px', color: '#3B82F6', flexShrink: 0, fontWeight: '700', lineHeight: '1.4' }}>•</span>
+                    <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>유선, 팩스, 우편, 내방<br /><span style={{ fontSize: '16px', color: '#1F2937' }}>(유선은 공단 전산상 가족관계 확인 가능 시)</span></span>
                   </div>
 
                   {/* 구분선 */}
                   <div style={{
-                    borderTop: '1px solid #000000',
+                    borderTop: '1px solid #F1F5F9',
                     marginTop: '24px',
                     marginBottom: '24px'
                   }}></div>
 
                   <h2 style={{
-                    fontSize: '24px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '20px'
+                    fontSize: '12px',
+                    fontWeight: '800',
+                    color: '#3B82F6',
+                    marginBottom: '12px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em'
                   }}>어떤 서류를 제출해야하나요?</h2>
 
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
-                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>환급금 지급신청서</span>
+                    <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
+                    <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>환급금 지급신청서</span>
                   </div>
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
                     <div style={{ flex: 1 }}>
-                      <span style={{ fontSize: '20px', color: '#1F2937' }}>진료받은 분 기준 가족관계증명서(상세)</span>
-                      <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 최근 3개월 이내 발급본</div>
+                      <span style={{ fontSize: '16px', color: '#374151', fontWeight: '500', lineHeight: '1.5' }}>진료받은 분 기준 가족관계증명서(상세)</span>
+                      <div style={{ fontSize: '13px', color: '#6B7280', marginTop: '4px', fontWeight: '500' }}>- 최근 3개월 이내 발급본</div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* 도움이 되었어요 버튼 */}
-              <div className="px-4 pb-3">
+              {/* Action Buttons */}
+              <div className="space-y-2.5 pb-4 mt-2">
+                {/* 도움이 되었어요 */}
                 <button
                   onClick={() => setShowFeedbackModal(true)}
-                  className="w-full px-6 py-4 rounded-xl border-2 border-gray-200 bg-white text-gray-600 hover:border-blue-300 hover:text-blue-600 transition-all active:scale-[0.98] flex items-center justify-center gap-3"
+                  className="w-full rounded-xl py-3 px-5 bg-white transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                  style={{
+                    boxShadow:
+                      "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                  }}
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"
-                    />
-                  </svg>
-                  <span className="text-xl font-semibold">도움이 되었어요</span>
+                  <ThumbsUp className="w-[18px] h-[18px] text-gray-500" strokeWidth={2.2} />
+                  <span className="text-[15px] font-bold text-gray-600">도움이 되었어요</span>
                 </button>
-              </div>
 
-              {/* Action Buttons */}
-              <div className="space-y-3 pb-4 mt-2">
                 <a
                   href="tel:1577-1000"
-                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                  className="w-full rounded-xl py-3 px-5 text-[15px] font-bold text-white active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                  style={{
+                    background: "linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)",
+                    boxShadow: "0 4px 12px -3px rgba(37,99,235,0.35), 0 1px 2px rgba(37,99,235,0.1)",
+                  }}
                 >
+                  <Phone className="w-[18px] h-[18px]" strokeWidth={2.2} />
                   전화로 신청하기
                 </a>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2.5">
                   <button
                     onClick={handleSave}
-                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="rounded-xl py-3 px-4 text-[15px] font-bold text-gray-800 bg-white active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                    style={{
+                      boxShadow:
+                        "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                    }}
                   >
+                    <Download className="w-[18px] h-[18px]" strokeWidth={2.2} />
                     저장하기
                   </button>
 
                   <button
                     onClick={handleShare}
-                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="rounded-xl py-3 px-4 text-[15px] font-bold text-gray-800 bg-white active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                    style={{
+                      boxShadow:
+                        "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                    }}
                   >
+                    <Share2 className="w-[18px] h-[18px]" strokeWidth={2.2} />
                     공유하기
                   </button>
                 </div>
@@ -1203,96 +1211,103 @@ export default function DocumentsPage() {
           <>
             {/* Result */}
             <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              <div ref={captureRef} style={{ backgroundColor: '#ffffff' }}>
+              <div ref={captureRef}>
                 {/* 신청방법 & 제출서류 통합 카드 */}
                 <div style={{
                   backgroundColor: '#ffffff',
-                  borderRadius: '20px',
-                  padding: '24px'
+                  borderRadius: '16px',
+                  padding: '28px 24px',
+                  boxShadow: '0 4px 16px -6px rgba(15,23,42,0.08), 0 2px 4px -2px rgba(15,23,42,0.04)'
                 }}>
                   <h1 style={{
-                    fontSize: '28px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '24px',
-                    textAlign: 'center'
+                    fontSize: '22px',
+                    fontWeight: '800',
+                    color: '#1F2937',
+                    marginBottom: '28px',
+                    textAlign: 'center',
+                    letterSpacing: '-0.02em',
+                    lineHeight: '1.25'
                   }}>본인부담상한제<br />환급금 신청 안내</h1>
 
                   <h2 style={{
-                    fontSize: '24px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '20px'
+                    fontSize: '12px',
+                    fontWeight: '800',
+                    color: '#3B82F6',
+                    marginBottom: '12px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em'
                   }}>어떻게 신청하나요?</h2>
 
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
-                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>팩스, 우편, 내방</span>
+                    <span style={{ fontSize: '18px', color: '#3B82F6', flexShrink: 0, fontWeight: '700', lineHeight: '1.4' }}>•</span>
+                    <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>팩스, 우편, 내방</span>
                   </div>
 
                   {/* 구분선 */}
                   <div style={{
-                    borderTop: '1px solid #000000',
+                    borderTop: '1px solid #F1F5F9',
                     marginTop: '24px',
                     marginBottom: '24px'
                   }}></div>
 
                   <h2 style={{
-                    fontSize: '24px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '20px'
+                    fontSize: '12px',
+                    fontWeight: '800',
+                    color: '#3B82F6',
+                    marginBottom: '12px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em'
                   }}>어떤 서류를 제출해야하나요?</h2>
 
                   {canExpress === 'yes' ? (
                     <>
                       <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                        <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
-                        <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>환급금 지급신청서</span>
+                        <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
+                        <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>환급금 지급신청서</span>
                       </div>
                       <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                        <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
-                        <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>상한제 위임장</span>
+                        <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
+                        <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>상한제 위임장</span>
                       </div>
                       <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                        <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                        <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
                         <div style={{ flex: 1 }}>
-                          <span style={{ fontSize: '20px', color: '#1F2937' }}>진료받은 분 기준 가족관계증명서(상세)</span>
-                          <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 최근 3개월 이내 발급본</div>
+                          <span style={{ fontSize: '16px', color: '#374151', fontWeight: '500', lineHeight: '1.5' }}>진료받은 분 기준 가족관계증명서(상세)</span>
+                          <div style={{ fontSize: '13px', color: '#6B7280', marginTop: '4px', fontWeight: '500' }}>- 최근 3개월 이내 발급본</div>
                         </div>
                       </div>
                       <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                        <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
-                        <span style={{ fontSize: '20px', color: '#1F2937' }}>예금주 신분증 사본</span>
+                        <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
+                        <span style={{ fontSize: '16px', color: '#374151', fontWeight: '500', lineHeight: '1.5' }}>예금주 신분증 사본</span>
                       </div>
                       <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                        <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
-                        <span style={{ fontSize: '20px', color: '#1F2937' }}>진료받은 분 신분증 사본</span>
+                        <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
+                        <span style={{ fontSize: '16px', color: '#374151', fontWeight: '500', lineHeight: '1.5' }}>진료받은 분 신분증 사본</span>
                       </div>
                     </>
                   ) : (
                     <>
                       <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                        <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
-                        <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>환급금 지급신청서</span>
+                        <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
+                        <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>환급금 지급신청서</span>
                       </div>
                       <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                        <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                        <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
                         <div style={{ flex: 1 }}>
-                          <span style={{ fontSize: '20px', color: '#1F2937' }}>진단서(소견서)</span>
-                          <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 최근 6개월이내 발급분</div>
+                          <span style={{ fontSize: '16px', color: '#374151', fontWeight: '500', lineHeight: '1.5' }}>진단서(소견서)</span>
+                          <div style={{ fontSize: '13px', color: '#6B7280', marginTop: '4px', fontWeight: '500' }}>- 최근 6개월이내 발급분</div>
                         </div>
                       </div>
                       <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                        <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                        <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
                         <div style={{ flex: 1 }}>
-                          <span style={{ fontSize: '20px', color: '#1F2937' }}>진료받은 분 기준 가족관계증명서(상세)</span>
-                          <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 최근 3개월 이내 발급본</div>
+                          <span style={{ fontSize: '16px', color: '#374151', fontWeight: '500', lineHeight: '1.5' }}>진료받은 분 기준 가족관계증명서(상세)</span>
+                          <div style={{ fontSize: '13px', color: '#6B7280', marginTop: '4px', fontWeight: '500' }}>- 최근 3개월 이내 발급본</div>
                         </div>
                       </div>
                       <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                        <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
-                        <span style={{ fontSize: '20px', color: '#1F2937' }}>예금주 신분증 사본</span>
+                        <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
+                        <span style={{ fontSize: '16px', color: '#374151', fontWeight: '500', lineHeight: '1.5' }}>예금주 신분증 사본</span>
                       </div>
                     </>
                   )}
@@ -1300,44 +1315,49 @@ export default function DocumentsPage() {
               </div>
 
               {/* 도움이 되었어요 버튼 */}
-              <div className="px-4 pb-3">
-                <button
-                  onClick={() => setShowFeedbackModal(true)}
-                  className="w-full px-6 py-4 rounded-xl border-2 border-gray-200 bg-white text-gray-600 hover:border-blue-300 hover:text-blue-600 transition-all active:scale-[0.98] flex items-center justify-center gap-3"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"
-                    />
-                  </svg>
-                  <span className="text-xl font-semibold">도움이 되었어요</span>
-                </button>
-              </div>
+              <button
+                onClick={() => setShowFeedbackModal(true)}
+                className="w-full rounded-xl py-3 px-5 bg-white transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                style={{
+                  boxShadow:
+                    "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                }}
+              >
+                <ThumbsUp className="w-[18px] h-[18px] text-gray-500" strokeWidth={2.2} />
+                <span className="text-[15px] font-bold text-gray-600">도움이 되었어요</span>
+              </button>
 
               {/* Action Buttons */}
-              <div className="space-y-3 pb-4 px-4">
+              <div className="space-y-2.5 pb-4 mt-2">
                 <Link
                   href="/branch"
-                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                  className="w-full rounded-xl py-3 px-5 text-[15px] font-bold text-white active:scale-[0.98] transition-all flex items-center justify-center gap-2 bg-gradient-to-br from-blue-500 to-blue-600 shadow-[0_4px_12px_-3px_rgba(37,99,235,0.35),0_1px_2px_rgba(37,99,235,0.1)]"
                 >
                   지사 팩스번호 찾기
                 </Link>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2.5">
                   <button
                     onClick={handleSave}
-                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="rounded-xl py-3 px-4 text-[15px] font-bold text-gray-800 bg-white active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                    style={{
+                      boxShadow:
+                        "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                    }}
                   >
+                    <Download className="w-[18px] h-[18px]" strokeWidth={2.2} />
                     저장하기
                   </button>
 
                   <button
                     onClick={handleShare}
-                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="rounded-xl py-3 px-4 text-[15px] font-bold text-gray-800 bg-white active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                    style={{
+                      boxShadow:
+                        "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                    }}
                   >
+                    <Share2 className="w-[18px] h-[18px]" strokeWidth={2.2} />
                     공유하기
                   </button>
                 </div>
@@ -1350,109 +1370,121 @@ export default function DocumentsPage() {
           <>
             {/* Result */}
             <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              <div ref={captureRef} style={{ backgroundColor: '#ffffff' }}>
+              <div ref={captureRef}>
                 {/* 신청방법 & 제출서류 통합 카드 */}
                 <div style={{
                   backgroundColor: '#ffffff',
-                  borderRadius: '20px',
-                  padding: '24px'
+                  borderRadius: '16px',
+                  padding: '28px 24px',
+                  boxShadow: '0 4px 16px -6px rgba(15,23,42,0.08), 0 2px 4px -2px rgba(15,23,42,0.04)'
                 }}>
                   <h1 style={{
-                    fontSize: '28px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '24px',
-                    textAlign: 'center'
+                    fontSize: '22px',
+                    fontWeight: '800',
+                    color: '#1F2937',
+                    marginBottom: '28px',
+                    textAlign: 'center',
+                    letterSpacing: '-0.02em',
+                    lineHeight: '1.25'
                   }}>본인부담상한제<br />환급금 신청 안내</h1>
 
                   <h2 style={{
-                    fontSize: '24px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '20px'
+                    fontSize: '12px',
+                    fontWeight: '800',
+                    color: '#3B82F6',
+                    marginBottom: '12px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em'
                   }}>어떻게 신청하나요?</h2>
 
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
-                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>우편, 내방</span>
+                    <span style={{ fontSize: '18px', color: '#3B82F6', flexShrink: 0, fontWeight: '700', lineHeight: '1.4' }}>•</span>
+                    <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>우편, 내방</span>
                   </div>
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
-                    <span style={{ fontSize: '20px', color: '#DC2626', flex: 1, fontWeight: 'bold' }}>본인의 유선동의가 반드시 필요해요</span>
+                    <span style={{ fontSize: '18px', color: '#3B82F6', flexShrink: 0, fontWeight: '700', lineHeight: '1.4' }}>•</span>
+                    <span style={{ fontSize: '16px', color: '#DC2626', flex: 1, fontWeight: '700', lineHeight: '1.5' }}>본인의 유선동의가 반드시 필요해요</span>
                   </div>
 
                   {/* 구분선 */}
                   <div style={{
-                    borderTop: '1px solid #000000',
+                    borderTop: '1px solid #F1F5F9',
                     marginTop: '24px',
                     marginBottom: '24px'
                   }}></div>
 
                   <h2 style={{
-                    fontSize: '24px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '20px'
+                    fontSize: '12px',
+                    fontWeight: '800',
+                    color: '#3B82F6',
+                    marginBottom: '12px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em'
                   }}>어떤 서류를 제출해야하나요?</h2>
 
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
-                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>환급금 지급신청서</span>
+                    <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
+                    <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>환급금 지급신청서</span>
                   </div>
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
-                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>상한제 위임장 원본</span>
+                    <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
+                    <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>상한제 위임장 원본</span>
                   </div>
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
-                    <span style={{ fontSize: '20px', color: '#1F2937' }}>진료받은 분 신분증 사본</span>
+                    <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
+                    <span style={{ fontSize: '16px', color: '#374151', fontWeight: '500', lineHeight: '1.5' }}>진료받은 분 신분증 사본</span>
                   </div>
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
-                    <span style={{ fontSize: '20px', color: '#1F2937' }}>예금주 신분증 사본</span>
+                    <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
+                    <span style={{ fontSize: '16px', color: '#374151', fontWeight: '500', lineHeight: '1.5' }}>예금주 신분증 사본</span>
                   </div>
                 </div>
               </div>
 
               {/* 도움이 되었어요 버튼 */}
-              <div className="px-4 pb-3">
-                <button
-                  onClick={() => setShowFeedbackModal(true)}
-                  className="w-full px-6 py-4 rounded-xl border-2 border-gray-200 bg-white text-gray-600 hover:border-blue-300 hover:text-blue-600 transition-all active:scale-[0.98] flex items-center justify-center gap-3"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"
-                    />
-                  </svg>
-                  <span className="text-xl font-semibold">도움이 되었어요</span>
-                </button>
-              </div>
+              <button
+                onClick={() => setShowFeedbackModal(true)}
+                className="w-full rounded-xl py-3 px-5 bg-white transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                style={{
+                  boxShadow:
+                    "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                }}
+              >
+                <ThumbsUp className="w-[18px] h-[18px] text-gray-500" strokeWidth={2.2} />
+                <span className="text-[15px] font-bold text-gray-600">도움이 되었어요</span>
+              </button>
 
               {/* Action Buttons */}
-              <div className="space-y-3 pb-4 px-4">
+              <div className="space-y-2.5 pb-4 mt-2">
                 <Link
                   href="/branch"
-                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                  className="w-full rounded-xl py-3 px-5 text-[15px] font-bold text-white active:scale-[0.98] transition-all flex items-center justify-center gap-2 bg-gradient-to-br from-blue-500 to-blue-600 shadow-[0_4px_12px_-3px_rgba(37,99,235,0.35),0_1px_2px_rgba(37,99,235,0.1)]"
                 >
                   지사 팩스번호 찾기
                 </Link>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2.5">
                   <button
                     onClick={handleSave}
-                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="rounded-xl py-3 px-4 text-[15px] font-bold text-gray-800 bg-white active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                    style={{
+                      boxShadow:
+                        "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                    }}
                   >
+                    <Download className="w-[18px] h-[18px]" strokeWidth={2.2} />
                     저장하기
                   </button>
 
                   <button
                     onClick={handleShare}
-                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="rounded-xl py-3 px-4 text-[15px] font-bold text-gray-800 bg-white active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                    style={{
+                      boxShadow:
+                        "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                    }}
                   >
+                    <Share2 className="w-[18px] h-[18px]" strokeWidth={2.2} />
                     공유하기
                   </button>
                 </div>
@@ -1463,46 +1495,46 @@ export default function DocumentsPage() {
 
         {step === 9 && situation === 'deceased' && (
           <>
-            <div className="mb-10">
-              <h1 className="text-[32px] font-bold text-black leading-tight">
+            <div className="mb-7">
+              <h1 className="text-[24px] sm:text-[26px] font-extrabold tracking-[-0.03em] leading-[1.25] text-gray-800">
                 환급금 지급예정금액이<br />얼마인가요?
               </h1>
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2.5">
               <button
                 onClick={() => handleRefundAmountSelect('under300k')}
-                className={`min-h-[68px] rounded-[16px] border-2 transition-all active:scale-[0.98] ${
+                className={`min-h-[68px] rounded-[18px] border transition-all active:scale-[0.98] shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)] ${
                   refundAmount === 'under300k'
-                    ? 'bg-blue-50 border-blue-500'
+                    ? 'bg-blue-50/60 border-blue-500'
                     : 'bg-white border-gray-200 hover:border-gray-300'
                 }`}
               >
                 <div className="flex items-center gap-4 px-6">
-                  <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
-                    <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center flex-shrink-0">
+                    <svg className="w-[22px] h-[22px] text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
-                  <span className="text-2xl font-semibold text-black">100만원 이하</span>
+                  <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">100만원 이하</span>
                 </div>
               </button>
 
               <button
                 onClick={() => handleRefundAmountSelect('over300k')}
-                className={`min-h-[68px] rounded-[16px] border-2 transition-all active:scale-[0.98] ${
+                className={`min-h-[68px] rounded-[18px] border transition-all active:scale-[0.98] shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)] ${
                   refundAmount === 'over300k'
-                    ? 'bg-blue-50 border-blue-500'
+                    ? 'bg-blue-50/60 border-blue-500'
                     : 'bg-white border-gray-200 hover:border-gray-300'
                 }`}
               >
                 <div className="flex items-center gap-4 px-6">
-                  <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
-                    <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center flex-shrink-0">
+                    <svg className="w-[22px] h-[22px] text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
-                  <span className="text-2xl font-semibold text-black">100만원 초과</span>
+                  <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">100만원 초과</span>
                 </div>
               </button>
             </div>
@@ -1511,20 +1543,20 @@ export default function DocumentsPage() {
 
         {step === 10 && situation === 'deceased' && (
           <>
-            <div className="mb-10">
-              <h1 className="text-[32px] font-bold text-black leading-tight">
+            <div className="mb-7">
+              <h1 className="text-[24px] sm:text-[26px] font-extrabold tracking-[-0.03em] leading-[1.25] text-gray-800">
                 지급받으실 분은<br />사망하신 분과 어떤 관계인가요?
               </h1>
             </div>
 
             <div className="flex flex-col gap-4">
-              <div className="text-2xl text-black">
+              <div className="text-[17px] sm:text-[18px] font-semibold text-gray-700">
                 사망하신 분의
               </div>
               <select
                 value={deceasedRelationship || ''}
                 onChange={(e) => handleDeceasedRelationshipSelect(e.target.value as DeceasedRelationship)}
-                className="w-full min-h-[68px] rounded-[16px] border-2 border-gray-200 px-6 text-2xl font-semibold text-black bg-white focus:outline-none focus:border-blue-500 transition-colors"
+                className="w-full min-h-[68px] rounded-[18px] border border-gray-100 px-5 text-[18px] font-bold tracking-[-0.02em] text-gray-800 bg-white focus:outline-none focus:border-blue-500 transition-colors shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
                 <option value="" disabled>선택해주세요</option>
                 {refundAmount === 'under300k' ? (
@@ -1549,7 +1581,7 @@ export default function DocumentsPage() {
                   </>
                 )}
               </select>
-              <div className="text-2xl text-black">
+              <div className="text-[17px] sm:text-[18px] font-semibold text-gray-700">
                 입니다.
               </div>
             </div>
@@ -1559,26 +1591,26 @@ export default function DocumentsPage() {
         {/* STEP 1: 배우자 확인 */}
         {step === 11 && situation === 'deceased' && (
           <>
-            <div className="mb-10">
-              <h1 className="text-[32px] font-bold text-black leading-tight">
+            <div className="mb-7">
+              <h1 className="text-[24px] sm:text-[26px] font-extrabold tracking-[-0.03em] leading-[1.25] text-gray-800">
                 사망하신분의 배우자분께서<br />
                 현재 생존해 계신가요?
               </h1>
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2.5">
               <button
                 onClick={() => handleSpouseCheck(true)}
-                className="min-h-[68px] rounded-[16px] border-2 bg-white border-gray-200 hover:border-gray-300 transition-all active:scale-[0.98]"
+                className="min-h-[68px] rounded-[18px] border bg-white border-gray-100 transition-all active:scale-[0.98] shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-semibold text-black">예</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">예</span>
               </button>
 
               <button
                 onClick={() => handleSpouseCheck(false)}
-                className="min-h-[68px] rounded-[16px] border-2 bg-white border-gray-200 hover:border-gray-300 transition-all active:scale-[0.98]"
+                className="min-h-[68px] rounded-[18px] border bg-white border-gray-100 transition-all active:scale-[0.98] shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-semibold text-black">아니오</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">아니오</span>
               </button>
             </div>
           </>
@@ -1587,27 +1619,27 @@ export default function DocumentsPage() {
         {/* STEP 2: 1순위 (자녀/손자녀) 확인 */}
         {step === 12 && situation === 'deceased' && (
           <>
-            <div className="mb-10">
-              <h1 className="text-[32px] font-bold text-black leading-tight">
+            <div className="mb-7">
+              <h1 className="text-[24px] sm:text-[26px] font-extrabold tracking-[-0.03em] leading-[1.25] text-gray-800">
                 사망하신분의 자녀분 중<br />
                 생존해 계신 분이<br />
                 한 명이라도 있나요?
               </h1>
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2.5">
               <button
                 onClick={() => handleChildrenCheck(true)}
-                className="min-h-[68px] rounded-[16px] border-2 bg-white border-gray-200 hover:border-gray-300 transition-all active:scale-[0.98]"
+                className="min-h-[68px] rounded-[18px] border bg-white border-gray-100 transition-all active:scale-[0.98] shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-semibold text-black">예</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">예</span>
               </button>
 
               <button
                 onClick={() => handleChildrenCheck(false)}
-                className="min-h-[68px] rounded-[16px] border-2 bg-white border-gray-200 hover:border-gray-300 transition-all active:scale-[0.98]"
+                className="min-h-[68px] rounded-[18px] border bg-white border-gray-100 transition-all active:scale-[0.98] shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-semibold text-black">아니오</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">아니오</span>
               </button>
             </div>
           </>
@@ -1616,25 +1648,25 @@ export default function DocumentsPage() {
         {/* STEP 3: 2순위 (부모/조부모) 확인 */}
         {step === 13 && situation === 'deceased' && (
           <>
-            <div className="mb-10">
-              <h1 className="text-[32px] font-bold text-black leading-tight">
+            <div className="mb-7">
+              <h1 className="text-[24px] sm:text-[26px] font-extrabold tracking-[-0.03em] leading-[1.25] text-gray-800">
                 부모님이나 조부모님이<br />계신가요?
               </h1>
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2.5">
               <button
                 onClick={() => handleParentsCheck(true)}
-                className="min-h-[68px] rounded-[16px] border-2 bg-white border-gray-200 hover:border-gray-300 transition-all active:scale-[0.98]"
+                className="min-h-[68px] rounded-[18px] border bg-white border-gray-100 transition-all active:scale-[0.98] shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-semibold text-black">예</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">예</span>
               </button>
 
               <button
                 onClick={() => handleParentsCheck(false)}
-                className="min-h-[68px] rounded-[16px] border-2 bg-white border-gray-200 hover:border-gray-300 transition-all active:scale-[0.98]"
+                className="min-h-[68px] rounded-[18px] border bg-white border-gray-100 transition-all active:scale-[0.98] shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-semibold text-black">아니오</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">아니오</span>
               </button>
             </div>
           </>
@@ -1664,26 +1696,26 @@ export default function DocumentsPage() {
         {step === 15 && situation === 'deceased' && (
           <>
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-black leading-tight">
+              <h1 className="text-[24px] sm:text-[26px] font-extrabold tracking-[-0.03em] leading-[1.25] text-gray-800">
                 형제자매가
                 <br />
                 있나요?
               </h1>
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2.5">
               <button
                 onClick={() => handleSiblingsCheck(true)}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-bold text-black">예</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">예</span>
               </button>
 
               <button
                 onClick={() => handleSiblingsCheck(false)}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-bold text-black">아니오</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">아니오</span>
               </button>
             </div>
           </>
@@ -1693,28 +1725,28 @@ export default function DocumentsPage() {
         {step === 17 && situation === 'deceased' && (
           <>
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-black leading-tight">
+              <h1 className="text-[24px] sm:text-[26px] font-extrabold tracking-[-0.03em] leading-[1.25] text-gray-800">
                 4촌 이내 친척이
                 <br />
                 있나요?
                 <br />
-                <span className="text-2xl text-gray-600">(삼촌, 고모, 이모, 사촌 등)</span>
+                <span className="text-[14px] sm:text-[15px] font-medium text-gray-500">(삼촌, 고모, 이모, 사촌 등)</span>
               </h1>
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2.5">
               <button
                 onClick={() => handleFourthDegreeCheck(true)}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-bold text-black">예</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">예</span>
               </button>
 
               <button
                 onClick={() => handleFourthDegreeCheck(false)}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-bold text-black">아니오</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">아니오</span>
               </button>
             </div>
           </>
@@ -1724,129 +1756,141 @@ export default function DocumentsPage() {
         {step === 18 && situation === 'deceased' && refundAmount === 'under300k' && (
           <>
             <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              <div ref={captureRef} style={{ backgroundColor: '#ffffff' }}>
+              <div ref={captureRef}>
                 {/* 신청방법 & 제출서류 통합 카드 */}
                 <div style={{
                   backgroundColor: '#ffffff',
-                  borderRadius: '20px',
-                  padding: '24px'
+                  borderRadius: '16px',
+                  padding: '28px 24px',
+                  boxShadow: '0 4px 16px -6px rgba(15,23,42,0.08), 0 2px 4px -2px rgba(15,23,42,0.04)'
                 }}>
                   <h1 style={{
-                    fontSize: '28px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '24px',
-                    textAlign: 'center'
+                    fontSize: '22px',
+                    fontWeight: '800',
+                    color: '#1F2937',
+                    marginBottom: '28px',
+                    textAlign: 'center',
+                    letterSpacing: '-0.02em',
+                    lineHeight: '1.25'
                   }}>본인부담상한제<br />환급금 신청 안내</h1>
 
                   <h2 style={{
-                    fontSize: '24px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '20px'
+                    fontSize: '12px',
+                    fontWeight: '800',
+                    color: '#3B82F6',
+                    marginBottom: '12px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em'
                   }}>어떻게 신청하나요?</h2>
 
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
+                    <span style={{ fontSize: '18px', color: '#3B82F6', flexShrink: 0, fontWeight: '700', lineHeight: '1.4' }}>•</span>
                     {(deceasedRelationship === 'parent' || deceasedRelationship === 'grandchild') ? (
-                      <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>팩스, 우편, 내방</span>
+                      <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>팩스, 우편, 내방</span>
                     ) : (
-                      <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>팩스, 우편, 방문, 유선<br /><span style={{ fontSize: '16px', color: '#1F2937' }}>(유선은 공단 전산상 가족관계 확인 시)</span></span>
+                      <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>팩스, 우편, 방문, 유선<br /><span style={{ fontSize: '16px', color: '#1F2937' }}>(유선은 공단 전산상 가족관계 확인 시)</span></span>
                     )}
                   </div>
 
                   {/* 구분선 */}
                   <div style={{
-                    borderTop: '1px solid #000000',
+                    borderTop: '1px solid #F1F5F9',
                     marginTop: '24px',
                     marginBottom: '24px'
                   }}></div>
 
                   <h2 style={{
-                    fontSize: '24px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '20px'
+                    fontSize: '12px',
+                    fontWeight: '800',
+                    color: '#3B82F6',
+                    marginBottom: '12px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em'
                   }}>어떤 서류를 제출해야하나요?</h2>
 
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
-                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>환급금 지급신청서</span>
+                    <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
+                    <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>환급금 지급신청서</span>
                   </div>
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
                     <div style={{ flex: 1 }}>
-                      <span style={{ fontSize: '20px', color: '#1F2937' }}>진료받은 분 기준 가족관계증명서(상세)</span>
-                      <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 최근 3개월 이내 발급 분</div>
+                      <span style={{ fontSize: '16px', color: '#374151', fontWeight: '500', lineHeight: '1.5' }}>진료받은 분 기준 가족관계증명서(상세)</span>
+                      <div style={{ fontSize: '13px', color: '#6B7280', marginTop: '4px', fontWeight: '500' }}>- 최근 3개월 이내 발급 분</div>
                     </div>
                   </div>
                   {deceasedRelationship === 'grandchild' && (
                     <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                      <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                      <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
                       <div style={{ flex: 1 }}>
-                        <span style={{ fontSize: '20px', color: '#1F2937' }}>손자녀의 부모 기준 가족관계증명서(상세)</span>
-                        <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 최근 3개월 이내 발급 분</div>
+                        <span style={{ fontSize: '16px', color: '#374151', fontWeight: '500', lineHeight: '1.5' }}>손자녀의 부모 기준 가족관계증명서(상세)</span>
+                        <div style={{ fontSize: '13px', color: '#6B7280', marginTop: '4px', fontWeight: '500' }}>- 최근 3개월 이내 발급 분</div>
                       </div>
                     </div>
                   )}
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
                     <div style={{ flex: 1 }}>
-                      <span style={{ fontSize: '20px', color: '#1F2937' }}>상속대표선정동의서</span>
-                      <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 생략 가능</div>
+                      <span style={{ fontSize: '16px', color: '#374151', fontWeight: '500', lineHeight: '1.5' }}>상속대표선정동의서</span>
+                      <div style={{ fontSize: '13px', color: '#6B7280', marginTop: '4px', fontWeight: '500' }}>- 생략 가능</div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* 도움이 되었어요 버튼 */}
-              <div className="px-4 pb-3">
+              {/* Action Buttons */}
+              <div className="space-y-2.5 pb-4 mt-2">
+                {/* 도움이 되었어요 */}
                 <button
                   onClick={() => setShowFeedbackModal(true)}
-                  className="w-full px-6 py-4 rounded-xl border-2 border-gray-200 bg-white text-gray-600 hover:border-blue-300 hover:text-blue-600 transition-all active:scale-[0.98] flex items-center justify-center gap-3"
+                  className="w-full rounded-xl py-3 px-5 bg-white transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                  style={{
+                    boxShadow:
+                      "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                  }}
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"
-                    />
-                  </svg>
-                  <span className="text-xl font-semibold">도움이 되었어요</span>
+                  <ThumbsUp className="w-[18px] h-[18px] text-gray-500" strokeWidth={2.2} />
+                  <span className="text-[15px] font-bold text-gray-600">도움이 되었어요</span>
                 </button>
-              </div>
 
-              {/* Action Buttons */}
-              <div className="space-y-3 pb-4 mt-2">
                 {(deceasedRelationship === 'parent' || deceasedRelationship === 'grandchild') ? (
                   <Link
                     href="/branch"
-                    className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="w-full rounded-xl py-3 px-5 text-[15px] font-bold text-white active:scale-[0.98] transition-all flex items-center justify-center gap-2 bg-gradient-to-br from-blue-500 to-blue-600 shadow-[0_4px_12px_-3px_rgba(37,99,235,0.35),0_1px_2px_rgba(37,99,235,0.1)]"
                   >
                     지사 팩스번호 찾기
                   </Link>
                 ) : (
                   <a
                     href="tel:1577-1000"
-                    className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="w-full rounded-xl py-3 px-5 text-[15px] font-bold text-white active:scale-[0.98] transition-all flex items-center justify-center gap-2 bg-gradient-to-br from-blue-500 to-blue-600 shadow-[0_4px_12px_-3px_rgba(37,99,235,0.35),0_1px_2px_rgba(37,99,235,0.1)]"
                   >
                     전화로 신청하기
                   </a>
                 )}
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2.5">
                   <button
                     onClick={handleSave}
-                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="rounded-xl py-3 px-4 text-[15px] font-bold text-gray-800 bg-white active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                    style={{
+                      boxShadow:
+                        "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                    }}
                   >
+                    <Download className="w-[18px] h-[18px]" strokeWidth={2.2} />
                     저장하기
                   </button>
 
                   <button
                     onClick={handleShare}
-                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="rounded-xl py-3 px-4 text-[15px] font-bold text-gray-800 bg-white active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                    style={{
+                      boxShadow:
+                        "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                    }}
                   >
+                    <Share2 className="w-[18px] h-[18px]" strokeWidth={2.2} />
                     공유하기
                   </button>
                 </div>
@@ -1859,13 +1903,13 @@ export default function DocumentsPage() {
         {step === 19 && situation === 'deceased' && (
           <>
             <div className="flex flex-col gap-6 h-full overflow-y-auto">
-              <div className="bg-blue-50 rounded-2xl p-6 border-2 border-blue-300">
-                <h2 className="text-3xl font-bold text-blue-900 mb-6 flex items-center gap-2">
+              <div className="bg-white rounded-[20px] p-6 border border-blue-100 shadow-[0_4px_16px_-6px_rgba(15,23,42,0.08)]">
+                <h2 className="text-[22px] sm:text-[24px] font-extrabold tracking-[-0.03em] text-blue-700 mb-6 flex items-center gap-2">
                   <span>ℹ️</span>
                   <span>신청이 불가합니다</span>
                 </h2>
 
-                <div className="text-2xl text-blue-900 leading-relaxed mb-6">
+                <div className="text-[17px] sm:text-[18px] font-semibold text-gray-700 leading-relaxed mb-6">
                   선순위 상속인이 계실 경우
                   <br />
                   신청하실 수 없습니다.
@@ -1892,26 +1936,26 @@ export default function DocumentsPage() {
         {step === 20 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'child' && (
           <>
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-black leading-tight">
+              <h1 className="text-[24px] sm:text-[26px] font-extrabold tracking-[-0.03em] leading-[1.25] text-gray-800">
                 사망하신분의 배우자분께서
                 <br />
                 현재 생존해 계신가요?
               </h1>
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2.5">
               <button
                 onClick={() => handleChildCaseSpouseCheck(true)}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-bold text-black">예</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">예</span>
               </button>
 
               <button
                 onClick={() => handleChildCaseSpouseCheck(false)}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-bold text-black">아니오</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">아니오</span>
               </button>
             </div>
           </>
@@ -1921,36 +1965,36 @@ export default function DocumentsPage() {
         {step === 21 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'child' && (
           <>
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-black leading-tight">
+              <h1 className="text-[24px] sm:text-[26px] font-extrabold tracking-[-0.03em] leading-[1.25] text-gray-800">
                 진료받은 분께서
                 <br />
                 자녀가 있으신가요?
               </h1>
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2.5">
               <button
                 onClick={() => handleSiblingStatusSelect('only_child')}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <div className="text-2xl font-bold text-black">자녀가 1명(외동)</div>
-                <div className="text-2xl font-bold text-black">뿐입니다</div>
+                <div className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">자녀가 1명(외동)</div>
+                <div className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">뿐입니다</div>
               </button>
 
               <button
                 onClick={() => handleSiblingStatusSelect('all_alive')}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <div className="text-2xl font-bold text-black">자녀가 여러 명이며,</div>
-                <div className="text-2xl font-bold text-black">모두 살아있습니다</div>
+                <div className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">자녀가 여러 명이며,</div>
+                <div className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">모두 살아있습니다</div>
               </button>
 
               <button
                 onClick={() => handleSiblingStatusSelect('some_deceased')}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <div className="text-2xl font-bold text-black">자녀 중 진료받은 분보다</div>
-                <div className="text-2xl font-bold text-black">먼저 사망한 분이 있습니다</div>
+                <div className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">자녀 중 진료받은 분보다</div>
+                <div className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">먼저 사망한 분이 있습니다</div>
               </button>
             </div>
           </>
@@ -1960,7 +2004,7 @@ export default function DocumentsPage() {
         {step === 22 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'child' && siblingStatus === 'some_deceased' && (
           <>
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-black leading-tight">
+              <h1 className="text-[24px] sm:text-[26px] font-extrabold tracking-[-0.03em] leading-[1.25] text-gray-800">
                 사망한 형제자매분 중
                 <br />
                 배우자나 자녀(손자녀)가
@@ -1969,19 +2013,19 @@ export default function DocumentsPage() {
               </h1>
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2.5">
               <button
                 onClick={() => handleDaeseupCheck(true)}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-bold text-black">예</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">예</span>
               </button>
 
               <button
                 onClick={() => handleDaeseupCheck(false)}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-bold text-black">아니오</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">아니오</span>
               </button>
             </div>
           </>
@@ -1991,151 +2035,165 @@ export default function DocumentsPage() {
         {step === 23 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'child' && (
           <>
             <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              <div ref={captureRef} style={{ backgroundColor: '#ffffff' }}>
+              <div ref={captureRef}>
                 {/* 신청방법 & 제출서류 통합 카드 */}
                 <div style={{
                   backgroundColor: '#ffffff',
-                  borderRadius: '20px',
-                  padding: '24px'
+                  borderRadius: '16px',
+                  padding: '28px 24px',
+                  boxShadow: '0 4px 16px -6px rgba(15,23,42,0.08), 0 2px 4px -2px rgba(15,23,42,0.04)'
                 }}>
                   <h1 style={{
-                    fontSize: '28px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '24px',
-                    textAlign: 'center'
+                    fontSize: '22px',
+                    fontWeight: '800',
+                    color: '#1F2937',
+                    marginBottom: '28px',
+                    textAlign: 'center',
+                    letterSpacing: '-0.02em',
+                    lineHeight: '1.25'
                   }}>본인부담상한제<br />환급금 신청 안내</h1>
 
                   <h2 style={{
-                    fontSize: '24px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '20px'
+                    fontSize: '12px',
+                    fontWeight: '800',
+                    color: '#3B82F6',
+                    marginBottom: '12px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em'
                   }}>어떻게 신청하나요?</h2>
 
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
-                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>팩스, 우편, 내방</span>
+                    <span style={{ fontSize: '18px', color: '#3B82F6', flexShrink: 0, fontWeight: '700', lineHeight: '1.4' }}>•</span>
+                    <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>팩스, 우편, 내방</span>
                   </div>
 
                   {/* 구분선 */}
                   <div style={{
-                    borderTop: '1px solid #000000',
+                    borderTop: '1px solid #F1F5F9',
                     marginTop: '24px',
                     marginBottom: '24px'
                   }}></div>
 
                   <h2 style={{
-                    fontSize: '24px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '20px'
+                    fontSize: '12px',
+                    fontWeight: '800',
+                    color: '#3B82F6',
+                    marginBottom: '12px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em'
                   }}>어떤 서류를 제출해야하나요?</h2>
 
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
-                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>환급금 지급신청서</span>
+                    <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
+                    <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>환급금 지급신청서</span>
                   </div>
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
                     <div style={{ flex: 1 }}>
-                      <span style={{ fontSize: '20px', color: '#1F2937' }}>상속대표선정동의서</span>
+                      <span style={{ fontSize: '16px', color: '#374151', fontWeight: '500', lineHeight: '1.5' }}>상속대표선정동의서</span>
                       {(hasSpouse || siblingStatus !== 'only_child') && (
-                        <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 상속인 전원 서명 필요</div>
+                        <div style={{ fontSize: '13px', color: '#6B7280', marginTop: '4px', fontWeight: '500' }}>- 상속인 전원 서명 필요</div>
                       )}
                     </div>
                   </div>
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
                     <div style={{ flex: 1 }}>
-                      <span style={{ fontSize: '20px', color: '#1F2937' }}>진료받은 분 기준 가족관계증명서(상세)</span>
-                      <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 최근 3개월 이내 발급 분</div>
+                      <span style={{ fontSize: '16px', color: '#374151', fontWeight: '500', lineHeight: '1.5' }}>진료받은 분 기준 가족관계증명서(상세)</span>
+                      <div style={{ fontSize: '13px', color: '#6B7280', marginTop: '4px', fontWeight: '500' }}>- 최근 3개월 이내 발급 분</div>
                     </div>
                   </div>
                   {hasDaeseup && (
                     <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                      <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                      <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
                       <div style={{ flex: 1 }}>
-                        <span style={{ fontSize: '20px', color: '#1F2937' }}>사망한 자녀 기준 가족관계증명서(상세)</span>
-                        <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 최근 3개월 이내 발급 분</div>
+                        <span style={{ fontSize: '16px', color: '#374151', fontWeight: '500', lineHeight: '1.5' }}>사망한 자녀 기준 가족관계증명서(상세)</span>
+                        <div style={{ fontSize: '13px', color: '#6B7280', marginTop: '4px', fontWeight: '500' }}>- 최근 3개월 이내 발급 분</div>
                       </div>
                     </div>
                   )}
 
                   {/* 구분선 */}
                   <div style={{
-                    borderTop: '1px solid #000000',
+                    borderTop: '1px solid #F1F5F9',
                     marginTop: '24px',
                     marginBottom: '24px'
                   }}></div>
 
                   <h2 style={{
-                    fontSize: '24px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '20px'
+                    fontSize: '12px',
+                    fontWeight: '800',
+                    color: '#3B82F6',
+                    marginBottom: '12px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em'
                   }}>누가 상속인인가요? (진료받은 분 기준)</h2>
 
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
-                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>
+                    <span style={{ fontSize: '18px', color: '#3B82F6', flexShrink: 0, fontWeight: '700', lineHeight: '1.4' }}>•</span>
+                    <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>
                       {siblingStatus === 'only_child' ? '자녀 (신청인 단독)' : '자녀 (신청인 포함)'}
                     </span>
                   </div>
                   {hasSpouse && (
                     <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                      <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
-                      <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>배우자 (진료받은 분의 배우자)</span>
+                      <span style={{ fontSize: '18px', color: '#3B82F6', flexShrink: 0, fontWeight: '700', lineHeight: '1.4' }}>•</span>
+                      <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>배우자 (진료받은 분의 배우자)</span>
                     </div>
                   )}
                   {hasDaeseup && (
                     <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                      <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
-                      <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>손자녀 (사망한 자녀의 자녀 - 대습상속)</span>
+                      <span style={{ fontSize: '18px', color: '#3B82F6', flexShrink: 0, fontWeight: '700', lineHeight: '1.4' }}>•</span>
+                      <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>손자녀 (사망한 자녀의 자녀 - 대습상속)</span>
                     </div>
                   )}
                 </div>
               </div>
 
               {/* 도움이 되었어요 버튼 */}
-              <div className="px-4 pb-3">
-                <button
-                  onClick={() => setShowFeedbackModal(true)}
-                  className="w-full px-6 py-4 rounded-xl border-2 border-gray-200 bg-white text-gray-600 hover:border-blue-300 hover:text-blue-600 transition-all active:scale-[0.98] flex items-center justify-center gap-3"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"
-                    />
-                  </svg>
-                  <span className="text-xl font-semibold">도움이 되었어요</span>
-                </button>
-              </div>
+              <button
+                onClick={() => setShowFeedbackModal(true)}
+                className="w-full rounded-xl py-3 px-5 bg-white transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                style={{
+                  boxShadow:
+                    "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                }}
+              >
+                <ThumbsUp className="w-[18px] h-[18px] text-gray-500" strokeWidth={2.2} />
+                <span className="text-[15px] font-bold text-gray-600">도움이 되었어요</span>
+              </button>
 
               {/* Action Buttons */}
-              <div className="space-y-3 pb-4 px-4">
+              <div className="space-y-2.5 pb-4 mt-2">
                 <Link
                   href="/branch"
-                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                  className="w-full rounded-xl py-3 px-5 text-[15px] font-bold text-white active:scale-[0.98] transition-all flex items-center justify-center gap-2 bg-gradient-to-br from-blue-500 to-blue-600 shadow-[0_4px_12px_-3px_rgba(37,99,235,0.35),0_1px_2px_rgba(37,99,235,0.1)]"
                 >
                   지사 팩스번호 찾기
                 </Link>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2.5">
                   <button
                     onClick={handleSave}
-                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="rounded-xl py-3 px-4 text-[15px] font-bold text-gray-800 bg-white active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                    style={{
+                      boxShadow:
+                        "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                    }}
                   >
+                    <Download className="w-[18px] h-[18px]" strokeWidth={2.2} />
                     저장하기
                   </button>
 
                   <button
                     onClick={handleShare}
-                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="rounded-xl py-3 px-4 text-[15px] font-bold text-gray-800 bg-white active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                    style={{
+                      boxShadow:
+                        "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                    }}
                   >
+                    <Share2 className="w-[18px] h-[18px]" strokeWidth={2.2} />
                     공유하기
                   </button>
                 </div>
@@ -2150,26 +2208,26 @@ export default function DocumentsPage() {
         {step === 24 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'spouse' && (
           <>
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-black leading-tight">
+              <h1 className="text-[24px] sm:text-[26px] font-extrabold tracking-[-0.03em] leading-[1.25] text-gray-800">
                 진료받은 분의 자녀나
                 <br />
                 손자녀가 있나요?
               </h1>
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2.5">
               <button
                 onClick={() => handleSpouseCaseChildrenCheck(true)}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-bold text-black">예</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">예</span>
               </button>
 
               <button
                 onClick={() => handleSpouseCaseChildrenCheck(false)}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-bold text-black">아니오</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">아니오</span>
               </button>
             </div>
           </>
@@ -2179,36 +2237,36 @@ export default function DocumentsPage() {
         {step === 25 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'spouse' && (
           <>
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-black leading-tight">
+              <h1 className="text-[24px] sm:text-[26px] font-extrabold tracking-[-0.03em] leading-[1.25] text-gray-800">
                 진료받은 분께서
                 <br />
                 자녀가 있으신가요?
               </h1>
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2.5">
               <button
                 onClick={() => handleChildStatusSelect('one_child')}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <div className="text-2xl font-bold text-black">자녀 1명(외동)</div>
-                <div className="text-2xl font-bold text-black">뿐입니다</div>
+                <div className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">자녀 1명(외동)</div>
+                <div className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">뿐입니다</div>
               </button>
 
               <button
                 onClick={() => handleChildStatusSelect('multiple_alive')}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <div className="text-2xl font-bold text-black">자녀가 여러 명이며</div>
-                <div className="text-2xl font-bold text-black">모두 생존</div>
+                <div className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">자녀가 여러 명이며</div>
+                <div className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">모두 생존</div>
               </button>
 
               <button
                 onClick={() => handleChildStatusSelect('some_deceased')}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <div className="text-2xl font-bold text-black">먼저 사망한</div>
-                <div className="text-2xl font-bold text-black">자녀가 있습니다</div>
+                <div className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">먼저 사망한</div>
+                <div className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">자녀가 있습니다</div>
               </button>
             </div>
           </>
@@ -2218,7 +2276,7 @@ export default function DocumentsPage() {
         {step === 26 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'spouse' && childStatus === 'some_deceased' && (
           <>
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-black leading-tight">
+              <h1 className="text-[24px] sm:text-[26px] font-extrabold tracking-[-0.03em] leading-[1.25] text-gray-800">
                 사망한 자녀분 중
                 <br />
                 배우자나 자녀(손자녀)가
@@ -2227,19 +2285,19 @@ export default function DocumentsPage() {
               </h1>
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2.5">
               <button
                 onClick={() => handleSpouseCaseDaeseupCheck(true)}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-bold text-black">예</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">예</span>
               </button>
 
               <button
                 onClick={() => handleSpouseCaseDaeseupCheck(false)}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-bold text-black">아니오</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">아니오</span>
               </button>
             </div>
           </>
@@ -2249,26 +2307,26 @@ export default function DocumentsPage() {
         {step === 27 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'spouse' && !hasChildren && (
           <>
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-black leading-tight">
+              <h1 className="text-[24px] sm:text-[26px] font-extrabold tracking-[-0.03em] leading-[1.25] text-gray-800">
                 진료받은 분의 부모님이
                 <br />
                 계신가요?
               </h1>
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2.5">
               <button
                 onClick={() => handleSpouseCaseParentsCheck(true)}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-bold text-black">예</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">예</span>
               </button>
 
               <button
                 onClick={() => handleSpouseCaseParentsCheck(false)}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-bold text-black">아니오</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">아니오</span>
               </button>
             </div>
           </>
@@ -2278,157 +2336,171 @@ export default function DocumentsPage() {
         {step === 28 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'spouse' && (
           <>
             <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              <div ref={captureRef} style={{ backgroundColor: '#ffffff' }}>
+              <div ref={captureRef}>
                 {/* 신청방법 & 제출서류 통합 카드 */}
                 <div style={{
                   backgroundColor: '#ffffff',
-                  borderRadius: '20px',
-                  padding: '24px'
+                  borderRadius: '16px',
+                  padding: '28px 24px',
+                  boxShadow: '0 4px 16px -6px rgba(15,23,42,0.08), 0 2px 4px -2px rgba(15,23,42,0.04)'
                 }}>
                   <h1 style={{
-                    fontSize: '28px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '24px',
-                    textAlign: 'center'
+                    fontSize: '22px',
+                    fontWeight: '800',
+                    color: '#1F2937',
+                    marginBottom: '28px',
+                    textAlign: 'center',
+                    letterSpacing: '-0.02em',
+                    lineHeight: '1.25'
                   }}>본인부담상한제<br />환급금 신청 안내</h1>
 
                   <h2 style={{
-                    fontSize: '24px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '20px'
+                    fontSize: '12px',
+                    fontWeight: '800',
+                    color: '#3B82F6',
+                    marginBottom: '12px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em'
                   }}>어떻게 신청하나요?</h2>
 
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
-                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>팩스, 우편, 내방</span>
+                    <span style={{ fontSize: '18px', color: '#3B82F6', flexShrink: 0, fontWeight: '700', lineHeight: '1.4' }}>•</span>
+                    <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>팩스, 우편, 내방</span>
                   </div>
 
                   {/* 구분선 */}
                   <div style={{
-                    borderTop: '1px solid #000000',
+                    borderTop: '1px solid #F1F5F9',
                     marginTop: '24px',
                     marginBottom: '24px'
                   }}></div>
 
                   <h2 style={{
-                    fontSize: '24px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '20px'
+                    fontSize: '12px',
+                    fontWeight: '800',
+                    color: '#3B82F6',
+                    marginBottom: '12px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em'
                   }}>어떤 서류를 제출해야하나요?</h2>
 
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
-                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>환급금 지급신청서</span>
+                    <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
+                    <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>환급금 지급신청서</span>
                   </div>
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
                     <div style={{ flex: 1 }}>
-                      <span style={{ fontSize: '20px', color: '#1F2937' }}>상속대표선정동의서</span>
+                      <span style={{ fontSize: '16px', color: '#374151', fontWeight: '500', lineHeight: '1.5' }}>상속대표선정동의서</span>
                       {(hasChildren || hasParents) && (
-                        <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 상속인 전원 서명 필요</div>
+                        <div style={{ fontSize: '13px', color: '#6B7280', marginTop: '4px', fontWeight: '500' }}>- 상속인 전원 서명 필요</div>
                       )}
                     </div>
                   </div>
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
                     <div style={{ flex: 1 }}>
-                      <span style={{ fontSize: '20px', color: '#1F2937' }}>진료받은 분 기준 가족관계증명서(상세)</span>
-                      <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 최근 3개월 이내 발급 분</div>
+                      <span style={{ fontSize: '16px', color: '#374151', fontWeight: '500', lineHeight: '1.5' }}>진료받은 분 기준 가족관계증명서(상세)</span>
+                      <div style={{ fontSize: '13px', color: '#6B7280', marginTop: '4px', fontWeight: '500' }}>- 최근 3개월 이내 발급 분</div>
                     </div>
                   </div>
                   {hasDaeseup && (
                     <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                      <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                      <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
                       <div style={{ flex: 1 }}>
-                        <span style={{ fontSize: '20px', color: '#1F2937' }}>사망한 자녀 기준 가족관계증명서(상세)</span>
-                        <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 최근 3개월 이내 발급 분</div>
+                        <span style={{ fontSize: '16px', color: '#374151', fontWeight: '500', lineHeight: '1.5' }}>사망한 자녀 기준 가족관계증명서(상세)</span>
+                        <div style={{ fontSize: '13px', color: '#6B7280', marginTop: '4px', fontWeight: '500' }}>- 최근 3개월 이내 발급 분</div>
                       </div>
                     </div>
                   )}
 
                   {/* 구분선 */}
                   <div style={{
-                    borderTop: '1px solid #000000',
+                    borderTop: '1px solid #F1F5F9',
                     marginTop: '24px',
                     marginBottom: '24px'
                   }}></div>
 
                   <h2 style={{
-                    fontSize: '24px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '20px'
+                    fontSize: '12px',
+                    fontWeight: '800',
+                    color: '#3B82F6',
+                    marginBottom: '12px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em'
                   }}>누가 상속인인가요? (진료받은 분 기준)</h2>
 
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
-                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>
+                    <span style={{ fontSize: '18px', color: '#3B82F6', flexShrink: 0, fontWeight: '700', lineHeight: '1.4' }}>•</span>
+                    <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>
                       {!hasChildren && !hasParents ? '배우자 (신청인 단독)' : '배우자 (신청인)'}
                     </span>
                   </div>
                   {hasChildren && (
                     <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                      <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
-                      <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>자녀</span>
+                      <span style={{ fontSize: '18px', color: '#3B82F6', flexShrink: 0, fontWeight: '700', lineHeight: '1.4' }}>•</span>
+                      <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>자녀</span>
                     </div>
                   )}
                   {!hasChildren && hasParents && (
                     <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                      <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
-                      <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>부모</span>
+                      <span style={{ fontSize: '18px', color: '#3B82F6', flexShrink: 0, fontWeight: '700', lineHeight: '1.4' }}>•</span>
+                      <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>부모</span>
                     </div>
                   )}
                   {hasDaeseup && (
                     <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                      <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
-                      <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>손자녀 (사망한 자녀의 자녀 - 대습상속)</span>
+                      <span style={{ fontSize: '18px', color: '#3B82F6', flexShrink: 0, fontWeight: '700', lineHeight: '1.4' }}>•</span>
+                      <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>손자녀 (사망한 자녀의 자녀 - 대습상속)</span>
                     </div>
                   )}
                 </div>
               </div>
 
               {/* 도움이 되었어요 버튼 */}
-              <div className="px-4 pb-3">
-                <button
-                  onClick={() => setShowFeedbackModal(true)}
-                  className="w-full px-6 py-4 rounded-xl border-2 border-gray-200 bg-white text-gray-600 hover:border-blue-300 hover:text-blue-600 transition-all active:scale-[0.98] flex items-center justify-center gap-3"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"
-                    />
-                  </svg>
-                  <span className="text-xl font-semibold">도움이 되었어요</span>
-                </button>
-              </div>
+              <button
+                onClick={() => setShowFeedbackModal(true)}
+                className="w-full rounded-xl py-3 px-5 bg-white transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                style={{
+                  boxShadow:
+                    "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                }}
+              >
+                <ThumbsUp className="w-[18px] h-[18px] text-gray-500" strokeWidth={2.2} />
+                <span className="text-[15px] font-bold text-gray-600">도움이 되었어요</span>
+              </button>
 
               {/* Action Buttons */}
-              <div className="space-y-3 pb-4 px-4">
+              <div className="space-y-2.5 pb-4 mt-2">
                 <Link
                   href="/branch"
-                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                  className="w-full rounded-xl py-3 px-5 text-[15px] font-bold text-white active:scale-[0.98] transition-all flex items-center justify-center gap-2 bg-gradient-to-br from-blue-500 to-blue-600 shadow-[0_4px_12px_-3px_rgba(37,99,235,0.35),0_1px_2px_rgba(37,99,235,0.1)]"
                 >
                   지사 팩스번호 찾기
                 </Link>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2.5">
                   <button
                     onClick={handleSave}
-                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="rounded-xl py-3 px-4 text-[15px] font-bold text-gray-800 bg-white active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                    style={{
+                      boxShadow:
+                        "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                    }}
                   >
+                    <Download className="w-[18px] h-[18px]" strokeWidth={2.2} />
                     저장하기
                   </button>
 
                   <button
                     onClick={handleShare}
-                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="rounded-xl py-3 px-4 text-[15px] font-bold text-gray-800 bg-white active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                    style={{
+                      boxShadow:
+                        "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                    }}
                   >
+                    <Share2 className="w-[18px] h-[18px]" strokeWidth={2.2} />
                     공유하기
                   </button>
                 </div>
@@ -2443,7 +2515,7 @@ export default function DocumentsPage() {
         {step === 29 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'grandchild' && (
           <>
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-black leading-tight">
+              <h1 className="text-[24px] sm:text-[26px] font-extrabold tracking-[-0.03em] leading-[1.25] text-gray-800">
                 신청인의 부모님
                 <br />
                 (진료받은 분의 자녀)이
@@ -2452,19 +2524,19 @@ export default function DocumentsPage() {
               </h1>
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2.5">
               <button
                 onClick={() => handleGrandchildCaseParentCheck(true)}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-bold text-black">예</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">예</span>
               </button>
 
               <button
                 onClick={() => handleGrandchildCaseParentCheck(false)}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-bold text-black">아니오</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">아니오</span>
               </button>
             </div>
           </>
@@ -2474,7 +2546,7 @@ export default function DocumentsPage() {
         {step === 30 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'grandchild' && !hasParentAlive && (
           <>
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-black leading-tight">
+              <h1 className="text-[24px] sm:text-[26px] font-extrabold tracking-[-0.03em] leading-[1.25] text-gray-800">
                 진료받은 분의 배우자
                 <br />
                 (할머니/할아버지)가
@@ -2483,19 +2555,19 @@ export default function DocumentsPage() {
               </h1>
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2.5">
               <button
                 onClick={() => handleGrandparentSpouseCheck(true)}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-bold text-black">예</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">예</span>
               </button>
 
               <button
                 onClick={() => handleGrandparentSpouseCheck(false)}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-bold text-black">아니오</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">아니오</span>
               </button>
             </div>
           </>
@@ -2505,37 +2577,37 @@ export default function DocumentsPage() {
         {step === 31 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'grandchild' && (
           <>
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-black leading-tight">
+              <h1 className="text-[24px] sm:text-[26px] font-extrabold tracking-[-0.03em] leading-[1.25] text-gray-800">
                 진료받은 분의 다른 자녀분들은
                 <br />
                 어떤 상황인가요?
               </h1>
-              <p className="text-2xl text-gray-600 mt-4">(신청인 부모님 외 다른 자녀)</p>
+              <p className="text-[14px] sm:text-[15px] font-medium text-gray-500 mt-4">(신청인 부모님 외 다른 자녀)</p>
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2.5">
               <button
                 onClick={() => handleOtherChildrenStatusSelect('none')}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <div className="text-2xl font-bold text-black">다른 자녀는 없습니다</div>
-                <div className="text-2xl text-gray-600">(부모님이 외동)</div>
+                <div className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">다른 자녀는 없습니다</div>
+                <div className="text-[14px] sm:text-[15px] font-medium text-gray-500">(부모님이 외동)</div>
               </button>
 
               <button
                 onClick={() => handleOtherChildrenStatusSelect('all_alive')}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <div className="text-2xl font-bold text-black">다른 자녀들이</div>
-                <div className="text-2xl font-bold text-black">모두 살아있습니다</div>
+                <div className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">다른 자녀들이</div>
+                <div className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">모두 살아있습니다</div>
               </button>
 
               <button
                 onClick={() => handleOtherChildrenStatusSelect('some_deceased')}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <div className="text-2xl font-bold text-black">먼저 돌아가신</div>
-                <div className="text-2xl font-bold text-black">다른 자녀가 있습니다</div>
+                <div className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">먼저 돌아가신</div>
+                <div className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">다른 자녀가 있습니다</div>
               </button>
             </div>
           </>
@@ -2545,7 +2617,7 @@ export default function DocumentsPage() {
         {step === 32 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'grandchild' && otherChildrenStatus === 'some_deceased' && (
           <>
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-black leading-tight">
+              <h1 className="text-[24px] sm:text-[26px] font-extrabold tracking-[-0.03em] leading-[1.25] text-gray-800">
                 그 돌아가신 자녀분의
                 <br />
                 배우자나 자녀가
@@ -2554,19 +2626,19 @@ export default function DocumentsPage() {
               </h1>
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2.5">
               <button
                 onClick={() => handleOtherDaeseupCheck(true)}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-bold text-black">예</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">예</span>
               </button>
 
               <button
                 onClick={() => handleOtherDaeseupCheck(false)}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-bold text-black">아니오</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">아니오</span>
               </button>
             </div>
           </>
@@ -2576,123 +2648,132 @@ export default function DocumentsPage() {
         {step === 33 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'grandchild' && (
           <>
             <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              <div ref={captureRef} style={{ backgroundColor: '#ffffff' }}>
+              <div ref={captureRef}>
                 {/* 신청방법 & 제출서류 통합 카드 */}
                 <div style={{
                   backgroundColor: '#ffffff',
-                  borderRadius: '20px',
-                  padding: '24px'
+                  borderRadius: '16px',
+                  padding: '28px 24px',
+                  boxShadow: '0 4px 16px -6px rgba(15,23,42,0.08), 0 2px 4px -2px rgba(15,23,42,0.04)'
                 }}>
                   <h1 style={{
-                    fontSize: '28px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '24px',
-                    textAlign: 'center'
+                    fontSize: '22px',
+                    fontWeight: '800',
+                    color: '#1F2937',
+                    marginBottom: '28px',
+                    textAlign: 'center',
+                    letterSpacing: '-0.02em',
+                    lineHeight: '1.25'
                   }}>본인부담상한제<br />환급금 신청 안내</h1>
 
                   <h2 style={{
-                    fontSize: '24px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '20px'
+                    fontSize: '12px',
+                    fontWeight: '800',
+                    color: '#3B82F6',
+                    marginBottom: '12px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em'
                   }}>어떻게 신청하나요?</h2>
 
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
-                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>팩스, 우편, 내방</span>
+                    <span style={{ fontSize: '18px', color: '#3B82F6', flexShrink: 0, fontWeight: '700', lineHeight: '1.4' }}>•</span>
+                    <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>팩스, 우편, 내방</span>
                   </div>
 
                   {/* 구분선 */}
                   <div style={{
-                    borderTop: '1px solid #000000',
+                    borderTop: '1px solid #F1F5F9',
                     marginTop: '24px',
                     marginBottom: '24px'
                   }}></div>
 
                   <h2 style={{
-                    fontSize: '24px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '20px'
+                    fontSize: '12px',
+                    fontWeight: '800',
+                    color: '#3B82F6',
+                    marginBottom: '12px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em'
                   }}>어떤 서류를 제출해야하나요?</h2>
 
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
-                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>환급금 지급신청서</span>
+                    <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
+                    <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>환급금 지급신청서</span>
                   </div>
                   {(otherChildrenStatus !== 'none' || hasGrandparentSpouse || hasOtherDaeseup) && (
                     <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                      <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                      <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
                       <div style={{ flex: 1 }}>
-                        <span style={{ fontSize: '20px', color: '#1F2937' }}>상속대표선정동의서</span>
-                        <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 상속인 전원 서명 필요</div>
+                        <span style={{ fontSize: '16px', color: '#374151', fontWeight: '500', lineHeight: '1.5' }}>상속대표선정동의서</span>
+                        <div style={{ fontSize: '13px', color: '#6B7280', marginTop: '4px', fontWeight: '500' }}>- 상속인 전원 서명 필요</div>
                       </div>
                     </div>
                   )}
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
                     <div style={{ flex: 1 }}>
-                      <span style={{ fontSize: '20px', color: '#1F2937' }}>진료받은 분 기준 가족관계증명서(상세)</span>
-                      <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 최근 3개월 이내 발급 분</div>
+                      <span style={{ fontSize: '16px', color: '#374151', fontWeight: '500', lineHeight: '1.5' }}>진료받은 분 기준 가족관계증명서(상세)</span>
+                      <div style={{ fontSize: '13px', color: '#6B7280', marginTop: '4px', fontWeight: '500' }}>- 최근 3개월 이내 발급 분</div>
                     </div>
                   </div>
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
                     <div style={{ flex: 1 }}>
-                      <span style={{ fontSize: '20px', color: '#1F2937' }}>신청인 부모 기준 가족관계증명서(상세)</span>
-                      <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 최근 3개월 이내 발급 분</div>
+                      <span style={{ fontSize: '16px', color: '#374151', fontWeight: '500', lineHeight: '1.5' }}>신청인 부모 기준 가족관계증명서(상세)</span>
+                      <div style={{ fontSize: '13px', color: '#6B7280', marginTop: '4px', fontWeight: '500' }}>- 최근 3개월 이내 발급 분</div>
                     </div>
                   </div>
                   {hasOtherDaeseup && (
                     <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                      <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                      <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
                       <div style={{ flex: 1 }}>
-                        <span style={{ fontSize: '20px', color: '#1F2937' }}>돌아가신 다른 자녀 기준 가족관계증명서(상세)</span>
-                        <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 최근 3개월 이내 발급 분</div>
+                        <span style={{ fontSize: '16px', color: '#374151', fontWeight: '500', lineHeight: '1.5' }}>돌아가신 다른 자녀 기준 가족관계증명서(상세)</span>
+                        <div style={{ fontSize: '13px', color: '#6B7280', marginTop: '4px', fontWeight: '500' }}>- 최근 3개월 이내 발급 분</div>
                       </div>
                     </div>
                   )}
 
                   {/* 구분선 */}
                   <div style={{
-                    borderTop: '1px solid #000000',
+                    borderTop: '1px solid #F1F5F9',
                     marginTop: '24px',
                     marginBottom: '24px'
                   }}></div>
 
                   <h2 style={{
-                    fontSize: '24px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '20px'
+                    fontSize: '12px',
+                    fontWeight: '800',
+                    color: '#3B82F6',
+                    marginBottom: '12px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em'
                   }}>누가 상속인인가요? (진료받은 분 기준)</h2>
 
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
-                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>손자녀 (신청인 - 대습상속)</span>
+                    <span style={{ fontSize: '18px', color: '#3B82F6', flexShrink: 0, fontWeight: '700', lineHeight: '1.4' }}>•</span>
+                    <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>손자녀 (신청인 - 대습상속)</span>
                   </div>
                   {otherChildrenStatus !== 'none' && (
                     <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                      <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
-                      <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>다른 자녀 (살아계신 분)</span>
+                      <span style={{ fontSize: '18px', color: '#3B82F6', flexShrink: 0, fontWeight: '700', lineHeight: '1.4' }}>•</span>
+                      <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>다른 자녀 (살아계신 분)</span>
                     </div>
                   )}
                   {hasGrandparentSpouse && (
                     <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                      <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
-                      <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>배우자 (할머니/할아버지)</span>
+                      <span style={{ fontSize: '18px', color: '#3B82F6', flexShrink: 0, fontWeight: '700', lineHeight: '1.4' }}>•</span>
+                      <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>배우자 (할머니/할아버지)</span>
                     </div>
                   )}
                   {hasOtherDaeseup && (
                     <>
                       <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                        <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
-                        <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>돌아가신 다른 자녀의 배우자 (대습상속)</span>
+                        <span style={{ fontSize: '18px', color: '#3B82F6', flexShrink: 0, fontWeight: '700', lineHeight: '1.4' }}>•</span>
+                        <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>돌아가신 다른 자녀의 배우자 (대습상속)</span>
                       </div>
                       <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                        <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
-                        <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>돌아가신 다른 자녀의 자녀 (대습상속)</span>
+                        <span style={{ fontSize: '18px', color: '#3B82F6', flexShrink: 0, fontWeight: '700', lineHeight: '1.4' }}>•</span>
+                        <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>돌아가신 다른 자녀의 자녀 (대습상속)</span>
                       </div>
                     </>
                   )}
@@ -2700,44 +2781,49 @@ export default function DocumentsPage() {
               </div>
 
               {/* 도움이 되었어요 버튼 */}
-              <div className="px-4 pb-3">
-                <button
-                  onClick={() => setShowFeedbackModal(true)}
-                  className="w-full px-6 py-4 rounded-xl border-2 border-gray-200 bg-white text-gray-600 hover:border-blue-300 hover:text-blue-600 transition-all active:scale-[0.98] flex items-center justify-center gap-3"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"
-                    />
-                  </svg>
-                  <span className="text-xl font-semibold">도움이 되었어요</span>
-                </button>
-              </div>
+              <button
+                onClick={() => setShowFeedbackModal(true)}
+                className="w-full rounded-xl py-3 px-5 bg-white transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                style={{
+                  boxShadow:
+                    "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                }}
+              >
+                <ThumbsUp className="w-[18px] h-[18px] text-gray-500" strokeWidth={2.2} />
+                <span className="text-[15px] font-bold text-gray-600">도움이 되었어요</span>
+              </button>
 
               {/* Action Buttons */}
-              <div className="space-y-3 pb-4 px-4">
+              <div className="space-y-2.5 pb-4 mt-2">
                 <Link
                   href="/branch"
-                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                  className="w-full rounded-xl py-3 px-5 text-[15px] font-bold text-white active:scale-[0.98] transition-all flex items-center justify-center gap-2 bg-gradient-to-br from-blue-500 to-blue-600 shadow-[0_4px_12px_-3px_rgba(37,99,235,0.35),0_1px_2px_rgba(37,99,235,0.1)]"
                 >
                   지사 팩스번호 찾기
                 </Link>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2.5">
                   <button
                     onClick={handleSave}
-                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="rounded-xl py-3 px-4 text-[15px] font-bold text-gray-800 bg-white active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                    style={{
+                      boxShadow:
+                        "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                    }}
                   >
+                    <Download className="w-[18px] h-[18px]" strokeWidth={2.2} />
                     저장하기
                   </button>
 
                   <button
                     onClick={handleShare}
-                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="rounded-xl py-3 px-4 text-[15px] font-bold text-gray-800 bg-white active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                    style={{
+                      boxShadow:
+                        "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                    }}
                   >
+                    <Share2 className="w-[18px] h-[18px]" strokeWidth={2.2} />
                     공유하기
                   </button>
                 </div>
@@ -2752,9 +2838,9 @@ export default function DocumentsPage() {
             <div className="flex flex-col gap-6 h-full overflow-y-auto">
               <div className="space-y-3">
                 {/* 안내 메시지 */}
-                <div className="bg-red-50 rounded-2xl p-6 border-2 border-red-200">
-                  <h2 className="text-3xl font-bold text-red-900 mb-4">신청 불가</h2>
-                  <div className="text-2xl text-red-800 leading-relaxed">
+                <div className="bg-white rounded-[20px] p-6 border border-red-100 shadow-[0_4px_16px_-6px_rgba(15,23,42,0.08)]">
+                  <h2 className="text-[22px] sm:text-[24px] font-extrabold tracking-[-0.03em] text-red-700 mb-4">신청 불가</h2>
+                  <div className="text-[17px] sm:text-[18px] font-semibold text-gray-700 leading-relaxed">
                     부모님이 상속인이므로
                     <br />
                     부모님이 신청하셔야 합니다.
@@ -2771,7 +2857,7 @@ export default function DocumentsPage() {
         {step === 35 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'sibling' && (
           <>
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-black leading-tight">
+              <h1 className="text-[24px] sm:text-[26px] font-extrabold tracking-[-0.03em] leading-[1.25] text-gray-800">
                 진료받은 분의 배우자,
                 <br />
                 직계가족(자녀/손자녀/
@@ -2782,19 +2868,19 @@ export default function DocumentsPage() {
               </h1>
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2.5">
               <button
                 onClick={() => handleSiblingCaseSeniorHeirsCheck(true)}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-bold text-black">예</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">예</span>
               </button>
 
               <button
                 onClick={() => handleSiblingCaseSeniorHeirsCheck(false)}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-bold text-black">아니오</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">아니오</span>
               </button>
             </div>
           </>
@@ -2804,36 +2890,36 @@ export default function DocumentsPage() {
         {step === 36 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'sibling' && !hasSeniorHeirs && (
           <>
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-black leading-tight">
+              <h1 className="text-[24px] sm:text-[26px] font-extrabold tracking-[-0.03em] leading-[1.25] text-gray-800">
                 진료받은 분의 형제자매는
                 <br />
                 어떤 상황인가요?
               </h1>
-              <p className="text-2xl text-gray-600 mt-4">(신청인 본인 포함)</p>
+              <p className="text-[14px] sm:text-[15px] font-medium text-gray-500 mt-4">(신청인 본인 포함)</p>
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2.5">
               <button
                 onClick={() => handleSiblingsStatusTypeSelect('only_self')}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <div className="text-2xl font-bold text-black">본인뿐입니다</div>
+                <div className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">본인뿐입니다</div>
               </button>
 
               <button
                 onClick={() => handleSiblingsStatusTypeSelect('multiple_alive')}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <div className="text-2xl font-bold text-black">여러 명이고</div>
-                <div className="text-2xl font-bold text-black">모두 살아있습니다</div>
+                <div className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">여러 명이고</div>
+                <div className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">모두 살아있습니다</div>
               </button>
 
               <button
                 onClick={() => handleSiblingsStatusTypeSelect('some_deceased')}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <div className="text-2xl font-bold text-black">여러 명이고</div>
-                <div className="text-2xl font-bold text-black">먼저 돌아가신 분이 있습니다</div>
+                <div className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">여러 명이고</div>
+                <div className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">먼저 돌아가신 분이 있습니다</div>
               </button>
             </div>
           </>
@@ -2843,7 +2929,7 @@ export default function DocumentsPage() {
         {step === 37 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'sibling' && siblingsStatusType === 'some_deceased' && (
           <>
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-black leading-tight">
+              <h1 className="text-[24px] sm:text-[26px] font-extrabold tracking-[-0.03em] leading-[1.25] text-gray-800">
                 먼저 돌아가신 형제분의
                 <br />
                 배우자나 자녀가
@@ -2852,19 +2938,19 @@ export default function DocumentsPage() {
               </h1>
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2.5">
               <button
                 onClick={() => handleSiblingDaeseupCheck(true)}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-bold text-black">예</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">예</span>
               </button>
 
               <button
                 onClick={() => handleSiblingDaeseupCheck(false)}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-bold text-black">아니오</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">아니오</span>
               </button>
             </div>
           </>
@@ -2874,121 +2960,131 @@ export default function DocumentsPage() {
         {step === 38 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'sibling' && (
           <>
             <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              <div ref={captureRef} style={{ backgroundColor: '#ffffff' }}>
+              <div ref={captureRef}>
                 {/* 신청방법 */}
                 <div style={{
                   backgroundColor: '#ffffff',
-                  borderRadius: '20px',
-                  padding: '24px'
+                  borderRadius: '16px',
+                  padding: '28px 24px',
+                  boxShadow: '0 4px 16px -6px rgba(15,23,42,0.08), 0 2px 4px -2px rgba(15,23,42,0.04)'
                 }}>
                   <h1 style={{
-                    fontSize: '28px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '24px',
-                    textAlign: 'center'
+                    fontSize: '22px',
+                    fontWeight: '800',
+                    color: '#1F2937',
+                    marginBottom: '28px',
+                    textAlign: 'center',
+                    letterSpacing: '-0.02em',
+                    lineHeight: '1.25'
                   }}>본인부담상한제<br />환급금 신청 안내</h1>
 
                   <h2 style={{
-                    fontSize: '24px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '20px'
+                    fontSize: '12px',
+                    fontWeight: '800',
+                    color: '#3B82F6',
+                    marginBottom: '12px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em'
                   }}>어떻게 신청하나요?</h2>
 
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
-                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>팩스, 우편, 내방</span>
+                    <span style={{ fontSize: '18px', color: '#3B82F6', flexShrink: 0, fontWeight: '700', lineHeight: '1.4' }}>•</span>
+                    <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>팩스, 우편, 내방</span>
                   </div>
                 </div>
 
                 {/* 제출서류 */}
                 <div style={{
                   backgroundColor: '#ffffff',
-                  borderRadius: '20px',
-                  padding: '24px'
+                  borderRadius: '16px',
+                  padding: '28px 24px',
+                  boxShadow: '0 4px 16px -6px rgba(15,23,42,0.08), 0 2px 4px -2px rgba(15,23,42,0.04)'
                 }}>
                   <h2 style={{
-                    fontSize: '24px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '20px'
+                    fontSize: '12px',
+                    fontWeight: '800',
+                    color: '#3B82F6',
+                    marginBottom: '12px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em'
                   }}>어떤 서류를 제출해야하나요?</h2>
 
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
-                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>환급금 지급신청서</span>
+                    <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
+                    <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>환급금 지급신청서</span>
                   </div>
                   {siblingsStatusType !== 'only_self' && (
                     <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                      <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                      <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
                       <div style={{ flex: 1 }}>
-                        <span style={{ fontSize: '20px', color: '#1F2937' }}>상속대표선정동의서</span>
-                        <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 상속인 전원 서명 필요</div>
+                        <span style={{ fontSize: '16px', color: '#374151', fontWeight: '500', lineHeight: '1.5' }}>상속대표선정동의서</span>
+                        <div style={{ fontSize: '13px', color: '#6B7280', marginTop: '4px', fontWeight: '500' }}>- 상속인 전원 서명 필요</div>
                       </div>
                     </div>
                   )}
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
                     <div style={{ flex: 1 }}>
-                      <span style={{ fontSize: '20px', color: '#1F2937' }}>진료받은 분 기준 가족관계증명서(상세)</span>
-                      <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 최근 3개월 이내 발급 분</div>
+                      <span style={{ fontSize: '16px', color: '#374151', fontWeight: '500', lineHeight: '1.5' }}>진료받은 분 기준 가족관계증명서(상세)</span>
+                      <div style={{ fontSize: '13px', color: '#6B7280', marginTop: '4px', fontWeight: '500' }}>- 최근 3개월 이내 발급 분</div>
                     </div>
                   </div>
                   {siblingsStatusType === 'only_self' && (
                     <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                      <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                      <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
                       <div style={{ flex: 1 }}>
-                        <span style={{ fontSize: '20px', color: '#1F2937' }}>진료받은 분의 부모 기준 가족관계증명서(상세)</span>
-                        <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 최근 3개월 이내 발급 분</div>
+                        <span style={{ fontSize: '16px', color: '#374151', fontWeight: '500', lineHeight: '1.5' }}>진료받은 분의 부모 기준 가족관계증명서(상세)</span>
+                        <div style={{ fontSize: '13px', color: '#6B7280', marginTop: '4px', fontWeight: '500' }}>- 최근 3개월 이내 발급 분</div>
                       </div>
                     </div>
                   )}
                   {siblingsStatusType === 'some_deceased' && (
                     <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                      <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                      <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
                       <div style={{ flex: 1 }}>
-                        <span style={{ fontSize: '20px', color: '#1F2937' }}>사망한 형제(자매) 기준 가족관계증명서(상세)</span>
-                        <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 최근 3개월 이내 발급 분</div>
+                        <span style={{ fontSize: '16px', color: '#374151', fontWeight: '500', lineHeight: '1.5' }}>사망한 형제(자매) 기준 가족관계증명서(상세)</span>
+                        <div style={{ fontSize: '13px', color: '#6B7280', marginTop: '4px', fontWeight: '500' }}>- 최근 3개월 이내 발급 분</div>
                       </div>
                     </div>
                   )}
 
                   {/* 구분선 */}
                   <div style={{
-                    borderTop: '1px solid #000000',
+                    borderTop: '1px solid #F1F5F9',
                     marginTop: '24px',
                     marginBottom: '24px'
                   }}></div>
 
                   <h2 style={{
-                    fontSize: '24px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '20px'
+                    fontSize: '12px',
+                    fontWeight: '800',
+                    color: '#3B82F6',
+                    marginBottom: '12px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em'
                   }}>누가 상속인인가요? (진료받은 분 기준)</h2>
 
                   {siblingsStatusType === 'only_self' && (
                     <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                      <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
-                      <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>형제자매 (신청인 단독)</span>
+                      <span style={{ fontSize: '18px', color: '#3B82F6', flexShrink: 0, fontWeight: '700', lineHeight: '1.4' }}>•</span>
+                      <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>형제자매 (신청인 단독)</span>
                     </div>
                   )}
                   {siblingsStatusType !== 'only_self' && (
                     <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                      <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
-                      <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>형제자매 (살아계신 분들)</span>
+                      <span style={{ fontSize: '18px', color: '#3B82F6', flexShrink: 0, fontWeight: '700', lineHeight: '1.4' }}>•</span>
+                      <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>형제자매 (살아계신 분들)</span>
                     </div>
                   )}
                   {hasSiblingDaeseup && (
                     <>
                       <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                        <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
-                        <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>돌아가신 형제의 배우자 (대습상속)</span>
+                        <span style={{ fontSize: '18px', color: '#3B82F6', flexShrink: 0, fontWeight: '700', lineHeight: '1.4' }}>•</span>
+                        <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>돌아가신 형제의 배우자 (대습상속)</span>
                       </div>
                       <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                        <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
-                        <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>돌아가신 형제의 자녀 (대습상속)</span>
+                        <span style={{ fontSize: '18px', color: '#3B82F6', flexShrink: 0, fontWeight: '700', lineHeight: '1.4' }}>•</span>
+                        <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>돌아가신 형제의 자녀 (대습상속)</span>
                       </div>
                     </>
                   )}
@@ -2996,44 +3092,49 @@ export default function DocumentsPage() {
               </div>
 
               {/* 도움이 되었어요 버튼 */}
-              <div className="px-4 pb-3">
-                <button
-                  onClick={() => setShowFeedbackModal(true)}
-                  className="w-full px-6 py-4 rounded-xl border-2 border-gray-200 bg-white text-gray-600 hover:border-blue-300 hover:text-blue-600 transition-all active:scale-[0.98] flex items-center justify-center gap-3"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"
-                    />
-                  </svg>
-                  <span className="text-xl font-semibold">도움이 되었어요</span>
-                </button>
-              </div>
+              <button
+                onClick={() => setShowFeedbackModal(true)}
+                className="w-full rounded-xl py-3 px-5 bg-white transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                style={{
+                  boxShadow:
+                    "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                }}
+              >
+                <ThumbsUp className="w-[18px] h-[18px] text-gray-500" strokeWidth={2.2} />
+                <span className="text-[15px] font-bold text-gray-600">도움이 되었어요</span>
+              </button>
 
               {/* Action Buttons */}
-              <div className="space-y-3 pb-4 px-4">
+              <div className="space-y-2.5 pb-4 mt-2">
                 <Link
                   href="/branch"
-                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                  className="w-full rounded-xl py-3 px-5 text-[15px] font-bold text-white active:scale-[0.98] transition-all flex items-center justify-center gap-2 bg-gradient-to-br from-blue-500 to-blue-600 shadow-[0_4px_12px_-3px_rgba(37,99,235,0.35),0_1px_2px_rgba(37,99,235,0.1)]"
                 >
                   지사 팩스번호 찾기
                 </Link>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2.5">
                   <button
                     onClick={handleSave}
-                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="rounded-xl py-3 px-4 text-[15px] font-bold text-gray-800 bg-white active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                    style={{
+                      boxShadow:
+                        "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                    }}
                   >
+                    <Download className="w-[18px] h-[18px]" strokeWidth={2.2} />
                     저장하기
                   </button>
 
                   <button
                     onClick={handleShare}
-                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="rounded-xl py-3 px-4 text-[15px] font-bold text-gray-800 bg-white active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                    style={{
+                      boxShadow:
+                        "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                    }}
                   >
+                    <Share2 className="w-[18px] h-[18px]" strokeWidth={2.2} />
                     공유하기
                   </button>
                 </div>
@@ -3046,13 +3147,13 @@ export default function DocumentsPage() {
         {step === 39 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'sibling' && hasSeniorHeirs && (
           <>
             <div className="flex flex-col gap-6 h-full overflow-y-auto">
-              <div className="bg-blue-50 rounded-2xl p-6 border-2 border-blue-300">
-                <h2 className="text-3xl font-bold text-blue-900 mb-6 flex items-center gap-2">
+              <div className="bg-white rounded-[20px] p-6 border border-blue-100 shadow-[0_4px_16px_-6px_rgba(15,23,42,0.08)]">
+                <h2 className="text-[22px] sm:text-[24px] font-extrabold tracking-[-0.03em] text-blue-700 mb-6 flex items-center gap-2">
                   <span>ℹ️</span>
                   <span>신청이 불가합니다</span>
                 </h2>
 
-                <div className="text-2xl text-blue-900 leading-relaxed mb-6">
+                <div className="text-[17px] sm:text-[18px] font-semibold text-gray-700 leading-relaxed mb-6">
                   선순위 상속인이 계실 경우
                   <br />
                   신청하실 수 없습니다.
@@ -3079,7 +3180,7 @@ export default function DocumentsPage() {
         {step === 45 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'fourth_degree' && (
           <>
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-black leading-tight">
+              <h1 className="text-[24px] sm:text-[26px] font-extrabold tracking-[-0.03em] leading-[1.25] text-gray-800">
                 사망하신 분께서
                 <br />
                 배우자, 자녀, 부모 중
@@ -3090,19 +3191,19 @@ export default function DocumentsPage() {
               </h1>
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2.5">
               <button
                 onClick={() => handleFourthDegreeSeniorHeirsCheck(true)}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-bold text-black">예</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">예</span>
               </button>
 
               <button
                 onClick={() => handleFourthDegreeSeniorHeirsCheck(false)}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-bold text-black">아니오</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">아니오</span>
               </button>
             </div>
           </>
@@ -3112,13 +3213,13 @@ export default function DocumentsPage() {
         {step === 51 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'fourth_degree' && (
           <>
             <div className="flex flex-col gap-6 h-full overflow-y-auto">
-              <div className="bg-blue-50 rounded-2xl p-6 border-2 border-blue-300">
-                <h2 className="text-3xl font-bold text-blue-900 mb-6 flex items-center gap-2">
+              <div className="bg-white rounded-[20px] p-6 border border-blue-100 shadow-[0_4px_16px_-6px_rgba(15,23,42,0.08)]">
+                <h2 className="text-[22px] sm:text-[24px] font-extrabold tracking-[-0.03em] text-blue-700 mb-6 flex items-center gap-2">
                   <span>ℹ️</span>
                   <span>신청이 불가합니다</span>
                 </h2>
 
-                <div className="text-2xl text-blue-900 leading-relaxed mb-6">
+                <div className="text-[17px] sm:text-[18px] font-semibold text-gray-700 leading-relaxed mb-6">
                   선순위 상속인이 계실 경우
                   <br />
                   신청하실 수 없습니다.
@@ -3143,13 +3244,13 @@ export default function DocumentsPage() {
         {step === 40 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'fourth_degree' && (
           <>
             <div className="flex flex-col gap-6 h-full overflow-y-auto">
-              <div className="bg-orange-50 rounded-2xl p-6 border-2 border-orange-300">
-                <h2 className="text-3xl font-bold text-orange-900 mb-6 flex items-center gap-2">
+              <div className="bg-white rounded-[20px] p-6 border border-orange-100 shadow-[0_4px_16px_-6px_rgba(15,23,42,0.08)]">
+                <h2 className="text-[22px] sm:text-[24px] font-extrabold tracking-[-0.03em] text-orange-700 mb-6 flex items-center gap-2">
                   <span>⚠️</span>
                   <span>개별 상담이 필요합니다</span>
                 </h2>
 
-                <div className="text-2xl text-orange-900 leading-relaxed">
+                <div className="text-[17px] sm:text-[18px] font-semibold text-gray-700 leading-relaxed">
                   귀하의 상황은 상속 관계가
                   <br />
                   복잡하여 개별 검토가
@@ -3167,7 +3268,7 @@ export default function DocumentsPage() {
               <div className="space-y-3 pb-4">
                 <a
                   href="tel:1577-1000"
-                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center gap-2"
+                  className="w-full rounded-xl py-3 px-5 text-[15px] font-bold text-white active:scale-[0.98] transition-all flex items-center justify-center gap-2 bg-gradient-to-br from-blue-500 to-blue-600 shadow-[0_4px_12px_-3px_rgba(37,99,235,0.35),0_1px_2px_rgba(37,99,235,0.1)] gap-2"
                 >
                   <span>📞</span>
                   <span>전화 상담 하기</span>
@@ -3175,7 +3276,7 @@ export default function DocumentsPage() {
 
                 <Link
                   href="/branch"
-                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center gap-2"
+                  className="w-full rounded-xl py-3 px-5 text-[15px] font-bold text-white active:scale-[0.98] transition-all flex items-center justify-center gap-2 bg-gradient-to-br from-blue-500 to-blue-600 shadow-[0_4px_12px_-3px_rgba(37,99,235,0.35),0_1px_2px_rgba(37,99,235,0.1)] gap-2"
                 >
                   <span>🏢</span>
                   <span>가까운 지사 찾기</span>
@@ -3190,8 +3291,8 @@ export default function DocumentsPage() {
         {/* STEP 52: 손자녀 케이스 - 생존 자녀 확인 */}
         {step === 52 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'grandchild' && (
           <>
-            <div className="mb-10">
-              <h1 className="text-[32px] font-bold text-black leading-tight">
+            <div className="mb-7">
+              <h1 className="text-[24px] sm:text-[26px] font-extrabold tracking-[-0.03em] leading-[1.25] text-gray-800">
                 사망하신 분께서
                 <br />
                 생존해 계신 자녀가
@@ -3200,19 +3301,19 @@ export default function DocumentsPage() {
               </h1>
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2.5">
               <button
                 onClick={() => handleGrandchildSeniorHeirsCheck(true)}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-bold text-black">예</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">예</span>
               </button>
 
               <button
                 onClick={() => handleGrandchildSeniorHeirsCheck(false)}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-bold text-black">아니오</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">아니오</span>
               </button>
             </div>
           </>
@@ -3222,12 +3323,12 @@ export default function DocumentsPage() {
         {step === 53 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'grandchild' && (
           <>
             <div className="flex flex-col gap-6 h-full overflow-y-auto">
-              <div className="bg-blue-50 rounded-2xl p-6 border-2 border-blue-300">
-                <h2 className="text-3xl font-bold text-blue-900 mb-6 flex items-center gap-2">
+              <div className="bg-white rounded-[20px] p-6 border border-blue-100 shadow-[0_4px_16px_-6px_rgba(15,23,42,0.08)]">
+                <h2 className="text-[22px] sm:text-[24px] font-extrabold tracking-[-0.03em] text-blue-700 mb-6 flex items-center gap-2">
                   <span>ℹ️</span>
                   <span>신청이 불가합니다</span>
                 </h2>
-                <div className="text-2xl text-blue-900 leading-relaxed mb-6">
+                <div className="text-[17px] sm:text-[18px] font-semibold text-gray-700 leading-relaxed mb-6">
                   선순위 상속인이 계실 경우<br />신청하실 수 없습니다.
                 </div>
                 <div className="bg-white rounded-xl p-4">
@@ -3245,12 +3346,12 @@ export default function DocumentsPage() {
         {step === 41 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'grandchild' && (
           <>
             <div className="flex flex-col gap-6 h-full overflow-y-auto">
-              <div className="bg-orange-50 rounded-2xl p-6 border-2 border-orange-300">
-                <h2 className="text-3xl font-bold text-orange-900 mb-6 flex items-center gap-2">
+              <div className="bg-white rounded-[20px] p-6 border border-orange-100 shadow-[0_4px_16px_-6px_rgba(15,23,42,0.08)]">
+                <h2 className="text-[22px] sm:text-[24px] font-extrabold tracking-[-0.03em] text-orange-700 mb-6 flex items-center gap-2">
                   <span>⚠️</span>
                   <span>개별 상담이 필요합니다</span>
                 </h2>
-                <div className="text-2xl text-orange-900 leading-relaxed mb-6">
+                <div className="text-[17px] sm:text-[18px] font-semibold text-gray-700 leading-relaxed mb-6">
                   귀하의 상황은 상속 관계가<br />복잡하여 개별 검토가<br />필요합니다.
                 </div>
                 <div className="bg-white rounded-xl p-4">
@@ -3261,18 +3362,25 @@ export default function DocumentsPage() {
               </div>
 
               {/* Action Buttons */}
-              <div className="space-y-3 pb-4">
+              <div className="space-y-2.5 pb-4">
                 <a
                   href="tel:1577-1000"
-                  className="w-full bg-red-500 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-600 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                  className="w-full rounded-xl py-3 px-5 text-[15px] font-bold text-white active:scale-[0.98] transition-all flex items-center justify-center gap-2 bg-gradient-to-br from-blue-500 to-blue-600 shadow-[0_4px_12px_-3px_rgba(37,99,235,0.35),0_1px_2px_rgba(37,99,235,0.1)]"
                 >
+                  <Phone className="w-5 h-5" strokeWidth={2.2} />
                   1577-1000 전화 상담
                 </a>
 
                 <Link
                   href="/branch"
-                  className="w-full bg-red-500 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-600 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                  className="w-full rounded-xl py-3 px-5 text-[15px] font-bold active:scale-[0.98] transition-all flex items-center justify-center gap-2 bg-white"
+                  style={{
+                    color: "#1F2937",
+                    boxShadow:
+                      "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                  }}
                 >
+                  <MapPin className="w-[18px] h-[18px]" strokeWidth={2.2} />
                   가까운 지사 찾기
                 </Link>
               </div>
@@ -3285,25 +3393,25 @@ export default function DocumentsPage() {
         {/* STEP 42: 친권자 여부 확인 (미성년자) */}
         {step === 42 && situation === 'alive' && aliveDetailType === 'minor' && (
           <>
-            <div className="mb-10">
-              <h1 className="text-[32px] font-bold text-black leading-tight">
+            <div className="mb-7">
+              <h1 className="text-[24px] sm:text-[26px] font-extrabold tracking-[-0.03em] leading-[1.25] text-gray-800">
                 친권자이신가요?
               </h1>
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2.5">
               <button
                 onClick={() => handleParentalAuthorityCheck(true)}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-bold text-black">예</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">예</span>
               </button>
 
               <button
                 onClick={() => handleParentalAuthorityCheck(false)}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-bold text-black">아니오</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">아니오</span>
               </button>
             </div>
           </>
@@ -3312,25 +3420,25 @@ export default function DocumentsPage() {
         {/* STEP 43: 미성년 후견인 여부 확인 */}
         {step === 43 && situation === 'alive' && aliveDetailType === 'minor' && (
           <>
-            <div className="mb-10">
-              <h1 className="text-[32px] font-bold text-black leading-tight">
+            <div className="mb-7">
+              <h1 className="text-[24px] sm:text-[26px] font-extrabold tracking-[-0.03em] leading-[1.25] text-gray-800">
                 미성년 후견인이신가요?
               </h1>
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2.5">
               <button
                 onClick={() => handleMinorGuardianCheck(true)}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-bold text-black">예</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">예</span>
               </button>
 
               <button
                 onClick={() => handleMinorGuardianCheck(false)}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-bold text-black">아니오</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">아니오</span>
               </button>
             </div>
           </>
@@ -3340,104 +3448,116 @@ export default function DocumentsPage() {
         {step === 46 && situation === 'alive' && aliveDetailType === 'minor' && (
           <>
             <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              <div ref={captureRef} style={{ backgroundColor: '#ffffff' }}>
-                {/* 신청방법 카드 */}
+              <div ref={captureRef}>
+                {/* 신청방법 & 제출서류 통합 카드 */}
                 <div style={{
                   backgroundColor: '#ffffff',
-                  borderRadius: '20px',
-                  padding: '24px'
+                  borderRadius: '16px',
+                  padding: '28px 24px',
+                  boxShadow: '0 4px 16px -6px rgba(15,23,42,0.08), 0 2px 4px -2px rgba(15,23,42,0.04)'
                 }}>
                   <h1 style={{
-                    fontSize: '28px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '24px',
-                    textAlign: 'center'
+                    fontSize: '22px',
+                    fontWeight: '800',
+                    color: '#1F2937',
+                    marginBottom: '28px',
+                    textAlign: 'center',
+                    letterSpacing: '-0.02em',
+                    lineHeight: '1.25'
                   }}>본인부담상한제<br />환급금 신청 안내</h1>
 
                   <h2 style={{
-                    fontSize: '24px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '20px'
+                    fontSize: '12px',
+                    fontWeight: '800',
+                    color: '#3B82F6',
+                    marginBottom: '12px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em'
                   }}>어떻게 신청하나요?</h2>
 
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
-                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>팩스, 우편, 내방</span>
+                    <span style={{ fontSize: '18px', color: '#3B82F6', flexShrink: 0, fontWeight: '700', lineHeight: '1.4' }}>•</span>
+                    <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>팩스, 우편, 내방</span>
                   </div>
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
-                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>유선<br /><span style={{ fontSize: '16px', color: '#1F2937' }}>(※ 조건: 부, 모, 자녀 주민등록 주소 동일)</span></span>
+                    <span style={{ fontSize: '18px', color: '#3B82F6', flexShrink: 0, fontWeight: '700', lineHeight: '1.4' }}>•</span>
+                    <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>유선<br /><span style={{ fontSize: '16px', color: '#1F2937' }}>(※ 조건: 부, 모, 자녀 주민등록 주소 동일)</span></span>
                   </div>
-                </div>
 
-                {/* 제출서류 카드 */}
-                <div style={{
-                  backgroundColor: '#ffffff',
-                  borderRadius: '20px',
-                  padding: '24px'
-                }}>
+                  {/* 구분선 */}
+                  <div style={{
+                    borderTop: '1px solid #F1F5F9',
+                    marginTop: '24px',
+                    marginBottom: '24px'
+                  }}></div>
+
                   <h2 style={{
-                    fontSize: '24px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '20px'
+                    fontSize: '12px',
+                    fontWeight: '800',
+                    color: '#3B82F6',
+                    marginBottom: '12px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em'
                   }}>어떤 서류를 제출해야하나요?</h2>
 
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
-                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>환급금 지급신청서</span>
+                    <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
+                    <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>환급금 지급신청서</span>
                   </div>
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
                     <div style={{ flex: 1 }}>
-                      <span style={{ fontSize: '20px', color: '#1F2937' }}>아이 기준 가족관계증명서(상세)</span>
-                      <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 최근 3개월 이내 발급 분</div>
+                      <span style={{ fontSize: '16px', color: '#374151', fontWeight: '500', lineHeight: '1.5' }}>아이 기준 가족관계증명서(상세)</span>
+                      <div style={{ fontSize: '13px', color: '#6B7280', marginTop: '4px', fontWeight: '500' }}>- 최근 3개월 이내 발급 분</div>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* 도움이 되었어요 버튼 */}
-              <div className="px-4 pb-3">
-                <button
-                  onClick={() => setShowFeedbackModal(true)}
-                  className="w-full px-6 py-4 rounded-xl border-2 border-gray-200 bg-white text-gray-600 hover:border-blue-300 hover:text-blue-600 transition-all active:scale-[0.98] flex items-center justify-center gap-3"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"
-                    />
-                  </svg>
-                  <span className="text-xl font-semibold">도움이 되었어요</span>
-                </button>
-              </div>
+              <button
+                onClick={() => setShowFeedbackModal(true)}
+                className="w-full rounded-xl py-3 px-5 bg-white transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                style={{
+                  boxShadow:
+                    "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                }}
+              >
+                <ThumbsUp className="w-[18px] h-[18px] text-gray-500" strokeWidth={2.2} />
+                <span className="text-[15px] font-bold text-gray-600">도움이 되었어요</span>
+              </button>
 
               {/* Action Buttons */}
-              <div className="space-y-3 pb-4 px-4">
+              <div className="space-y-2.5 pb-4 mt-2">
                 <Link
                   href="/branch"
-                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                  className="w-full rounded-xl py-3 px-5 text-[15px] font-bold text-white active:scale-[0.98] transition-all flex items-center justify-center gap-2 bg-gradient-to-br from-blue-500 to-blue-600 shadow-[0_4px_12px_-3px_rgba(37,99,235,0.35),0_1px_2px_rgba(37,99,235,0.1)]"
                 >
                   지사 팩스번호 찾기
                 </Link>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2.5">
                   <button
                     onClick={handleSave}
-                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="rounded-xl py-3 px-4 text-[15px] font-bold text-gray-800 bg-white active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                    style={{
+                      boxShadow:
+                        "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                    }}
                   >
+                    <Download className="w-[18px] h-[18px]" strokeWidth={2.2} />
                     저장하기
                   </button>
 
                   <button
                     onClick={handleShare}
-                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="rounded-xl py-3 px-4 text-[15px] font-bold text-gray-800 bg-white active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                    style={{
+                      boxShadow:
+                        "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                    }}
                   >
+                    <Share2 className="w-[18px] h-[18px]" strokeWidth={2.2} />
                     공유하기
                   </button>
                 </div>
@@ -3450,13 +3570,13 @@ export default function DocumentsPage() {
         {step === 44 && situation === 'alive' && aliveDetailType === 'minor' && (
           <>
             <div className="flex flex-col gap-6 h-full overflow-y-auto">
-              <div className="bg-blue-50 rounded-2xl p-6 border-2 border-blue-300">
-                <h2 className="text-3xl font-bold text-blue-900 mb-6 flex items-center gap-2">
+              <div className="bg-white rounded-[20px] p-6 border border-blue-100 shadow-[0_4px_16px_-6px_rgba(15,23,42,0.08)]">
+                <h2 className="text-[22px] sm:text-[24px] font-extrabold tracking-[-0.03em] text-blue-700 mb-6 flex items-center gap-2">
                   <span>ℹ️</span>
                   <span>신청이 불가합니다</span>
                 </h2>
 
-                <div className="text-2xl text-blue-900 leading-relaxed">
+                <div className="text-[17px] sm:text-[18px] font-semibold text-gray-700 leading-relaxed">
                   미성년자의 환급금은
                   <br />
                   친권자 또는 미성년 후견인만
@@ -3472,56 +3592,63 @@ export default function DocumentsPage() {
         {step === 47 && situation === 'alive' && aliveDetailType === 'minor' && (
           <>
             <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              <div ref={captureRef} style={{ backgroundColor: '#ffffff' }}>
-                {/* 신청방법 카드 */}
+              <div ref={captureRef}>
+                {/* 신청방법 & 제출서류 통합 카드 */}
                 <div style={{
                   backgroundColor: '#ffffff',
-                  borderRadius: '20px',
-                  padding: '24px'
+                  borderRadius: '16px',
+                  padding: '28px 24px',
+                  boxShadow: '0 4px 16px -6px rgba(15,23,42,0.08), 0 2px 4px -2px rgba(15,23,42,0.04)'
                 }}>
                   <h1 style={{
-                    fontSize: '28px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '24px',
-                    textAlign: 'center'
+                    fontSize: '22px',
+                    fontWeight: '800',
+                    color: '#1F2937',
+                    marginBottom: '28px',
+                    textAlign: 'center',
+                    letterSpacing: '-0.02em',
+                    lineHeight: '1.25'
                   }}>본인부담상한제<br />환급금 신청 안내</h1>
 
                   <h2 style={{
-                    fontSize: '24px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '20px'
+                    fontSize: '12px',
+                    fontWeight: '800',
+                    color: '#3B82F6',
+                    marginBottom: '12px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em'
                   }}>어떻게 신청하나요?</h2>
 
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
-                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>팩스, 우편, 내방</span>
+                    <span style={{ fontSize: '18px', color: '#3B82F6', flexShrink: 0, fontWeight: '700', lineHeight: '1.4' }}>•</span>
+                    <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>팩스, 우편, 내방</span>
                   </div>
-                </div>
 
-                {/* 제출서류 카드 */}
-                <div style={{
-                  backgroundColor: '#ffffff',
-                  borderRadius: '20px',
-                  padding: '24px'
-                }}>
+                  {/* 구분선 */}
+                  <div style={{
+                    borderTop: '1px solid #F1F5F9',
+                    marginTop: '24px',
+                    marginBottom: '24px'
+                  }}></div>
+
                   <h2 style={{
-                    fontSize: '24px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '20px'
+                    fontSize: '12px',
+                    fontWeight: '800',
+                    color: '#3B82F6',
+                    marginBottom: '12px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em'
                   }}>어떤 서류를 제출해야하나요?</h2>
 
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
-                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>환급금 지급신청서</span>
+                    <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
+                    <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>환급금 지급신청서</span>
                   </div>
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
                     <div style={{ flex: 1 }}>
-                      <span style={{ fontSize: '20px', color: '#1F2937' }}>아이 기준 기본증명서(상세)</span>
-                      <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 최근 3개월 이내 발급 분</div>
+                      <span style={{ fontSize: '16px', color: '#374151', fontWeight: '500', lineHeight: '1.5' }}>아이 기준 기본증명서(상세)</span>
+                      <div style={{ fontSize: '13px', color: '#6B7280', marginTop: '4px', fontWeight: '500' }}>- 최근 3개월 이내 발급 분</div>
                     </div>
                   </div>
                 </div>
@@ -3529,55 +3656,64 @@ export default function DocumentsPage() {
                 {/* 추가 안내 */}
                 <div style={{
                   backgroundColor: '#FEF3C7',
-                  borderRadius: '16px',
-                  padding: '16px',
+                  borderRadius: '12px',
+                  padding: '14px 16px',
                   marginTop: '12px'
                 }}>
-                  <p style={{ fontSize: '16px', color: '#92400E' }}>
-                    (지사 담당자가 필요시 추가서류를 요구 할 수 있습니다. ex) 미성년후견인 심판문 등)
+                  <p style={{ fontSize: '13px', color: '#92400E', fontWeight: '500', lineHeight: '1.6' }}>
+                    ※ 지사 담당자가 필요 시 추가 서류를 요청할 수 있습니다.
+                    <br />
+                    <span style={{ paddingLeft: '14px', display: 'inline-block' }}>
+                      ex) 미성년후견인 심판문 등
+                    </span>
                   </p>
                 </div>
               </div>
 
               {/* 도움이 되었어요 버튼 */}
-              <div className="px-4 pb-3">
-                <button
-                  onClick={() => setShowFeedbackModal(true)}
-                  className="w-full px-6 py-4 rounded-xl border-2 border-gray-200 bg-white text-gray-600 hover:border-blue-300 hover:text-blue-600 transition-all active:scale-[0.98] flex items-center justify-center gap-3"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"
-                    />
-                  </svg>
-                  <span className="text-xl font-semibold">도움이 되었어요</span>
-                </button>
-              </div>
+              <button
+                onClick={() => setShowFeedbackModal(true)}
+                className="w-full rounded-xl py-3 px-5 bg-white transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                style={{
+                  boxShadow:
+                    "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                }}
+              >
+                <ThumbsUp className="w-[18px] h-[18px] text-gray-500" strokeWidth={2.2} />
+                <span className="text-[15px] font-bold text-gray-600">도움이 되었어요</span>
+              </button>
 
               {/* Action Buttons */}
-              <div className="space-y-3 pb-4 px-4">
+              <div className="space-y-2.5 pb-4 mt-2">
                 <Link
                   href="/branch"
-                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                  className="w-full rounded-xl py-3 px-5 text-[15px] font-bold text-white active:scale-[0.98] transition-all flex items-center justify-center gap-2 bg-gradient-to-br from-blue-500 to-blue-600 shadow-[0_4px_12px_-3px_rgba(37,99,235,0.35),0_1px_2px_rgba(37,99,235,0.1)]"
                 >
                   지사 팩스번호 찾기
                 </Link>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2.5">
                   <button
                     onClick={handleSave}
-                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="rounded-xl py-3 px-4 text-[15px] font-bold text-gray-800 bg-white active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                    style={{
+                      boxShadow:
+                        "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                    }}
                   >
+                    <Download className="w-[18px] h-[18px]" strokeWidth={2.2} />
                     저장하기
                   </button>
 
                   <button
                     onClick={handleShare}
-                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="rounded-xl py-3 px-4 text-[15px] font-bold text-gray-800 bg-white active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                    style={{
+                      boxShadow:
+                        "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                    }}
                   >
+                    <Share2 className="w-[18px] h-[18px]" strokeWidth={2.2} />
                     공유하기
                   </button>
                 </div>
@@ -3590,83 +3726,92 @@ export default function DocumentsPage() {
         {step === 48 && situation === 'alive' && aliveDetailType === 'guardian_adult' && (
           <>
             <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              <div ref={captureRef} style={{ backgroundColor: '#ffffff' }}>
+              <div ref={captureRef}>
                 {/* 신청방법 & 제출서류 통합 카드 */}
                 <div style={{
                   backgroundColor: '#ffffff',
-                  borderRadius: '20px',
-                  padding: '24px'
+                  borderRadius: '16px',
+                  padding: '28px 24px',
+                  boxShadow: '0 4px 16px -6px rgba(15,23,42,0.08), 0 2px 4px -2px rgba(15,23,42,0.04)'
                 }}>
                   <h1 style={{
-                    fontSize: '28px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '24px',
-                    textAlign: 'center'
+                    fontSize: '22px',
+                    fontWeight: '800',
+                    color: '#1F2937',
+                    marginBottom: '28px',
+                    textAlign: 'center',
+                    letterSpacing: '-0.02em',
+                    lineHeight: '1.25'
                   }}>본인부담상한제<br />환급금 신청 안내</h1>
 
                   <h2 style={{
-                    fontSize: '24px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '20px'
+                    fontSize: '12px',
+                    fontWeight: '800',
+                    color: '#3B82F6',
+                    marginBottom: '12px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em'
                   }}>어떻게 신청하나요?</h2>
 
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
-                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>팩스, 우편, 내방</span>
+                    <span style={{ fontSize: '18px', color: '#3B82F6', flexShrink: 0, fontWeight: '700', lineHeight: '1.4' }}>•</span>
+                    <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>팩스, 우편, 내방</span>
                   </div>
 
                   {/* 구분선 */}
                   <div style={{
-                    borderTop: '1px solid #000000',
+                    borderTop: '1px solid #F1F5F9',
                     marginTop: '24px',
                     marginBottom: '24px'
                   }}></div>
 
                   <h2 style={{
-                    fontSize: '24px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '20px'
+                    fontSize: '12px',
+                    fontWeight: '800',
+                    color: '#3B82F6',
+                    marginBottom: '12px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em'
                   }}>어떤 서류를 제출해야하나요?</h2>
 
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
-                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>환급금 지급신청서</span>
+                    <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
+                    <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>환급금 지급신청서</span>
                   </div>
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
-                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>후견 등기사항증명서</span>
+                    <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
+                    <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>후견 등기사항증명서</span>
                   </div>
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
-                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>성년후견인 신분증 사본</span>
+                    <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
+                    <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>성년후견인 신분증 사본</span>
                   </div>
 
                   {/* 구분선 */}
                   <div style={{
-                    borderTop: '1px solid #000000',
+                    borderTop: '1px solid #F1F5F9',
                     marginTop: '24px',
                     marginBottom: '24px'
                   }}></div>
 
                   <h2 style={{
-                    fontSize: '24px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '20px'
+                    fontSize: '12px',
+                    fontWeight: '800',
+                    color: '#3B82F6',
+                    marginBottom: '12px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em'
                   }}>유의사항</h2>
 
-                  <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '20px', color: '#000000', flexShrink: 0, fontWeight: 'bold' }}>1.</span>
-                    <span style={{ fontSize: '18px', color: '#1F2937', flex: 1, lineHeight: '1.6' }}>
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '14px', color: '#3B82F6', flexShrink: 0, fontWeight: '700', lineHeight: '1.5' }}>1.</span>
+                    <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>
                       가정법원에서 성년후견인으로<br />정식 등록되어 있어야 합니다.
                     </span>
                   </div>
-                  <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '20px', color: '#000000', flexShrink: 0, fontWeight: 'bold' }}>2.</span>
-                    <span style={{ fontSize: '18px', color: '#1F2937', flex: 1, lineHeight: '1.6' }}>
+                  <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <span style={{ fontSize: '14px', color: '#3B82F6', flexShrink: 0, fontWeight: '700', lineHeight: '1.5' }}>2.</span>
+                    <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>
                       후견등기사항증명서에서<br />'금전 관리' 또는 '재산 관리' 권한이<br />제한되어 있지 않은지 확인해주세요.
                     </span>
                   </div>
@@ -3679,44 +3824,49 @@ export default function DocumentsPage() {
               </div>
 
               {/* 도움이 되었어요 버튼 */}
-              <div className="px-4 pb-3">
-                <button
-                  onClick={() => setShowFeedbackModal(true)}
-                  className="w-full px-6 py-4 rounded-xl border-2 border-gray-200 bg-white text-gray-600 hover:border-blue-300 hover:text-blue-600 transition-all active:scale-[0.98] flex items-center justify-center gap-3"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"
-                    />
-                  </svg>
-                  <span className="text-xl font-semibold">도움이 되었어요</span>
-                </button>
-              </div>
+              <button
+                onClick={() => setShowFeedbackModal(true)}
+                className="w-full rounded-xl py-3 px-5 bg-white transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                style={{
+                  boxShadow:
+                    "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                }}
+              >
+                <ThumbsUp className="w-[18px] h-[18px] text-gray-500" strokeWidth={2.2} />
+                <span className="text-[15px] font-bold text-gray-600">도움이 되었어요</span>
+              </button>
 
               {/* Action Buttons */}
-              <div className="space-y-3 pb-4 px-4">
+              <div className="space-y-2.5 pb-4 mt-2">
                 <Link
                   href="/branch"
-                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                  className="w-full rounded-xl py-3 px-5 text-[15px] font-bold text-white active:scale-[0.98] transition-all flex items-center justify-center gap-2 bg-gradient-to-br from-blue-500 to-blue-600 shadow-[0_4px_12px_-3px_rgba(37,99,235,0.35),0_1px_2px_rgba(37,99,235,0.1)]"
                 >
                   지사 팩스번호 찾기
                 </Link>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2.5">
                   <button
                     onClick={handleSave}
-                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="rounded-xl py-3 px-4 text-[15px] font-bold text-gray-800 bg-white active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                    style={{
+                      boxShadow:
+                        "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                    }}
                   >
+                    <Download className="w-[18px] h-[18px]" strokeWidth={2.2} />
                     저장하기
                   </button>
 
                   <button
                     onClick={handleShare}
-                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="rounded-xl py-3 px-4 text-[15px] font-bold text-gray-800 bg-white active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                    style={{
+                      boxShadow:
+                        "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                    }}
                   >
+                    <Share2 className="w-[18px] h-[18px]" strokeWidth={2.2} />
                     공유하기
                   </button>
                 </div>
@@ -3729,13 +3879,13 @@ export default function DocumentsPage() {
         {step === 49 && situation === 'deceased' && deceasedRelationship === 'heir_guardian' && (
           <>
             <div className="flex flex-col gap-6 h-full overflow-y-auto">
-              <div className="bg-orange-50 rounded-2xl p-6 border-2 border-orange-300">
-                <h2 className="text-3xl font-bold text-orange-900 mb-6 flex items-center gap-2">
+              <div className="bg-white rounded-[20px] p-6 border border-orange-100 shadow-[0_4px_16px_-6px_rgba(15,23,42,0.08)]">
+                <h2 className="text-[22px] sm:text-[24px] font-extrabold tracking-[-0.03em] text-orange-700 mb-6 flex items-center gap-2">
                   <span>⚠️</span>
                   <span>개별 상담이 필요합니다</span>
                 </h2>
 
-                <div className="text-2xl text-orange-900 leading-relaxed">
+                <div className="text-[17px] sm:text-[18px] font-semibold text-gray-700 leading-relaxed">
                   귀하의 상황은 상속 관계가
                   <br />
                   복잡하여 개별 검토가
@@ -3753,7 +3903,7 @@ export default function DocumentsPage() {
               <div className="space-y-3 pb-4">
                 <a
                   href="tel:1577-1000"
-                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center gap-2"
+                  className="w-full rounded-xl py-3 px-5 text-[15px] font-bold text-white active:scale-[0.98] transition-all flex items-center justify-center gap-2 bg-gradient-to-br from-blue-500 to-blue-600 shadow-[0_4px_12px_-3px_rgba(37,99,235,0.35),0_1px_2px_rgba(37,99,235,0.1)] gap-2"
                 >
                   <span>📞</span>
                   <span>전화 상담 하기</span>
@@ -3761,7 +3911,7 @@ export default function DocumentsPage() {
 
                 <Link
                   href="/branch"
-                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center gap-2"
+                  className="w-full rounded-xl py-3 px-5 text-[15px] font-bold text-white active:scale-[0.98] transition-all flex items-center justify-center gap-2 bg-gradient-to-br from-blue-500 to-blue-600 shadow-[0_4px_12px_-3px_rgba(37,99,235,0.35),0_1px_2px_rgba(37,99,235,0.1)] gap-2"
                 >
                   <span>🏢</span>
                   <span>가까운 지사 찾기</span>
@@ -3775,13 +3925,13 @@ export default function DocumentsPage() {
         {step === 50 && (
           <>
             <div className="flex flex-col gap-6 h-full overflow-y-auto">
-              <div className="bg-orange-50 rounded-2xl p-6 border-2 border-orange-300">
-                <h2 className="text-3xl font-bold text-orange-900 mb-6 flex items-center gap-2">
+              <div className="bg-white rounded-[20px] p-6 border border-orange-100 shadow-[0_4px_16px_-6px_rgba(15,23,42,0.08)]">
+                <h2 className="text-[22px] sm:text-[24px] font-extrabold tracking-[-0.03em] text-orange-700 mb-6 flex items-center gap-2">
                   <span>⚠️</span>
                   <span>개별 상담이 필요합니다</span>
                 </h2>
 
-                <div className="text-2xl text-orange-900 leading-relaxed">
+                <div className="text-[17px] sm:text-[18px] font-semibold text-gray-700 leading-relaxed">
                   귀하의 상황은 상속 관계가
                   <br />
                   복잡하여 개별 검토가
@@ -3799,7 +3949,7 @@ export default function DocumentsPage() {
               <div className="space-y-3 pb-4">
                 <a
                   href="tel:1577-1000"
-                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center gap-2"
+                  className="w-full rounded-xl py-3 px-5 text-[15px] font-bold text-white active:scale-[0.98] transition-all flex items-center justify-center gap-2 bg-gradient-to-br from-blue-500 to-blue-600 shadow-[0_4px_12px_-3px_rgba(37,99,235,0.35),0_1px_2px_rgba(37,99,235,0.1)] gap-2"
                 >
                   <span>📞</span>
                   <span>전화 상담 하기</span>
@@ -3807,7 +3957,7 @@ export default function DocumentsPage() {
 
                 <Link
                   href="/branch"
-                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center gap-2"
+                  className="w-full rounded-xl py-3 px-5 text-[15px] font-bold text-white active:scale-[0.98] transition-all flex items-center justify-center gap-2 bg-gradient-to-br from-blue-500 to-blue-600 shadow-[0_4px_12px_-3px_rgba(37,99,235,0.35),0_1px_2px_rgba(37,99,235,0.1)] gap-2"
                 >
                   <span>🏢</span>
                   <span>가까운 지사 찾기</span>
@@ -3823,7 +3973,7 @@ export default function DocumentsPage() {
         {step === 60 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'parent' && (
           <>
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-black leading-tight">
+              <h1 className="text-[24px] sm:text-[26px] font-extrabold tracking-[-0.03em] leading-[1.25] text-gray-800">
                 진료받은 분의 자녀나
                 <br />
                 손자녀가 한 명이라도
@@ -3832,19 +3982,19 @@ export default function DocumentsPage() {
               </h1>
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2.5">
               <button
                 onClick={() => handleParentCaseSeniorHeirsCheck(true)}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-bold text-black">예</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">예</span>
               </button>
 
               <button
                 onClick={() => handleParentCaseSeniorHeirsCheck(false)}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-bold text-black">아니오</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">아니오</span>
               </button>
             </div>
           </>
@@ -3854,13 +4004,13 @@ export default function DocumentsPage() {
         {step === 61 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'parent' && hasSeniorHeirsForParent && (
           <>
             <div className="flex flex-col gap-6 h-full overflow-y-auto">
-              <div className="bg-blue-50 rounded-2xl p-6 border-2 border-blue-300">
-                <h2 className="text-3xl font-bold text-blue-900 mb-6 flex items-center gap-2">
+              <div className="bg-white rounded-[20px] p-6 border border-blue-100 shadow-[0_4px_16px_-6px_rgba(15,23,42,0.08)]">
+                <h2 className="text-[22px] sm:text-[24px] font-extrabold tracking-[-0.03em] text-blue-700 mb-6 flex items-center gap-2">
                   <span>ℹ️</span>
                   <span>신청이 불가합니다</span>
                 </h2>
 
-                <div className="text-2xl text-blue-900 leading-relaxed mb-6">
+                <div className="text-[17px] sm:text-[18px] font-semibold text-gray-700 leading-relaxed mb-6">
                   선순위 상속인이 계실 경우
                   <br />
                   신청하실 수 없습니다.
@@ -3885,25 +4035,25 @@ export default function DocumentsPage() {
         {step === 62 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'parent' && !hasSeniorHeirsForParent && (
           <>
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-black leading-tight">
+              <h1 className="text-[24px] sm:text-[26px] font-extrabold tracking-[-0.03em] leading-[1.25] text-gray-800">
                 사망하신분의 배우자분께서<br />
                 현재 생존해 계신가요?
               </h1>
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2.5">
               <button
                 onClick={() => handleParentCaseSpouseCheck(true)}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-bold text-black">예</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">예</span>
               </button>
 
               <button
                 onClick={() => handleParentCaseSpouseCheck(false)}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-bold text-black">아니오</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">아니오</span>
               </button>
             </div>
           </>
@@ -3913,132 +4063,146 @@ export default function DocumentsPage() {
         {step === 64 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'parent' && (
           <>
             <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              <div ref={captureRef} style={{ backgroundColor: '#ffffff' }}>
+              <div ref={captureRef}>
                 {/* 신청방법 & 제출서류 통합 카드 */}
                 <div style={{
                   backgroundColor: '#ffffff',
-                  borderRadius: '20px',
-                  padding: '24px'
+                  borderRadius: '16px',
+                  padding: '28px 24px',
+                  boxShadow: '0 4px 16px -6px rgba(15,23,42,0.08), 0 2px 4px -2px rgba(15,23,42,0.04)'
                 }}>
                   <h1 style={{
-                    fontSize: '28px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '24px',
-                    textAlign: 'center'
+                    fontSize: '22px',
+                    fontWeight: '800',
+                    color: '#1F2937',
+                    marginBottom: '28px',
+                    textAlign: 'center',
+                    letterSpacing: '-0.02em',
+                    lineHeight: '1.25'
                   }}>본인부담상한제<br />환급금 신청 안내</h1>
 
                   <h2 style={{
-                    fontSize: '24px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '20px'
+                    fontSize: '12px',
+                    fontWeight: '800',
+                    color: '#3B82F6',
+                    marginBottom: '12px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em'
                   }}>어떻게 신청하나요?</h2>
 
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
-                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>팩스, 우편, 내방</span>
+                    <span style={{ fontSize: '18px', color: '#3B82F6', flexShrink: 0, fontWeight: '700', lineHeight: '1.4' }}>•</span>
+                    <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>팩스, 우편, 내방</span>
                   </div>
 
                   {/* 구분선 */}
                   <div style={{
-                    borderTop: '1px solid #000000',
+                    borderTop: '1px solid #F1F5F9',
                     marginTop: '24px',
                     marginBottom: '24px'
                   }}></div>
 
                   <h2 style={{
-                    fontSize: '24px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '20px'
+                    fontSize: '12px',
+                    fontWeight: '800',
+                    color: '#3B82F6',
+                    marginBottom: '12px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em'
                   }}>어떤 서류를 제출해야하나요?</h2>
 
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
-                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>환급금 지급신청서</span>
+                    <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
+                    <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>환급금 지급신청서</span>
                   </div>
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
                     <div style={{ flex: 1 }}>
-                      <span style={{ fontSize: '20px', color: '#1F2937' }}>상속대표선정동의서</span>
-                      <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 상속인 전원 서명 필요</div>
+                      <span style={{ fontSize: '16px', color: '#374151', fontWeight: '500', lineHeight: '1.5' }}>상속대표선정동의서</span>
+                      <div style={{ fontSize: '13px', color: '#6B7280', marginTop: '4px', fontWeight: '500' }}>- 상속인 전원 서명 필요</div>
                     </div>
                   </div>
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
                     <div style={{ flex: 1 }}>
-                      <span style={{ fontSize: '20px', color: '#1F2937' }}>진료받은 분 기준 가족관계증명서(상세)</span>
-                      <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 최근 3개월 이내 발급 분</div>
+                      <span style={{ fontSize: '16px', color: '#374151', fontWeight: '500', lineHeight: '1.5' }}>진료받은 분 기준 가족관계증명서(상세)</span>
+                      <div style={{ fontSize: '13px', color: '#6B7280', marginTop: '4px', fontWeight: '500' }}>- 최근 3개월 이내 발급 분</div>
                     </div>
                   </div>
 
                   {/* 구분선 */}
                   <div style={{
-                    borderTop: '1px solid #000000',
+                    borderTop: '1px solid #F1F5F9',
                     marginTop: '24px',
                     marginBottom: '24px'
                   }}></div>
 
                   <h2 style={{
-                    fontSize: '24px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '20px'
+                    fontSize: '12px',
+                    fontWeight: '800',
+                    color: '#3B82F6',
+                    marginBottom: '12px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em'
                   }}>누가 상속인인가요? (진료받은 분 기준)</h2>
 
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
-                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>부모</span>
+                    <span style={{ fontSize: '18px', color: '#3B82F6', flexShrink: 0, fontWeight: '700', lineHeight: '1.4' }}>•</span>
+                    <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>부모</span>
                   </div>
                   {hasSpouse && (
                     <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                      <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
-                      <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>배우자</span>
+                      <span style={{ fontSize: '18px', color: '#3B82F6', flexShrink: 0, fontWeight: '700', lineHeight: '1.4' }}>•</span>
+                      <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>배우자</span>
                     </div>
                   )}
                 </div>
               </div>
 
               {/* 도움이 되었어요 버튼 */}
-              <div className="px-4 pb-3">
-                <button
-                  onClick={() => setShowFeedbackModal(true)}
-                  className="w-full px-6 py-4 rounded-xl border-2 border-gray-200 bg-white text-gray-600 hover:border-blue-300 hover:text-blue-600 transition-all active:scale-[0.98] flex items-center justify-center gap-3"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"
-                    />
-                  </svg>
-                  <span className="text-xl font-semibold">도움이 되었어요</span>
-                </button>
-              </div>
+              <button
+                onClick={() => setShowFeedbackModal(true)}
+                className="w-full rounded-xl py-3 px-5 bg-white transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                style={{
+                  boxShadow:
+                    "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                }}
+              >
+                <ThumbsUp className="w-[18px] h-[18px] text-gray-500" strokeWidth={2.2} />
+                <span className="text-[15px] font-bold text-gray-600">도움이 되었어요</span>
+              </button>
 
               {/* Action Buttons */}
-              <div className="space-y-3 pb-4 px-4">
+              <div className="space-y-2.5 pb-4 mt-2">
                 <Link
                   href="/branch"
-                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                  className="w-full rounded-xl py-3 px-5 text-[15px] font-bold text-white active:scale-[0.98] transition-all flex items-center justify-center gap-2 bg-gradient-to-br from-blue-500 to-blue-600 shadow-[0_4px_12px_-3px_rgba(37,99,235,0.35),0_1px_2px_rgba(37,99,235,0.1)]"
                 >
                   지사 팩스번호 찾기
                 </Link>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2.5">
                   <button
                     onClick={handleSave}
-                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="rounded-xl py-3 px-4 text-[15px] font-bold text-gray-800 bg-white active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                    style={{
+                      boxShadow:
+                        "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                    }}
                   >
+                    <Download className="w-[18px] h-[18px]" strokeWidth={2.2} />
                     저장하기
                   </button>
 
                   <button
                     onClick={handleShare}
-                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="rounded-xl py-3 px-4 text-[15px] font-bold text-gray-800 bg-white active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                    style={{
+                      boxShadow:
+                        "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                    }}
                   >
+                    <Share2 className="w-[18px] h-[18px]" strokeWidth={2.2} />
                     공유하기
                   </button>
                 </div>
@@ -4051,24 +4215,24 @@ export default function DocumentsPage() {
         {step === 65 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'grandparent' && (
           <>
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-black leading-tight">
+              <h1 className="text-[24px] sm:text-[26px] font-extrabold tracking-[-0.03em] leading-[1.25] text-gray-800">
                 진료받은 분의<br />자녀나 손자녀가<br />한 명이라도 살아계신가요?
               </h1>
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2.5">
               <button
                 onClick={() => handleGrandparentCaseSeniorHeirsCheck(true)}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-bold text-black">예</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">예</span>
               </button>
 
               <button
                 onClick={() => handleGrandparentCaseSeniorHeirsCheck(false)}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-bold text-black">아니오</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">아니오</span>
               </button>
             </div>
           </>
@@ -4078,13 +4242,13 @@ export default function DocumentsPage() {
         {step === 66 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'grandparent' && (
           <>
             <div className="flex flex-col gap-6 h-full overflow-y-auto">
-              <div className="bg-blue-50 rounded-2xl p-6 border-2 border-blue-300">
-                <h2 className="text-3xl font-bold text-blue-900 mb-6 flex items-center gap-2">
+              <div className="bg-white rounded-[20px] p-6 border border-blue-100 shadow-[0_4px_16px_-6px_rgba(15,23,42,0.08)]">
+                <h2 className="text-[22px] sm:text-[24px] font-extrabold tracking-[-0.03em] text-blue-700 mb-6 flex items-center gap-2">
                   <span>ℹ️</span>
                   <span>신청이 불가합니다</span>
                 </h2>
 
-                <div className="text-2xl text-blue-900 leading-relaxed mb-6">
+                <div className="text-[17px] sm:text-[18px] font-semibold text-gray-700 leading-relaxed mb-6">
                   선순위 상속인이 계실 경우
                   <br />
                   신청하실 수 없습니다.
@@ -4109,25 +4273,25 @@ export default function DocumentsPage() {
         {step === 67 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'grandparent' && (
           <>
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-black leading-tight">
+              <h1 className="text-[24px] sm:text-[26px] font-extrabold tracking-[-0.03em] leading-[1.25] text-gray-800">
                 진료받은 분의<br />부모님이<br />모두 돌아가셨나요?
               </h1>
-              <p className="text-2xl text-gray-600 mt-4">(가족관계증명서 기준)</p>
+              <p className="text-[14px] sm:text-[15px] font-medium text-gray-500 mt-4">(가족관계증명서 기준)</p>
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2.5">
               <button
                 onClick={() => handleParentsDeceasedCheck(true)}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-bold text-black">예 (모두 돌아가심)</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">예 (모두 돌아가심)</span>
               </button>
 
               <button
                 onClick={() => handleParentsDeceasedCheck(false)}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-bold text-black">아니오 (한 분이라도 생존)</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">아니오 (한 분이라도 생존)</span>
               </button>
             </div>
           </>
@@ -4137,25 +4301,25 @@ export default function DocumentsPage() {
         {step === 68 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'grandparent' && (
           <>
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-black leading-tight">
+              <h1 className="text-[24px] sm:text-[26px] font-extrabold tracking-[-0.03em] leading-[1.25] text-gray-800">
                 사망하신분의 배우자분께서<br />
                 현재 생존해 계신가요?
               </h1>
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2.5">
               <button
                 onClick={() => handleGrandparentCaseSpouseCheck(true)}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-bold text-black">예</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">예</span>
               </button>
 
               <button
                 onClick={() => handleGrandparentCaseSpouseCheck(false)}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-bold text-black">아니오</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">아니오</span>
               </button>
             </div>
           </>
@@ -4165,139 +4329,153 @@ export default function DocumentsPage() {
         {step === 69 && situation === 'deceased' && refundAmount === 'over300k' && deceasedRelationship === 'grandparent' && (
           <>
             <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              <div ref={captureRef} style={{ backgroundColor: '#ffffff' }}>
+              <div ref={captureRef}>
                 {/* 신청방법 & 제출서류 통합 카드 */}
                 <div style={{
                   backgroundColor: '#ffffff',
-                  borderRadius: '20px',
-                  padding: '24px'
+                  borderRadius: '16px',
+                  padding: '28px 24px',
+                  boxShadow: '0 4px 16px -6px rgba(15,23,42,0.08), 0 2px 4px -2px rgba(15,23,42,0.04)'
                 }}>
                   <h1 style={{
-                    fontSize: '28px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '24px',
-                    textAlign: 'center'
+                    fontSize: '22px',
+                    fontWeight: '800',
+                    color: '#1F2937',
+                    marginBottom: '28px',
+                    textAlign: 'center',
+                    letterSpacing: '-0.02em',
+                    lineHeight: '1.25'
                   }}>본인부담상한제<br />환급금 신청 안내</h1>
 
                   <h2 style={{
-                    fontSize: '24px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '20px'
+                    fontSize: '12px',
+                    fontWeight: '800',
+                    color: '#3B82F6',
+                    marginBottom: '12px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em'
                   }}>어떻게 신청하나요?</h2>
 
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
-                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>팩스, 우편, 내방</span>
+                    <span style={{ fontSize: '18px', color: '#3B82F6', flexShrink: 0, fontWeight: '700', lineHeight: '1.4' }}>•</span>
+                    <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>팩스, 우편, 내방</span>
                   </div>
 
                   {/* 구분선 */}
                   <div style={{
-                    borderTop: '1px solid #000000',
+                    borderTop: '1px solid #F1F5F9',
                     marginTop: '24px',
                     marginBottom: '24px'
                   }}></div>
 
                   <h2 style={{
-                    fontSize: '24px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '20px'
+                    fontSize: '12px',
+                    fontWeight: '800',
+                    color: '#3B82F6',
+                    marginBottom: '12px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em'
                   }}>어떤 서류를 제출해야하나요?</h2>
 
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
-                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>환급금 지급신청서</span>
+                    <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
+                    <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>환급금 지급신청서</span>
                   </div>
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
                     <div style={{ flex: 1 }}>
-                      <span style={{ fontSize: '20px', color: '#1F2937' }}>상속대표선정동의서</span>
-                      <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 상속인 전원 서명 필요</div>
+                      <span style={{ fontSize: '16px', color: '#374151', fontWeight: '500', lineHeight: '1.5' }}>상속대표선정동의서</span>
+                      <div style={{ fontSize: '13px', color: '#6B7280', marginTop: '4px', fontWeight: '500' }}>- 상속인 전원 서명 필요</div>
                     </div>
                   </div>
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
                     <div style={{ flex: 1 }}>
-                      <span style={{ fontSize: '20px', color: '#1F2937' }}>진료받은 분 기준 가족관계증명서(상세)</span>
-                      <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 최근 3개월 이내 발급 분</div>
+                      <span style={{ fontSize: '16px', color: '#374151', fontWeight: '500', lineHeight: '1.5' }}>진료받은 분 기준 가족관계증명서(상세)</span>
+                      <div style={{ fontSize: '13px', color: '#6B7280', marginTop: '4px', fontWeight: '500' }}>- 최근 3개월 이내 발급 분</div>
                     </div>
                   </div>
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
                     <div style={{ flex: 1 }}>
-                      <span style={{ fontSize: '20px', color: '#1F2937' }}>진료받은 분의 부모 기준 가족관계증명서(상세)</span>
-                      <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 최근 3개월 이내 발급 분 (부모님 사망 증명용)</div>
+                      <span style={{ fontSize: '16px', color: '#374151', fontWeight: '500', lineHeight: '1.5' }}>진료받은 분의 부모 기준 가족관계증명서(상세)</span>
+                      <div style={{ fontSize: '13px', color: '#6B7280', marginTop: '4px', fontWeight: '500' }}>- 최근 3개월 이내 발급 분 (부모님 사망 증명용)</div>
                     </div>
                   </div>
 
                   {/* 구분선 */}
                   <div style={{
-                    borderTop: '1px solid #000000',
+                    borderTop: '1px solid #F1F5F9',
                     marginTop: '24px',
                     marginBottom: '24px'
                   }}></div>
 
                   <h2 style={{
-                    fontSize: '24px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '20px'
+                    fontSize: '12px',
+                    fontWeight: '800',
+                    color: '#3B82F6',
+                    marginBottom: '12px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em'
                   }}>누가 상속인인가요? (진료받은 분 기준)</h2>
 
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
-                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>조부모/외조부모</span>
+                    <span style={{ fontSize: '18px', color: '#3B82F6', flexShrink: 0, fontWeight: '700', lineHeight: '1.4' }}>•</span>
+                    <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>조부모/외조부모</span>
                   </div>
                   {hasSpouse && (
                     <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                      <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
-                      <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>배우자</span>
+                      <span style={{ fontSize: '18px', color: '#3B82F6', flexShrink: 0, fontWeight: '700', lineHeight: '1.4' }}>•</span>
+                      <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>배우자</span>
                     </div>
                   )}
                 </div>
               </div>
 
               {/* 도움이 되었어요 버튼 */}
-              <div className="px-4 pb-3">
-                <button
-                  onClick={() => setShowFeedbackModal(true)}
-                  className="w-full px-6 py-4 rounded-xl border-2 border-gray-200 bg-white text-gray-600 hover:border-blue-300 hover:text-blue-600 transition-all active:scale-[0.98] flex items-center justify-center gap-3"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"
-                    />
-                  </svg>
-                  <span className="text-xl font-semibold">도움이 되었어요</span>
-                </button>
-              </div>
+              <button
+                onClick={() => setShowFeedbackModal(true)}
+                className="w-full rounded-xl py-3 px-5 bg-white transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                style={{
+                  boxShadow:
+                    "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                }}
+              >
+                <ThumbsUp className="w-[18px] h-[18px] text-gray-500" strokeWidth={2.2} />
+                <span className="text-[15px] font-bold text-gray-600">도움이 되었어요</span>
+              </button>
 
               {/* Action Buttons */}
-              <div className="space-y-3 pb-4 px-4">
+              <div className="space-y-2.5 pb-4 mt-2">
                 <Link
                   href="/branch"
-                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                  className="w-full rounded-xl py-3 px-5 text-[15px] font-bold text-white active:scale-[0.98] transition-all flex items-center justify-center gap-2 bg-gradient-to-br from-blue-500 to-blue-600 shadow-[0_4px_12px_-3px_rgba(37,99,235,0.35),0_1px_2px_rgba(37,99,235,0.1)]"
                 >
                   지사 팩스번호 찾기
                 </Link>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2.5">
                   <button
                     onClick={handleSave}
-                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="rounded-xl py-3 px-4 text-[15px] font-bold text-gray-800 bg-white active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                    style={{
+                      boxShadow:
+                        "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                    }}
                   >
+                    <Download className="w-[18px] h-[18px]" strokeWidth={2.2} />
                     저장하기
                   </button>
 
                   <button
                     onClick={handleShare}
-                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="rounded-xl py-3 px-4 text-[15px] font-bold text-gray-800 bg-white active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                    style={{
+                      boxShadow:
+                        "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                    }}
                   >
+                    <Share2 className="w-[18px] h-[18px]" strokeWidth={2.2} />
                     공유하기
                   </button>
                 </div>
@@ -4312,26 +4490,26 @@ export default function DocumentsPage() {
         {step === 70 && situation === 'deceased' && refundAmount === 'under300k' && deceasedRelationship === 'sibling' && (
           <>
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-black leading-tight">
+              <h1 className="text-[24px] sm:text-[26px] font-extrabold tracking-[-0.03em] leading-[1.25] text-gray-800">
                 사망하신 분의 자녀 또는
                 <br />
                 배우자가 생존해 계신가요?
               </h1>
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2.5">
               <button
                 onClick={() => navigateToStep(72)}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-bold text-black">예</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">예</span>
               </button>
 
               <button
                 onClick={() => navigateToStep(71)}
-                className="rounded-2xl border-2 transition-all active:scale-[0.98] bg-white border-gray-200 hover:border-blue-300 py-5 px-5"
+                className="rounded-[18px] border transition-all active:scale-[0.98] bg-white border-gray-100 py-4 px-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.05)]"
               >
-                <span className="text-2xl font-bold text-black">아니오</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em] text-gray-800">아니오</span>
               </button>
             </div>
           </>
@@ -4341,114 +4519,126 @@ export default function DocumentsPage() {
         {step === 71 && situation === 'deceased' && refundAmount === 'under300k' && deceasedRelationship === 'sibling' && (
           <>
             <div className="flex flex-col gap-4 h-full overflow-y-auto">
-              <div ref={captureRef} style={{ backgroundColor: '#ffffff' }}>
+              <div ref={captureRef}>
                 {/* 신청방법 & 제출서류 통합 카드 */}
                 <div style={{
                   backgroundColor: '#ffffff',
-                  borderRadius: '20px',
-                  padding: '24px'
+                  borderRadius: '16px',
+                  padding: '28px 24px',
+                  boxShadow: '0 4px 16px -6px rgba(15,23,42,0.08), 0 2px 4px -2px rgba(15,23,42,0.04)'
                 }}>
                   <h1 style={{
-                    fontSize: '28px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '24px',
-                    textAlign: 'center'
+                    fontSize: '22px',
+                    fontWeight: '800',
+                    color: '#1F2937',
+                    marginBottom: '28px',
+                    textAlign: 'center',
+                    letterSpacing: '-0.02em',
+                    lineHeight: '1.25'
                   }}>본인부담상한제<br />환급금 신청 안내</h1>
 
                   <h2 style={{
-                    fontSize: '24px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '20px'
+                    fontSize: '12px',
+                    fontWeight: '800',
+                    color: '#3B82F6',
+                    marginBottom: '12px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em'
                   }}>어떻게 신청하나요?</h2>
 
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>•</span>
-                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>팩스, 우편, 내방</span>
+                    <span style={{ fontSize: '18px', color: '#3B82F6', flexShrink: 0, fontWeight: '700', lineHeight: '1.4' }}>•</span>
+                    <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>팩스, 우편, 내방</span>
                   </div>
 
                   {/* 구분선 */}
                   <div style={{
-                    borderTop: '1px solid #000000',
+                    borderTop: '1px solid #F1F5F9',
                     marginTop: '24px',
                     marginBottom: '24px'
                   }}></div>
 
                   <h2 style={{
-                    fontSize: '24px',
-                    fontWeight: 'bold',
-                    color: '#000000',
-                    marginBottom: '20px'
+                    fontSize: '12px',
+                    fontWeight: '800',
+                    color: '#3B82F6',
+                    marginBottom: '12px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em'
                   }}>어떤 서류를 제출해야하나요?</h2>
 
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
-                    <span style={{ fontSize: '20px', color: '#1F2937', flex: 1 }}>환급금 지급신청서</span>
+                    <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
+                    <span style={{ fontSize: '16px', color: '#374151', flex: 1, fontWeight: '500', lineHeight: '1.5' }}>환급금 지급신청서</span>
                   </div>
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
                     <div style={{ flex: 1 }}>
-                      <span style={{ fontSize: '20px', color: '#1F2937' }}>진료받은 분 기준 가족관계증명서(상세)</span>
-                      <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 최근 3개월 이내 발급 분</div>
+                      <span style={{ fontSize: '16px', color: '#374151', fontWeight: '500', lineHeight: '1.5' }}>진료받은 분 기준 가족관계증명서(상세)</span>
+                      <div style={{ fontSize: '13px', color: '#6B7280', marginTop: '4px', fontWeight: '500' }}>- 최근 3개월 이내 발급 분</div>
                     </div>
                   </div>
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
                     <div style={{ flex: 1 }}>
-                      <span style={{ fontSize: '20px', color: '#1F2937' }}>진료받은 분의 부모 기준 가족관계증명서(상세)</span>
-                      <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 최근 3개월 이내 발급 분</div>
+                      <span style={{ fontSize: '16px', color: '#374151', fontWeight: '500', lineHeight: '1.5' }}>진료받은 분의 부모 기준 가족관계증명서(상세)</span>
+                      <div style={{ fontSize: '13px', color: '#6B7280', marginTop: '4px', fontWeight: '500' }}>- 최근 3개월 이내 발급 분</div>
                     </div>
                   </div>
                   <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <span style={{ fontSize: '24px', color: '#000000', flexShrink: 0 }}>✓</span>
+                    <span style={{ fontSize: '16px', color: '#10B981', flexShrink: 0, fontWeight: '800', lineHeight: '1.5' }}>✓</span>
                     <div style={{ flex: 1 }}>
-                      <span style={{ fontSize: '20px', color: '#1F2937' }}>상속대표선정동의서</span>
-                      <div style={{ fontSize: '16px', color: '#1F2937', marginTop: '4px' }}>- 생략 가능</div>
+                      <span style={{ fontSize: '16px', color: '#374151', fontWeight: '500', lineHeight: '1.5' }}>상속대표선정동의서</span>
+                      <div style={{ fontSize: '13px', color: '#6B7280', marginTop: '4px', fontWeight: '500' }}>- 생략 가능</div>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* 도움이 되었어요 버튼 */}
-              <div className="px-4 pb-3">
-                <button
-                  onClick={() => setShowFeedbackModal(true)}
-                  className="w-full px-6 py-4 rounded-xl border-2 border-gray-200 bg-white text-gray-600 hover:border-blue-300 hover:text-blue-600 transition-all active:scale-[0.98] flex items-center justify-center gap-3"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"
-                    />
-                  </svg>
-                  <span className="text-xl font-semibold">도움이 되었어요</span>
-                </button>
-              </div>
+              <button
+                onClick={() => setShowFeedbackModal(true)}
+                className="w-full rounded-xl py-3 px-5 bg-white transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                style={{
+                  boxShadow:
+                    "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                }}
+              >
+                <ThumbsUp className="w-[18px] h-[18px] text-gray-500" strokeWidth={2.2} />
+                <span className="text-[15px] font-bold text-gray-600">도움이 되었어요</span>
+              </button>
 
               {/* Action Buttons */}
-              <div className="space-y-3 pb-4 px-4">
+              <div className="space-y-2.5 pb-4 mt-2">
                 <Link
                   href="/branch"
-                  className="w-full bg-red-600 text-white rounded-[16px] py-5 px-6 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                  className="w-full rounded-xl py-3 px-5 text-[15px] font-bold text-white active:scale-[0.98] transition-all flex items-center justify-center gap-2 bg-gradient-to-br from-blue-500 to-blue-600 shadow-[0_4px_12px_-3px_rgba(37,99,235,0.35),0_1px_2px_rgba(37,99,235,0.1)]"
                 >
                   지사 팩스번호 찾기
                 </Link>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2.5">
                   <button
                     onClick={handleSave}
-                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="rounded-xl py-3 px-4 text-[15px] font-bold text-gray-800 bg-white active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                    style={{
+                      boxShadow:
+                        "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                    }}
                   >
+                    <Download className="w-[18px] h-[18px]" strokeWidth={2.2} />
                     저장하기
                   </button>
 
                   <button
                     onClick={handleShare}
-                    className="bg-red-600 text-white rounded-[16px] py-5 px-4 text-xl font-semibold hover:bg-red-700 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center"
+                    className="rounded-xl py-3 px-4 text-[15px] font-bold text-gray-800 bg-white active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                    style={{
+                      boxShadow:
+                        "0 2px 8px -2px rgba(15,23,42,0.06), inset 0 0 0 1px rgba(15,23,42,0.06)",
+                    }}
                   >
+                    <Share2 className="w-[18px] h-[18px]" strokeWidth={2.2} />
                     공유하기
                   </button>
                 </div>
@@ -4461,13 +4651,13 @@ export default function DocumentsPage() {
         {step === 72 && situation === 'deceased' && refundAmount === 'under300k' && deceasedRelationship === 'sibling' && (
           <>
             <div className="flex flex-col gap-6 h-full overflow-y-auto">
-              <div className="bg-blue-50 rounded-2xl p-6 border-2 border-blue-300">
-                <h2 className="text-3xl font-bold text-blue-900 mb-6 flex items-center gap-2">
+              <div className="bg-white rounded-[20px] p-6 border border-blue-100 shadow-[0_4px_16px_-6px_rgba(15,23,42,0.08)]">
+                <h2 className="text-[22px] sm:text-[24px] font-extrabold tracking-[-0.03em] text-blue-700 mb-6 flex items-center gap-2">
                   <span>ℹ️</span>
                   <span>신청이 불가합니다</span>
                 </h2>
 
-                <div className="text-2xl text-blue-900 leading-relaxed mb-6">
+                <div className="text-[17px] sm:text-[18px] font-semibold text-gray-700 leading-relaxed mb-6">
                   선순위 상속인이 계실 경우
                   <br />
                   신청하실 수 없습니다.
@@ -4520,73 +4710,85 @@ export default function DocumentsPage() {
         </div>
       )}
 
-      {/* 저장 완료 피드백 모달 */}
+      {/* 피드백 모달 */}
       {showFeedbackModal && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4"
           onClick={() => setShowFeedbackModal(false)}
         >
           <div
-            className="bg-white rounded-3xl p-8 max-w-sm w-[90%] shadow-2xl animate-in slide-in-from-bottom duration-300"
+            className="bg-white rounded-3xl p-7 max-w-sm w-full"
             onClick={(e) => e.stopPropagation()}
+            style={{ boxShadow: "0 20px 60px -10px rgba(15,23,42,0.25)" }}
           >
-            <div className="text-center space-y-6">
-              {/* 체크 아이콘 */}
+            <div className="text-center space-y-5">
               <div className="flex justify-center">
-                <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
-                  <svg className="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                  </svg>
+                <div
+                  className="w-16 h-16 rounded-full flex items-center justify-center"
+                  style={{ backgroundColor: "#D4F5E5" }}
+                >
+                  <CheckCircle2
+                    className="w-9 h-9"
+                    strokeWidth={2}
+                    style={{ color: "#10925A" }}
+                  />
                 </div>
               </div>
 
-              {/* 메시지 */}
-              <div className="space-y-3">
-                <h2 className="text-3xl font-bold text-black">사진으로 저장 완료!</h2>
-                <p className="text-xl text-gray-700 leading-relaxed">
-                  필요한 서류를<br />모두 확인하셨어요
-                </p>
-                <p className="text-xl text-gray-700 leading-relaxed">
-                  이제 준비만 하시면<br />됩니다! 💪
+              <div className="space-y-2">
+                <h2
+                  className="text-[22px] font-extrabold tracking-[-0.02em]"
+                  style={{ color: "#1F2937" }}
+                >
+                  감사합니다!
+                </h2>
+                <p
+                  className="text-[15px] leading-relaxed font-medium"
+                  style={{ color: "#6B7280" }}
+                >
+                  소중한 의견 감사드립니다
                 </p>
               </div>
 
-              {/* 구분선 */}
-              <div className="border-t border-black my-6"></div>
+              <div
+                className="border-t my-2"
+                style={{ borderColor: "#F1F5F9" }}
+              />
 
-              {/* 피드백 질문 */}
-              <div className="space-y-4">
-                <p className="text-xl text-gray-700 font-semibold">이 안내가<br />도움이 되셨나요?</p>
+              <div className="space-y-3">
+                <p
+                  className="text-[15px] font-bold"
+                  style={{ color: "#1F2937" }}
+                >
+                  이 안내가 도움이 되셨나요?
+                </p>
 
-                {/* 이모지 버튼들 */}
-                <div className="flex justify-center gap-6 pt-2">
-                  <button
-                    onClick={() => {
-                      recordSatisfaction('good').then(() => setShowFeedbackModal(false));
-                    }}
-                    className="flex flex-col items-center gap-2 p-4 rounded-2xl hover:bg-gray-100 active:scale-95 transition-all"
-                  >
-                    <span className="text-5xl">😊</span>
-                    <span className="text-sm text-gray-600">좋아요</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      recordSatisfaction('neutral').then(() => setShowFeedbackModal(false));
-                    }}
-                    className="flex flex-col items-center gap-2 p-4 rounded-2xl hover:bg-gray-100 active:scale-95 transition-all"
-                  >
-                    <span className="text-5xl">😐</span>
-                    <span className="text-sm text-gray-600">보통</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      recordSatisfaction('bad').then(() => setShowFeedbackModal(false));
-                    }}
-                    className="flex flex-col items-center gap-2 p-4 rounded-2xl hover:bg-gray-100 active:scale-95 transition-all"
-                  >
-                    <span className="text-5xl">😢</span>
-                    <span className="text-sm text-gray-600">아쉬워요</span>
-                  </button>
+                <div className="flex justify-center gap-3 pt-1">
+                  {[
+                    { emoji: "😊", label: "좋아요", value: "good" as const },
+                    { emoji: "😐", label: "보통", value: "neutral" as const },
+                    { emoji: "😢", label: "아쉬워요", value: "bad" as const },
+                  ].map((opt) => (
+                    <button
+                      key={opt.value}
+                      onClick={() => {
+                        recordSatisfaction(opt.value).then(() =>
+                          setShowFeedbackModal(false)
+                        );
+                      }}
+                      className="flex-1 flex flex-col items-center gap-1 p-3 rounded-2xl hover:bg-gray-50 active:scale-95 transition-all border border-gray-100"
+                    >
+                      <span className="text-[36px] leading-none">
+                        {opt.emoji}
+                      </span>
+                      <span
+                        className="text-[12px] font-semibold"
+                        style={{ color: "#6B7280" }}
+                      >
+                        {opt.label}
+                      </span>
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
